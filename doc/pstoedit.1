@@ -1,72 +1,107 @@
 '\" t
-.\" Manual page created with latex2man on Son Okt 10 20:55:46 CEST 1999
+.\" Manual page created with latex2man on Son Dez 30 21:33:21 CET 2001
 .\" NOTE: This file is generated, DO NOT EDIT.
-.TH "PSTOEDIT" "1" "1999/10/10" "Conversion Tools "
-.SH
-NAME
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "PSTOEDIT" "1" "2001/12/30" "Conversion Tools "
+.SH NAME
 pstoedit
 \- a tool converting PostScript and PDF files into various 
 vector graphic formats 
 .PP
-.SH
-SYNOPSIS
+.SH SYNOPSIS
 .PP
-.SS
-FROM THE COMMAND SHELL
+.SS FROM THE COMMAND SHELL
 .PP
 pstoedit
 [
-.B "\-t \-help"
+.B "\-v \-help"
 ]
 .PP
 pstoedit
 [
-.BI "\-df" " fontname"
-][
-.BI "\-fontmap" " file"
-][
+.B "\-adt"
+]
+[
+.BI "\-df"[" fontname"]
+]
+[
 .B "\-dis"
 ]
 [
 .B "\-dt"
 ]
 [
-.BI "\-flat" " number"
+.BI "\-flat"[" number"]
 ]
 [
-.BI "\-include" " includefile"
+.BI "\-fontmap"[" file"]
+]
+[
+.BI "\-include"[" includefile"]
 ]
 [
 .B "\-merge"
-][
-.B "\-nomaptoisolatin1"
-][
+]
+[
 .B "\-nb"
-][
+]
+[
+.B "\-nfr"
+]
+[
+.B "\-nomaptoisolatin1"
+]
+[
 .B "\-nq"
 ]
 [
-.BI "\-page" " number"
-][
-.BI "\-psarg" "string"
-][
-.BI "\-pagesize" "string"
+.BI "\-page"[" number"]
 ]
 [
-.BI "\-scale" "factor"
-][
+.BI "\-pagesize"[" string"]
+]
+[
+.BI "\-psarg"[" string"]
+]
+[
+.B "\-pti or \-pta"
+]
+[
+.B "\-rgb"
+]
+[
+.BI "\-rotate"[" angle (0\-360)"]
+]
+[
+.BI "\-scale"[" factor"]
+]
+[
 .B "\-sclip"
-][
-.B "\-split"
-][
+]
+[
 .B "\-ssp"
+]
+[
+.B "\-split"
+]
+[
+.B "\-t2fontsast1"
+]
+[
+.BI "\-uchar"[" character"]
 ]
 [
 .B "\-v"
 ]
-.BI "\-f" " format"[
-.I ":options"
-] 
+.BI "\-f" " "format[:options]""
 [
 .IR "inputfile"
 [
@@ -75,44 +110,37 @@ pstoedit
 .PP
 pstoedit
 [
-.BI "\-scale" " factor"
+.BI "\-scale"[" factor"]
 ]
-.BI "\-f" " format"[
-.I ":options"
-]
+.BI "\-f" " "format[:options]""
 .BR "\-bo"
-.IR "inputfile"
+.IR "input\-file"
 [
-.I "outputfile"
+.I "output\-file"
 ]
 .PP
-.SS
-FROM GSVIEW
+.SS FROM GSVIEW
 .PP
 From within gsview pstoedit can be called via 
 "
 .BR "Edit | Convert to vector format""
 .PP
-.SS
-FROM PROGRAMS THAT SUPPORT THE ALDUS GRAPHIC IMPORT FILTER INTERFACE
+.SS FROM PROGRAMS THAT SUPPORT THE ALDUS GRAPHIC IMPORT FILTER INTERFACE
 .PP
 pstoedit
 can also be used as PostScript and PDF graphic import filter for several programs including 
-MS\-Office 95/97, PaintShop\-Pro and PhotoLine. See 
-.BR "http://www.geocities.com/SiliconValley/Network/1958/importps/"
+MS\-Office 95/97,2000, PaintShop\-Pro and PhotoLine. See 
+.BR "http://www.pstoedit.net/importps/"
 for more 
 details. 
 .PP
-.SH
-DESCRIPTION
+.SH DESCRIPTION
 .PP
-.SS
-RELEASE LEVEL
+.SS RELEASE LEVEL
 .PP
-This manpage documents release 3.1x of pstoedit.
+This manpage documents release 3.31 of pstoedit.
 .PP
-.SS
-USE
+.SS USE
 .PP
 pstoedit
 converts PostScript and PDF files to various vector graphic 
@@ -124,15 +152,14 @@ packages. Type
 to get a list of supported output formats. Pstoedit comes with a 
 large set of format drivers integrated in the binary. Additional drivers can be 
 installed as plugins and are available via 
-.BR "http://www.geocities.com/SiliconValley/Network/1958/plugins/".
+.BR "http://www.pstoedit.net/plugins/".
 Just 
 copy the plugins to the same directory where the pstoedit binary is installed. 
 However, unless you also get a license key for the plugins, the additional 
 drivers will slightly distort the resulting graphics. See the documentation 
 provided with the plugins for further details. 
 .PP
-.SS
-PRINCIPLE OF CONVERSION
+.SS PRINCIPLE OF CONVERSION
 .PP
 pstoedit
 works by redefining the two basic painting operators of 
@@ -141,7 +168,7 @@ PostScript,
 and 
 .BR "show"
 (bitmaps drawn by the image 
-operator are currently only supported by the xfig and the MIF backend.) After 
+operator are not supported by all backends.) After 
 redefining these operators, the PostScript or PDF file that needs to be 
 converted is processed by a PostScript interpreter, e.g., Ghostscript 
 (
@@ -164,22 +191,57 @@ This output is read by end\-processing functions of pstoedit
 and triggers 
 the drawing functions in the selected back end driver, or backend. 
 .PP
-.SS
-NOTES
+.SS NOTES
 .PP
 If you want to process PDF files directly, your PostScript interpreter must 
 provide this feature, as does Ghostscript. Aladdin Ghostscript 4.03 or later is 
 recommended for processing PDF (and PostScript Level 2) files. 
 .PP
-.SH
-OPTIONS
+.SH OPTIONS
 .PP
 .TP
 .BR "\-dt"
-Text is drawn as polygons. This might produce a large output file. This option is automatically 
+Draw text \- Text is drawn as polygons. This might produce a large output file. This option is automatically 
 switched on if the selected backend does not support this, e.g. 
 .I "gnuplot"
 (1).
+.PP
+.TP
+.BR "\-adt"
+Automatic Draw text \- This option turns on the \-dt option selectively for fonts that seem to be no normal text fonts, e.g. Symbol.. 
+.PP
+.TP
+.BR "\-t2fontsast1"
+Handle type 2 fonts same as type 1. Type 2 fonts sometimes occur as 
+embedded fonts within PDF files. In the default mode, text using such fonts is drawn as polygons 
+since pstoedit assumes that such a font is not available on the users machine. If this option 
+is set, pstoedit assumes that the internal encoding follows the same as for a standard font 
+and generates normal text output. This assumption may not be true in all cases. But it 
+is nearly impossible for pstoedit to verify this assumption \- it would have to do a sort of OCR. 
+.PP
+.TP
+.BR "\-pti or \-pta"
+Precision text \- With 
+.BR "\-pta",
+each character of a text string is placed 
+separately. With 
+.BR "\-pti",
+this is done only in cases when there is a non zero inter\-letter 
+spacing. Normally 
+a text string is drawn as it occurs in the input file. However, in some situations, this might 
+produce wrongly positioned characters. This is due to limitiations in most backends of 
+pstoedit. They cannot represent text with arbitray inter\-letter spacing which is easily 
+possible in PDF and PostScript. The downside of "precision text" is a bigger file size and hard to edit 
+text. 
+.PP
+.TP
+.BR "\-nfr"
+In normal mode pstoedit replaces bitmap fonts with a font as defined by the 
+.BR "\-df"
+option. This is done, because most backends can't handle such fonts. This behavior can be 
+switched off using the 
+.BR "\-nfr"
+option but then it strongly depends on the application reading the the generated file whether the file is usable and correctly interpreted or not. Any problems are then out of control of pstoedit. 
 .PP
 .TP
 .BR "\-dis"
@@ -233,11 +295,30 @@ Select a single page from a multi page
 PostScript or PDF file. 
 .PP
 .TP
+.BI "\-rotate" " angle (0\-360)"
+Rotage image by angle. 
+.PP
+.TP
+.BR "\-rgb"
+Since version 3.30 pstoedit uses the CMYK colors internally. The \-rgb option turns on the old behavior to use RGB values. 
+.PP
+.TP
 .BR "\-split"
 Create a new file for each page of the input. For this the 
 output filename must contain a %d which is replaced with the current page 
 number. This option is automatically switched on for backends that don't 
 support multiple pages within one file, e.g. fig or gnuplot. 
+.PP
+.TP
+.BI "\-uchar" " character"
+Sometimes pstoedit cannot map a character 
+from the encoding used by the PostScript file to the font encoding of the target 
+format. In this case pstoedit replaces the input character by a special character 
+in order to show all the places that couldn't be mapped correctly. The default 
+for this is a "#". Using the 
+.BR "\-uchar"
+option it is possible to specify another character 
+to be used instead. If you want to use a space, use \-uchar " ". 
 .PP
 .TP
 .BI "\-df" " fontname"
@@ -295,8 +376,7 @@ installation directory is:
 .RE
 .TP
 .B *
-Windows: The same directory where the pstoedit
-executable is 
+Windows: The same directory where the pstoedit executable is
 located 
 .RS
 .PP
@@ -451,7 +531,7 @@ option.
 .TP
 .BR "\-nq"
 No exit from the PostScript interpreter. Normally Ghostscript 
-exits after processing the pstoedit inputfile. For debugging it can be 
+exits after processing the pstoedit input\-file. For debugging it can be 
 useful to avoid this. If you do, you will have to type quit at the 
 GS> prompt to exit from Ghostscript. 
 .PP
@@ -470,20 +550,19 @@ then the encoding from the input PostScript is
 passed unchanged to the output. 
 .PP
 .TP
-.IR "inputfile"
-input file. 
+.IR "input\-file"
+input file. If a "\-" is given, standard input is used. 
 .PP
 .TP
-.IR "outputfile"
-output file. If no output file is given as argument, 
+.IR "output\-file"
+output file. If no output file or "\-" is given as argument, 
 pstoedit
 writes the result to standard output. 
 .PP
 If neither an input nor an output file is given as argument, pstoedit works as filter reading from standard input and 
 writing to standard output. 
 .PP
-.SH
-BACK END\-SPECIFIC OPTIONS
+.SH BACK END\-SPECIFIC OPTIONS
 .PP
 pstoedit
 allows you to pass individual options to a backend. This is done by 
@@ -496,10 +575,13 @@ option needs to be passed to the backend, the whole argument to
 must be 
 enclosed within double\-quote characters, thus: 
 .PP
-.BR "\-f"
-.BR " ""
-.BR "format:option option ..."
-.BR """
+.BI "\-f" " "format[:option option ...]""
+.PP
+To see which options are supported by a specific format, type: 
+.BR "pstoedit \-f format:\-help"
+.PP
+The following description is it not up to date at the moment. Sorry! Please use the above command 
+to get a current list of options supported by the specific format. 
 .PP
 Currently 
 .IR "met",
@@ -507,7 +589,10 @@ Currently
 .IR "dxf",
 .IR "pic",
 .IR "fig",
-.IR "metapost"
+.IR "metapost",
+.IR "LaTeX2e",
+.IR "mif",
+.IR "emf",
 and 
 .IR "wmf"
 are the only drivers accepting specific options. 
@@ -516,26 +601,27 @@ VARIABLES" below.
 .PP
 The 
 .IR "wmf"
-driver supports two backend specific options, '
-.BR "v"'
-and 
-'
-.BR "e"'.
+and the 
+.IR "emf"
+driver supports the following backend specific options: 
 .PP
 .TP
-.BR "\-f wmf:v"
-turns on a verbose mode; 
-.PP
+.BR "\-f wmf:m"
+Maps all fonts in the document to Arial (should be 
+available on every Windows installation) 
 .TP
-.BR "\-f wmf:e"
-tells pstoedit
-to generate an enhanced metafile 
-instead of a normal metafile. 
-.PP
+.BR "\-f wmf:n"
+Emulate narrow fonts by shrinking fonts horizontally 
+(sometimes does not look that good, but it's the only chance, when 
+requested font weight is not available. And this is quite common for 
+off\-the\-shelf Windows installations) 
 .TP
-.BR "\-f wmf:ve"
-specifies both verbose mode and enhanced metafile 
-output. 
+.BR "\-f wmf:b"
+DON'T draw two white border pixel (upper left and lower 
+right corner). They are normally drawn to keep content always within 
+bounding box (is sometimes clipped otherwise, i.e. Windows doesn't 
+respect pen thickness or rotated text extents). 
+This could be done more smarter for EMF, have to figure out... 
 .PP
 The 
 .IR "java"
@@ -565,9 +651,6 @@ backend allows the following single character options (without a
 leading \-) 
 .PP
 .TP
-.BR "w"
-Draw into an opened window instead of a metafile. 
-.TP
 .BR "p"
 Draw no geometric linewidths, all lines have a width of zero. 
 .TP
@@ -584,12 +667,12 @@ Omit all text.
 Omit all graphics. 
 .TP
 .BR "v"
-Put verbose output to drvMET.out.
+Put verbose output to STDERR.
 .PP
 Example: 
 .BR "\-f"
 .BR " ""
-.BR "met:wlc"
+.BR "met:lc"
 .BR """
 .PP
 The 
@@ -634,9 +717,13 @@ The
 driver accepts the following options: 
 .PP
 .TP
-.BR "\-f31"
-tells the driver to output the version 31 format instead 
-of the default version 32 format. 
+.BR "\-startdepth"
+Fig knows about 999 layers (0 is the topmost, 999 the backmost). Per 
+default, pstoedit starts with layer 999 and then places all subsequent 
+objects on lower layers (on top of the previous objects). This can result 
+in problems if you want to put something "below" all the objects that 
+were created by pstoedit. In such a case you should define a lower number 
+to leave some space behind. 
 .PP
 .TP
 .BR "\-depth"
@@ -665,6 +752,40 @@ enables the conversion of text into boxes with hyperlink attributes. More
 options allowing finer control about this new feature will follow in 
 future versions. 
 .PP
+The 
+.IR "tk"
+driver supports the following backend specific options: 
+.PP
+.TP
+.BR "\-f tk:I"
+Disables ImPress specific formatting. Only canvas 
+objects will be output. 
+.TP
+.BR "\-f tk:N tagname"
+Adds a specific tag to all objects. If ImPress 
+formatting is enabled, the items will be grouped. 
+.TP
+.BR "\-f tk:n tagname"
+Deprecated option. Behaves like N. 
+.TP
+.BR "\-f tk:R"
+If ImPress formatting is enabled, swap the Width and 
+Height associated with the pagesize. 
+.PP
+The 
+.IR "mif"
+backend allows the following options: 
+.PP
+.TP
+.BR "\-f mif:\-nopage"
+Generates an anchored frame instead of a full page. 
+This is useful, if you want to insert a figure into an existing document. 
+.PP
+.TP
+.BR "\-f mif:\-imagesaspng"
+Bitmap images are written as PNG files instead 
+of EPS. This is still experimental but should work for non rotated bitmaps. 
+.PP
 The GNU libplot driver (
 .IR "gmfa",
 .IR "gmfb",
@@ -672,8 +793,18 @@ The GNU libplot driver (
 provides a huge 
 set of options. All these are described in the header of the drvlplot.cpp file. 
 .PP
-.SS
-NOTES
+.SS NOTES
+.PP
+.TP
+autotrace:
+.PP
+pstoedit cooperates with autotrace. Autotrace can now produce a dump file 
+for further processing by pstoedit using the 
+.BR "\-bo"
+(backend only) option. 
+Autotrace is a program written by a group around Martin Weber and can be 
+found at 
+.BR "http://sourceforge.net/projects/autotrace/".
 .PP
 .TP
 Ps2ai:
@@ -689,11 +820,13 @@ be much better. Anyone out there to take this ? The AI format is usable for
 example by Mayura Draw (
 .BR "http://www.mayura.com").
 Also a driver to the 
-Mayura native format would be nice. In order to make this driver work 
-correctly, you have to apply the following simple patch to the 
+Mayura native format would be nice. 
+.PP
+If you have a version of GhostScript older than 5.60, then 
+you have to apply the following simple patch to the 
 ps2ai.ps
-file (I hope this will go into future releases of 
-GhostScript): 
+file in order to make this driver work. 
+This patch is already included in newer versions of GhostScript. 
 .PP
 After the line "/vers {2.13} def" insert: 
 .PP
@@ -750,6 +883,61 @@ For more on MetaPost see:
 .BR "http://cm.bell\-labs.com/who/hobby/MetaPost.html"
 .PP
 .TP
+LaTeX2e:
+.br
+.PP
+.RS
+.TP
+.B *
+LaTeX2e's picture environment is not very powerful. As a result, many 
+elementary PostScript constructs are ignored \-\- fills, line 
+thicknesses (besides "thick" and "thin"), and dash patterns, to name a 
+few. Furthermore, complex pictures may overrun TeX's memory capacity. 
+.RS
+.PP
+.RE
+.TP
+.B *
+Some PostScript constructs are not supported directly by "picture", 
+but can be handled by external packages. If a figure uses color, the 
+top\-level document will need to do a "\\usepackage{color}". And if a 
+figure contains rotated text, the top\-level document will need to do a 
+"\\usepackage{rotating}". 
+.RS
+.PP
+.RE
+.TP
+.B *
+All lengths, coordinates, and font sizes output by the backend are in 
+terms of \\unitlength, so scaling a figure is simply a matter of doing 
+a "\\setlength{\\unitlength}{...}". 
+.RS
+.PP
+.RE
+.TP
+.B *
+The backend currently supports one backend\-specific option, 
+"integers", which rounds all lengths, coordinates, and font sizes to 
+the nearest integer. This makes hand\-editing the picture a little 
+nicer. 
+.RS
+.PP
+.RE
+.TP
+.B *
+Why is this backend useful? One answer is portability; any LaTeX2e 
+system can handle the picture environment, even if it can't handle 
+PostScript graphics. (pdfLaTeX comes to mind here.) A second answer 
+is that pictures can be edited easily to contain any arbitrary LaTeX2e 
+code. For instance, the text in a figure can be modified to contain 
+complex mathematics, non\-Latin alphabets, bibliographic citations, or 
+\-\- the real reason Scott wrote the LaTeX2e backend \-\- hyperlinks to the 
+surrounding document (with help from the hyperref package). 
+.RE
+.RS
+.PP
+.RE
+.TP
 creating a new backend:
 .PP
 To implement a new backend you can start from drvsampl.cpp
@@ -761,8 +949,7 @@ drvfuncs.h
 for an explanation of methods that should be implemented 
 for a new backend. 
 .PP
-.SS
-ENVIRONMENT VARIABLES
+.SS ENVIRONMENT VARIABLES
 .PP
 A default PostScript interpreter to be called by pstoedit is specified at 
 compile time. You can overwrite the default by setting the GS environment 
@@ -791,8 +978,7 @@ for descriptions of environment variables used. On UNIX like system this is
 probably the TMPDIR variable, on DOS/WINDOWS either TMP or 
 TEMP. 
 .PP
-.SS
-SYSTEM SPECIFIC NOTES
+.SS SYSTEM SPECIFIC NOTES
 .PP
 .TP
 DOS/WINDOWS
@@ -803,19 +989,11 @@ only. It might run under WIN32s, but certainly does not run under plain
 .PP
 pstoedit
 works best if you installed at least version 5.50 of 
-GhostScript and version 2.71 of gsview. Using older version of 
+GhostScript and version 2.72 of gsview. Using older version of 
 GhostScript is possible but requires the setting of some environment 
 variables. 
 .PP
-.TP
-OS/2
-.PP
-When running pstoedit
-on OS/2 you need to call it using the 
-script ps2edit.cmd.
-.PP
-.SS
-TROUBLE SHOOTING
+.SS TROUBLE SHOOTING
 .PP
 If you have problems with pstoedit
 first try whether Ghostscript 
@@ -856,8 +1034,7 @@ length \- "get the length of e.g. a string" to a "float constant"
 I've included work\-arounds for the ones mentioned above, but some others 
 could show up in addition to those. 
 .PP
-.SS
-RESTRICTIONS
+.SS RESTRICTIONS
 .PP
 Non\-standard fonts (e.g. TeXbitmap fonts) are mapped to a default font which 
 can be changed using the 
@@ -868,28 +1045,29 @@ the replacement font such that the width of the string in the original font is
 the same as in the replacement font. This is done for each text fragment 
 displayed. Special character encoding support is limited in this case. If a 
 character cannot be mapped into the target format, pstoedit displays a '#' 
-instead. 
+instead. See also the \-uchar option. 
 .PP
-pstoedit supports bitmap graphics only for the xfig and MIF backends. 
+pstoedit supports bitmap graphics only for some backends. 
 .PP
 The Gnuplot backend and the 3D backends (rpl, lwo, rib) do not support text. 
 .PP
-The OS/2 met backend sometimes causes the viewer to fail, although drawing 
-directly to screen works. This problem is solved with OS/2 FixPak 22. 
+Generally, pstoedit does not support clipping. You can try to use the 
+.BR "\-sclip"
+option to simulate clipping. However, this doesn't work in all cases 
+as expected. 
 .PP
-Generally, pstoedit does not support clipping. 
+Special note about the Java backends (java1 and java2) 
 .PP
-Special note about the Java backend 
-.PP
-The java backend generates a java source file that needs other files in 
+The java backends generate a java source file that needs other files in 
 order to be compiled and usable. These other files are Java classes (one 
 applet and support classes) that allow to step through the individual pages 
 of a converted PostScript document. This applet can easily be activated from 
-a html\-document. See the java/readme_java.txt
+a html\-document. See the java/java1/readme_java1.txt
+or 
+java/java2/readme_java2.htm
 file for more details. 
 .PP
-.SS
-FAQS
+.SS FAQS
 .PP
 Why do letters like O or B get strange if converted to tgif/xfig 
 using the 
@@ -907,27 +1085,31 @@ version 3.11 you can try the
 option in combination with the xfig 
 backend. 
 .PP
-.SS
-NOTICES
+Why does pstoedit produce ugly results from PostScript files generated 
+by dvips? 
 .PP
-.SS
-AUTHOR
+TeX documents usually use bitmap fonts. Such fonts cannot be used as native 
+font in other format. So pstoedit replaces the TeX font with another native 
+font. Of course, the replacement font will in most cases produce another 
+look, especially if mathematical symbols are used. 
+.PP
+.SS NOTICES
+.PP
+.SS AUTHOR
 .PP
 Wolfgang Glunz, 
-.BR "wglunz@geocities.com"
+.BR "wglunz@pstoedit.net"
 .PP
-.SS
-CANONICAL ARCHIVE SITE
+.SS CANONICAL ARCHIVE SITE
 .PP
-.BR "http://www.geocities.com/SiliconValley/Network/1958/pstoedit/"
+.BR "http://www.pstoedit.net/pstoedit/"
 .PP
 At this site you also find more information about pstoedit
 and related 
 programs and hints how to subscribe to a mailing list in order to get informed 
 about new releases and bug\-fixes. 
 .PP
-.SS
-ACKNOWLEDGEMENTS
+.SS ACKNOWLEDGEMENTS
 .PP
 .TP
 .B *
@@ -938,8 +1120,7 @@ wrote the initial version of this manpage.
 .TP
 .B *
 Lar Kaufman 
-.BR "lark@walden.com"
-revised the increasingly complex 
+.BR "lark@walden.com" revised the increasingly complex
 command syntax diagrams and updated the structure and content of this 
 manpage following release 2.5. (
 .BR "http://www.walden.com/ lark/")
@@ -947,57 +1128,50 @@ manpage following release 2.5. (
 .TP
 .B *
 David B. Rosen 
-.BR "rosen@unr.edu provided"
-ideas and some PostScript 
+.BR "rosen@unr.edu" provided ideas and some PostScript
 code from his ps2aplot program. 
 .PP
 .TP
 .B *
 Ian MacPhedran 
-.BR "Ian_MacPhedran@engr.USask.CA"
-provided the xfig 
+.BR "Ian_MacPhedran@engr.USask.CA" provided the xfig
 backend. 
 .PP
 .TP
 .B *
 Carsten Hammer 
-.BR "chammer@hermes.hrz.uni\-bielefeld.de"
-provided the 
+.BR "chammer@hermes.hrz.uni\-bielefeld.de" provided the
 gnuplot backend and the initial DXF backend. 
 .PP
 .TP
 .B *
-Christoph Jaeschke 
-.BR "jaeschke@imbe05.imbe.uni\-bremen.de"
-provided 
-the OS/2 metafile (MET) backend. 
+Christoph Jaeschke provided the OS/2 metafile (MET) backend. 
+Thomas Hoffmann 
+.BR "thoffman@zappa.sax.de"
+did some further updates on the OS/2 part. 
 .PP
 .TP
 .B *
 Jens Weber 
-.BR "rz47b7@PostAG.DE"
-provided the Windows metafile (WMF) 
+.BR "rz47b7@PostAG.DE" provided the Windows metafile (WMF)
 backend, and a graphical user interface (GUI). 
 .PP
 .TP
 .B *
 G. Edward Johnson 
-.BR "lorax@nist.gov"
-provided the CGM Draw library 
+.BR "lorax@nist.gov" provided the CGM Draw library
 used in the CGM backend. 
 .PP
 .TP
 .B *
 Gerhard Kircher 
-.BR "kircher@edvz.tuwien.ac.at"
-provided some bug 
+.BR "kircher@edvz.tuwien.ac.at" provided some bug
 fixes. 
 .PP
 .TP
 .B *
 Bill Cheng 
-.BR "william@cs.columbia.edu"
-provided help with the tgif 
+.BR "william@cs.columbia.edu" provided help with the tgif
 format and some changes to tgif to make the backend easier to implement. 
 URL:
 .BR "http://www.cs.columbia.edu/ william"
@@ -1005,16 +1179,14 @@ URL:
 .TP
 .B *
 Reini Urban 
-.BR "rurban@sbox.tu\-graz.ac.at"
-provided input for the 
+.BR "rurban@sbox.tu\-graz.ac.at" provided input for the
 extended DXF backend.(
 .BR "http://xarch.tu\-graz.ac.at/autocad/")
 .PP
 .TP
 .B *
 Glenn M. Lewis 
-.BR "glenn@gmlewis.com"
-provided RenderMan (RIB), 
+.BR "glenn@gmlewis.com" provided RenderMan (RIB),
 Real3D (RPL), and LightWave 3D (LWO) backends. 
 (
 .BR "http://www.gmlewis.com/")
@@ -1022,21 +1194,18 @@ Real3D (RPL), and LightWave 3D (LWO) backends.
 .TP
 .B *
 Piet van Oostrum 
-.BR "piet@cs.ruu.nl"
-made several bug fixes. 
+.BR "piet@cs.ruu.nl" made several bug fixes.
 .PP
 .TP
 .B *
 Lutz Vieweg 
-.BR "lkv@mania.robin.de"
-provided several bug fixes and 
+.BR "lkv@mania.robin.de" provided several bug fixes and
 suggestions for improvements. 
 .PP
 .TP
 .B *
 Derek B. Noonburg 
-.BR "derekn@vw.ece.cmu.edu"
-and Rainer Dorsch 
+.BR "derekn@vw.ece.cmu.edu" and Rainer Dorsch
 .BR "rd@berlepsch.wohnheim.uni\-ulm.de"
 isolated and resolved a 
 Linux\-specific core dump problem. 
@@ -1044,104 +1213,122 @@ Linux\-specific core dump problem.
 .TP
 .B *
 Rob Warner 
-.BR "rcw2@ukc.ac.uk"
-made pstoedit compile under RiscOS. 
+.BR "rcw2@ukc.ac.uk" made pstoedit compile under RiscOS.
 .PP
 .TP
 .B *
 Patrick Gosling 
-.BR "jpmg@eng.cam.ac.uk"
-made some suggestions 
+.BR "jpmg@eng.cam.ac.uk" made some suggestions
 regarding the usage of pstoedit in Ghostscript's SAFER mode. 
 .PP
 .TP
 .B *
 Scott Pakin 
-.BR "pakin@cs.uiuc.edu"
-for the Idraw backend. 
+.BR "pakin@cs.uiuc.edu" for the Idraw backend and the
+autoconf support. 
 .PP
 .TP
 .B *
 Peter Katzmann 
-.BR "p.katzmann@thiesen.com"
-for the HPGL backend. 
+.BR "p.katzmann@thiesen.com" for the HPGL backend.
 .PP
 .TP
 .B *
 Chris Cox 
-.BR "ccox@airmail.net"
-contributed the Tcl/Tk backend. 
+.BR "ccox@airmail.net" contributed the Tcl/Tk backend.
 .PP
 .TP
 .B *
 Thorsten Behrens 
-.BR "Thorsten_Behrens@public.uni\-hamburg.de"
-and 
+.BR "Thorsten_Behrens@public.uni\-hamburg.de" and
 Bjoern Petersen for reworking the WMF backend. 
 .PP
 .TP
 .B *
 Leszek Piotrowicz 
-.BR "leszek@sopot.rodan.pl"
-implemented the image 
+.BR "leszek@sopot.rodan.pl" implemented the image
 support for the xfig driver and a JAVA based GUI. 
 .PP
 .TP
 .B *
 Egil Kvaleberg 
-.BR "egil@kvaleberg.no"
-contributed the pic backend. 
+.BR "egil@kvaleberg.no" contributed the pic backend.
 .PP
 .TP
 .B *
 Kai\-Uwe Sattler 
-.BR "kus@iti.cs.uni\-magdeburg.de"
-implemented the 
-backend for Killustrator. 
+.BR "kus@iti.cs.uni\-magdeburg.de" implemented the
+backend for Kontour. 
 .PP
 .TP
 .B *
-Scott Pakin, pakin@cs.uiuc.edu provided the MetaPost backend. 
+Scott Pakin, pakin@cs.uiuc.edu provided the MetaPost and LaTeX2e backend. 
 .PP
 .TP
 .B *
 Burkhard Plaum (
-.BR "plaum@IPF.Uni\-Stuttgart.de")
-added support for 
+.BR "plaum@IPF.Uni\-Stuttgart.de") added support for
 complex filled paths for the xfig backend. 
 .PP
 .TP
 .B *
 Bernhard Herzog (
-.BR "herzog@online.de")
-contributed the backend for 
-sketch ( http://www.online.de/home/sketch/ ) 
+.BR "herzog@online.de") contributed the backend for
+sketch ( 
+.BR "http://sketch.sourceforge.net/"
+) 
 .PP
 .TP
 .B *
 Rolf Niepraschk (
-.BR "niepraschk@ptb.de")
-converted the HTML man page 
+.BR "niepraschk@ptb.de") converted the HTML man page
 to LaTeX. This allows to generate the UNIX style and the HTML manual from this 
 base format. 
 .PP
 .TP
 .B *
-several others sent smaller bug fixed and bug reports. Sorry if I don't 
+Several others sent smaller bug fixed and bug reports. Sorry if I don't 
 mention them all here. 
 .PP
 .TP
 .B *
+Gisbert W. Selke (
+.BR "gisbert@tapirsoft.de") for the Java 2 backend.
+.PP
+.TP
+.B *
+Robert S. Maier (
+.BR "rsm@math.arizona.edu") for many improvements on
+the libplot backend and for libplot itself. 
+.TP
+.B *
+The authors of pstotext (
+.BR "mcjones@pa.dec.com" and 
+.BR "birrell@pa.dec.com")
+for giving me the permission to use their simple PostScript code for 
+performing rotation. 
+.TP
+.B *
+Daniel Gehriger 
+.BR "gehriger@linkcad.com" for his help concerning the handling of Splines in the DXF format.
+.TP
+.B *
+Allen Barnett 
+.BR "libemf@lignumcomputing.com" for his work on the libEMF which allows to create WMF/EMF files under *nix systems.
+.TP
+.B *
+Dave 
+.BR "dave@opaque.net" for providing the libming which is a multiplatform library for generating SWF files.
+.TP
+.B *
 But most important: Peter Deutsch 
-.BR "ghost@aladdin.com"
-and Russell 
+.BR "ghost@aladdin.com" and Russell
 Lang 
 .BR "gsview@ghostgum.com.au"
 for their help and answers regarding 
 GhostScript and gsview. 
 .PP
-.SS
-LEGAL NOTICES
+.SS LEGAL NOTICES
 .PP
 Trademarks mentioned are the property of their respective owners. 
 .PP

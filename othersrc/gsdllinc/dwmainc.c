@@ -39,7 +39,16 @@
 /* Russell Lang  1998-01-06 */
 #include "cppcomp.h"
 
+#if defined (_WIN32)
 #include <windows.h>
+// the next define is needed in gsdll.h
+#define _Windows
+
+#elif defined (__OS2__)
+#define INCL_DOS
+#define INCL_WIN
+#include <os2.h>
+#endif
 
 #include I_stdio
 #include I_string_h
@@ -49,8 +58,12 @@
 #include "gsdll.h"
 
 #define MAXSTR 256
+#if defined (_WIN32)
 const char *szDllName = "gsdll32.dll";
-char start_string[] = "systemdict /start get exec\n";
+#elif defined (__OS2__)
+const char *szDllName = "GSDLL2.DLL";
+#endif
+const char start_string[] = "systemdict /start get exec\n";
 int debug = FALSE;
 
 
@@ -58,7 +71,11 @@ int debug = FALSE;
 /* main structure with info about the GS DLL */
 typedef struct tagGSDLL {
 	BOOL		valid;		/* true if loaded */
+#if defined (_WIN32)
 	HINSTANCE	hmodule;	/* handle to module */
+#elif defined (__OS2__)
+        HMODULE hmodule;		/* handle to module */
+#endif
 	/* pointers to DLL functions */
 	PFN_gsdll_revision	revision;
 	PFN_gsdll_init		init;
@@ -67,11 +84,17 @@ typedef struct tagGSDLL {
 	PFN_gsdll_execute_end	execute_end;
 	PFN_gsdll_exit		exit;
 	PFN_gsdll_lock_device	lock_device;
+#if defined (_WIN32)
 	PFN_gsdll_copy_dib	copy_dib;
 	PFN_gsdll_copy_palette	copy_palette;
 	PFN_gsdll_draw		draw;
 	/* pointer to mswindll device */
 	char FAR *device;
+#elif defined (__OS2__)
+        PFN_gsdll_get_bitmap    get_bitmap;
+        /* pointer to os2dll device */
+        char *device;
+#endif
 } GSDLL;
 GSDLL gsdll;
 
@@ -105,12 +128,19 @@ BOOL
 gs_free_dll(void)
 {
 BOOL flag;
+#if defined (_WIN32)
     if (gsdll.hmodule < (HINSTANCE)HINSTANCE_ERROR) 
 	flag = TRUE;
     else
         flag = FreeLibrary(gsdll.hmodule);
     gsdll.hmodule = NULL;
-
+#elif defined (__OS2__)
+    if (gsdll.hmodule == (HMODULE) NULL)
+	flag=TRUE;
+    else
+      flag = !DosFreeModule(gsdll.hmodule);
+    gsdll.hmodule = (HMODULE) NULL;
+#endif
     gsdll.revision = NULL;
     gsdll.init = NULL;
     gsdll.execute_begin = NULL;
@@ -118,9 +148,13 @@ BOOL flag;
     gsdll.execute_end = NULL;
     gsdll.exit = NULL;
     gsdll.lock_device = NULL;
+#if defined (_WIN32)
     gsdll.copy_dib = NULL;
     gsdll.copy_palette = NULL;
     gsdll.draw = NULL;
+#elif defined (__OS2__)
+    gsdll.get_bitmap = NULL;
+#endif
 
     gsdll.device = NULL;
 
@@ -139,6 +173,7 @@ gs_load_dll_cleanup(void)
 BOOL
 gs_load_dll(void)
 {
+#if defined (_WIN32)
 	// long version;
     gsdll.hmodule = LoadLibrary(szDllName);
     if (gsdll.hmodule < (HINSTANCE)HINSTANCE_ERROR)
@@ -189,6 +224,115 @@ gs_load_dll(void)
     if ( (gsdll.draw = (PFN_gsdll_draw) 
 	GetProcAddress(gsdll.hmodule, "gsdll_draw")) == NULL)
 	return gs_load_dll_cleanup();
+#elif defined (__OS2__)
+    char buf[MAXSTR + 40];
+    APIRET rc;
+    char *p;
+    const char *dllname;
+    PTIB pptib;
+    PPIB pppib;
+    char szExePath[MAXSTR];
+    char fullname[1024];
+    const char *shortname;
+
+    if ((rc = DosGetInfoBlocks(&pptib, &pppib)) != 0) {
+      //	fprintf(stdout, "Couldn't get pid, rc = \n", rc);
+	return FALSE;
+    }
+    /* get path to EXE */
+    if ((rc = DosQueryModuleName(pppib->pib_hmte, 
+				 sizeof(szExePath), szExePath)) != 0) {
+      if (debug) {
+	sprintf(messagebuffer, "Couldn't get module name, rc = %ld\n", rc);
+	write_message();
+      }
+	return FALSE;
+    }
+    if ((p = strrchr(szExePath, '\\')) != (char *)NULL) {
+	p++;
+	*p = '\0';
+    }
+    dllname = szDllName;
+    if (debug) {
+	sprintf(messagebuffer, "Trying to load %s\n", dllname);
+	write_message();
+    }
+    memset(buf, 0, sizeof(buf));
+    rc = DosLoadModule((PBYTE)buf, sizeof(buf), (PCSZ)dllname, &gsdll.hmodule);
+    if (rc) {
+	/* failed */
+	/* try again, with path of EXE */
+	if ((shortname = strrchr((const char *)szDllName, '\\')) == 
+	    (const char *)NULL)
+	    shortname = szDllName;
+	strcpy(fullname, szExePath);
+	if ((p = strrchr(fullname, '\\')) != (char *)NULL)
+	    p++;
+	else
+	    p = fullname;
+	*p = '\0';
+	strcat(fullname, shortname);
+	dllname = fullname;
+	if (debug) {
+	    sprintf(messagebuffer, "Trying to load %s\n", dllname);
+	    write_message();
+	}
+	rc = DosLoadModule((PBYTE)buf, sizeof(buf), (PCSZ)dllname, &gsdll.hmodule);
+	if (rc) {
+	    /* failed again */
+	    /* try once more, this time on system search path */
+	    dllname = shortname;
+	    if (debug) {
+		sprintf(messagebuffer, "Trying to load %s\n", dllname);
+		write_message();
+	    }
+	    rc = DosLoadModule((PBYTE)buf, sizeof(buf), (PCSZ)dllname, &gsdll.hmodule);
+	}
+    }
+    if (rc != 0) 
+      return FALSE;
+
+    if (debug) {
+      sprintf(messagebuffer,"Loaded Ghostscript DLL\n");
+      write_message();
+    }
+
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_REVISION", 
+			       (PFN *) (&gsdll.revision))) != 0) 
+      return gs_load_dll_cleanup();
+	
+#ifdef GS_REVISION
+    /* check DLL version */
+    gsdll.revision(NULL, NULL, &revision, NULL);
+    if (revision != GS_REVISION) {
+      sprintf(messagebuffer, "Wrong version of DLL found.\n  Found version %ld\n  Need version  %ld\n", revision, (long)GS_REVISION);
+      write_message();
+      return gs_load_dll_cleanup();;
+    }
+#endif
+
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_INIT", 
+			       (PFN *) (&gsdll.init))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_EXECUTE_BEGIN", 
+			       (PFN *) (&gsdll.execute_begin))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_EXECUTE_CONT", 
+			       (PFN *) (&gsdll.execute_cont))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_EXECUTE_END", 
+			       (PFN *) (&gsdll.execute_end))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_EXIT", 
+			       (PFN *) (&gsdll.exit))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_LOCK_DEVICE", 
+			       (PFN *) (&gsdll.lock_device))) != 0) 
+      return gs_load_dll_cleanup();
+    if ((rc = DosQueryProcAddr(gsdll.hmodule, 0, (PCSZ)"GSDLL_GET_BITMAP", 
+			       (PFN *) (&gsdll.get_bitmap))) != 0) 
+      return gs_load_dll_cleanup();
+#endif
 
     return TRUE;
 }
@@ -225,8 +369,13 @@ gsdll_callback(int message, char *str, unsigned long count)
 	    return count;
 	case GSDLL_DEVICE:
 		if (count) {
-			sprintf(messagebuffer,"\
-mswindll device is not supported by the command line version of Ghostscript.\n\
+#if defined (_WIN32)
+#define SYSDLL mswindll
+#elif defined (__OS2__)
+#define SYSDLL os2dll
+#endif
+	sprintf(messagebuffer,"SYSDLL \
+device is not supported by the command line version of Ghostscript.\n\
 Select a different device using -sDEVICE= as described in use.txt.\n\
 	    Callback: DEVICE %p %s\n", str, count ? "open" : "close");
 			write_message();
@@ -259,26 +408,26 @@ int
 main(int argc, char *argv[])
 {
 int code;
+#if defined(_WIN32)
     setmode(fileno(stdin), O_BINARY);
+#endif
     if (!gs_load_dll()) {
-	fprintf(stderr, "Can't load %s\n", szDllName);
-	return -1;
+		fprintf(stderr, "Can't load %s\n", szDllName);
+		return -1;
     }
     code = gsdll.init(gsdll_callback, (HWND)NULL, argc, argv);
 
     if (!code)
         code = gsdll.execute_begin();
     if (!code) {
-	code = gsdll.execute_cont(start_string, strlen(start_string));
-	if (!code) {
-	    gsdll.execute_end();
-	    gsdll.exit();
-	}
-	else
-	    code = gsdll.exit();
+		code = gsdll.execute_cont(start_string, strlen(start_string));
+		if (!code) {
+			gsdll.execute_end();
+			gsdll.exit();
+		} else
+			code = gsdll.exit();
     }
     gs_free_dll();
-    if (code == GSDLL_INIT_QUIT)
-	return 0;
+    if (code == GSDLL_INIT_QUIT) return 0;
     return code;
 }

@@ -6,7 +6,7 @@
    Backend for MetaPost files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,27 +51,7 @@ public:
 #include "drvfuncs.h"
 
 private:
-#if 0
-	// now in miscutils
-
-	// Structures for mapping fonts to replacement fonts
-	struct fontchange {
-	  string oldfont;
-	  string newfont;
-	  bool operator< (const fontchange & other) const {
-	    return oldfont < other.oldfont;
-	  }
-	  bool operator== (const fontchange & other) const {
-	    return oldfont == other.oldfont;
-	  }
-	};
-	typedef set<fontchange, less<fontchange> > SET_FONTCHANGE;
-	SET_FONTCHANGE fontmap;    // Set of mappings from one font to another
-
-	// Map a font name to a user-specified replacement font name
-	const string& replacement_font (const string&);
-#endif
-
+	void print_coords();
 	// Previous values of graphics state variables
  	string prevFontName;
 	float prevR, prevG, prevB;
@@ -88,5 +68,7 @@ private:
 };
 
 #endif
+ 
+ 
  
  

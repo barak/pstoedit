@@ -3,14 +3,15 @@
 
 /* 
    drvtk.h   - Header file for driver to output Tcl/Tk canvas
-             - written by Christopher Jay Cox (ccox@airmail.net) - 9/22/97
-               http://www.tcltk.com/tclets/impress/
+             - written by Christopher Jay Cox (cjcox@acm.org) - 9/22/97
+               updated on 7/17/00
+               http://www.ntlug.org/~ccox/impress/
                Based on...
   
    drvsample.h
    Interface for new driver backends
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,18 +36,25 @@ class drvTK : public drvbase {
 public:
 
 	derivedConstructor(drvTK);
-//	drvTK(const char * driveroptions_P,ostream & theoutStream, ostream & theerrStream); // Constructor
 
 	~drvTK(); // Destructor
 
+#include "drvfuncs.h"
+
 private:
+	void print_coords();
 	TempFile		tempFile;
 	ofstream		&buffer;
 	int			objectId;
+	char pheight[20];
+	char pwidth[20];
 
 	void			canvasCreate();
-#include "drvfuncs.h"
+	void			outputEscapedText(const char* string);
+
 
 };
 #endif
-
+ 
+ 
+ 

@@ -8,19 +8,16 @@
 
 SHELL+= -e
 
-MAKEOPTS=prefix=/usr \
-	MANDIR=/usr/share/man/man1 \
- CCC="g++ -DBUGGYGPP -D__STRICT_ANSI__ -pedantic -Wall  -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes -O2 -g" \
- LDFLAGS="-g"
-
+MAKEOPTS=prefix=/usr
+	MANDIR=/usr/share/man/man1
 
 build: build-stamp
 build-stamp:
 	dh_testdir
 
-	# Add here commands to compile the package.
+	cd config && autoconf && ./configure -v
 	$(MAKE) -C src $(MAKEOPTS)
-	$(MAKE) -C doc pstoedit.1
+	#$(MAKE) -C doc pstoedit.1
 	chmod 644 examples/*.ps
 
 	touch build-stamp
@@ -34,7 +31,9 @@ clean:
 	# Add here commands to clean up after the build process.
 	-$(MAKE) -C src clean
 	-$(MAKE) -C doc clean
-	-cd examples ; rm -f *.ps.* *.man.ps*
+	-cd src && rm -f Makefile
+	-cd config && rm -f config.log config.cache config.status
+	-cd examples && rm -f *.ps.* *.man.ps*
 
 	dh_clean
 
@@ -55,8 +54,8 @@ binary-arch: build
 	# Add here commands to install the files into debian/tmp
 	#$(MAKE) -C src $(MAKEOPTS) install
 	install -p -m 0755 src/pstoedit debian/tmp/usr/bin/
-	install -p -m 0644 misc/mpost.fmp debian/tmp/etc/pstoedit/fontmap.mpost
-	dos2unix -p debian/tmp/etc/pstoedit/fontmap.mpost
+	install -p -m 0644 misc/mpost.fmp debian/tmp/usr/share/pstoedit/fontmap.mpost
+	dos2unix -p debian/tmp/usr/share/pstoedit/fontmap.mpost
 
 	dh_installdocs
 	dh_installexamples examples/*.ps
@@ -70,7 +69,6 @@ binary-arch: build
 	dh_strip
 	dh_compress
 	dh_fixperms
-	dh_suidregister
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

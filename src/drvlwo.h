@@ -11,7 +11,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,21 +31,20 @@
 
 #include "drvbase.h"
 
-class LWO_POLY {
-public:
-  LWO_POLY *next;
-  unsigned char r, g, b;
-  unsigned long num;  // Number of vertices in poly
-  float *x;
-  float *y;
-};
-
 class drvLWO : public drvbase {
+public:
+	derivedConstructor(drvLWO);
+	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
+
+	~drvLWO(); // Destructor
+
+#include "drvfuncs.h"
+
+private:
+	void print_coords();
   unsigned long total_vertices;
   unsigned long total_polys;
-  LWO_POLY *polys;
-
-public:
+  struct LWO_POLY *polys;
 
   void out_ulong(ostream &outs, unsigned long val)
   {
@@ -71,13 +70,9 @@ public:
     out_ulong(outs, num.u);
   }
 
-	derivedConstructor(drvLWO);
-	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
-
-	~drvLWO(); // Destructor
-
-#include "drvfuncs.h"
 
 };
 
 #endif
+ 
+ 

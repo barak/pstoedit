@@ -4,7 +4,7 @@
    cppcomp.h : This file is part of pstoedit
    header declaring compiler dependent stuff
 
-   Copyright (C) 1998 - 1999 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1998 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,15 @@
 
 */
 
-#if defined (__GNUG__)  || (defined (_MSC_VER) && _MSC_VER >= 1100) 
+#ifdef _MSC_VER
+#ifndef DLLEXPORT
+#define DLLEXPORT __declspec( dllexport )
+#endif
+#else
+#define DLLEXPORT
+#endif
+
+#if (defined (_MSC_VER) && _MSC_VER >= 1100) 
 // MSVC 5 and 6 have ANSI C++ header files, but the compilation
 // is much slower and object files get bigger. 
 // add other compiler that support STL and the ANSI C++ standard here
@@ -31,9 +39,43 @@
 // an installation of the STL, just umcomment the next line
 
 // #define HAVESTL
+// #define HAVETYPENAME
 // now this is again commented out by default, since now all
 // drivers can be compiled without the STL
 
+#endif
+
+#if defined (__GNUG__)  && (__GNUC__>=3)
+// GNU 3.0 compiles in HAVESTL mode.
+// but is sooooooooooo slow
+// further, I had some crashes in this mode which don't occur in the traditional mode
+// so I finally commented this out again and made the code compile also in traditional mode
+#define HAVESTL
+
+#define HAVETYPENAME
+
+#endif
+
+#ifdef __SUNPRO_CC
+	#if __SUNPRO_CC >= 0x500
+		#define HAVETYPENAME
+		#if __SUNPRO_CC_COMPAT >= 5
+// SUN's new compiler seems to work with STL (only)
+			#define HAVESTL
+			#define INTERNALBOOL
+		#else
+// we compile with -compat=4 
+			#ifdef INTERNALBOOL
+				#undef INTERNALBOOL
+			#endif
+		#endif
+	#else
+// for the old version (CC 4.x)
+	#endif
+#endif     
+
+#ifndef HAVETYPENAME
+	#define typename 
 #endif
 
 //
@@ -80,7 +122,7 @@
 #define I_streamb		<iostream.h>
 
 
-#if (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) ) && !defined(DJGPP)
+#if (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) || defined (NetBSD) ) && !defined(DJGPP)
 #define I_strstream		<strstream.h>
 #else
 #define I_strstream		<strstrea.h>
@@ -112,8 +154,23 @@ const bool true  = 1;
   #define I_string_h <string.h>
 #endif
 
+// some code seems to rely on _WIN32 instead of WIN32
+#if defined (WIN32)
+#ifndef _WIN32 
+#define _WIN32 WIN32
+#endif
+#endif
+
+
+#ifndef NIL 
+// 0 pointers
+#define NIL 0
+#endif
 
 #endif
 
+ 
+ 
+ 
  
  

@@ -3,7 +3,7 @@
 /*
    image.h : This file is part of pstoedit.
   
-   Copyright (C) 1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1997 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 enum ImageType { colorimage, normalimage, imagemask }; 
 	// maybe do subclassing later
 
-class Image
+class DLLEXPORT Image
 {
 public:
 	ImageType	type;	// the image type
@@ -35,26 +35,36 @@ public:
 	float normalizedImageCurrentMatrix[6];	// the effective matrix that transforms the ideal image into the device space. 
 	bool polarity;		// used for imagemask only
 	unsigned char * data;   	// the array of values
-
 	unsigned int nextfreedataitem;  // the current write index into the data array
-
+	bool isFileImage; // true for PNG file images (Q: is this orthogonal to ImageType ? - I guess yes)
+	RSString pngFileName; // for PNG file images
 
 	Image(): type(colorimage),height(0),width(0),bits(0),ncomp(0),
-		polarity(true),data(0),nextfreedataitem(0) 
+		polarity(true),data(0),nextfreedataitem(0),isFileImage(false),pngFileName("") 
 		{ 
 			for (int i = 0; i < 6 ; i++) 
 				imageMatrix[i] = normalizedImageCurrentMatrix[i] = 0.0f;
 		}
 	~Image() { delete [] data; data = 0; nextfreedataitem = 0;}
 	void writeEPSImage(ostream & outi) const;
+	void writeIdrawImage(ostream & outi, float scalefactor) const;
+	void writePNGImage(const char * pngFileName, const char * source, const char * title, const char * generator) const;
+	static bool PNGSupported();
 	void getBoundingBox(Point & ll_p, Point & ur_p) const
 		{ ll_p = ll; ur_p = ur; }
 	void calculateBoundingBox();
-
+	unsigned char getComponent(
+						unsigned int x,
+						unsigned int y,
+						char	numComponent) const;
 private:
 	// Bounding Box
 	Point ll;
 	Point ur;
+
+	NOCOPYANDASSIGN(Image)
 };
 
 #endif
+ 
+ 

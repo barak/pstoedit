@@ -2,7 +2,7 @@
    cmdmain.cpp : This file is part of pstoedit
    main program for command line usage
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,10 +26,16 @@
 
 #include I_iostream
 
-int main(int argc, const char * const argv[]) 
+int main(int argc, const char *const argv[])
 {
+#if defined(_WIN32) || defined (__OS2__)
+	if (!pstoedit_checkversion(301))
+		return 1;
+#else
 	ignoreVersionCheck();
+#endif
 	// on UNIX like systems, we can use cerr as error stream
-	const int result = pstoeditwithghostscript(argc,argv,cerr);
+	const int result = pstoeditwithghostscript(argc, argv, cerr);
 	return result;
 }
+ 

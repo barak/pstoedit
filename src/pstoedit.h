@@ -2,7 +2,7 @@
    pstoedit.h : This file is part of pstoedit
    main control procedure
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,24 +19,26 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
+#ifndef cppcomp_h
 #include "cppcomp.h"
+#endif
 
 //#include <iostream.h>
 #ifdef HAVESTL
 #include <iosfwd>
 USESTD
 #else
-class ostream;
-class istream;
-#endif
-
-#ifdef _MSC_VER
-#define DLLEXPORT __declspec( dllexport ) 
+#if defined (__GNUG__)  && (__GNUC__>=3) 
+// if we dont define HAVESTL for g++ > 3.0, then we can use the simple forwards
+	#include <iostream.h>
 #else
-#define DLLEXPORT 
+	class istream;
+	class ostream;
+#endif
 #endif
 
 typedef int (*execute_interpreter_function)(int argc, const char * const argv[]);
+typedef const char * (*whichPI_type)(ostream &,int);
 
 
 class DescriptionRegister;
@@ -48,15 +50,15 @@ int pstoedit(	int argc,
 				const char * const argv[],
 				ostream& errstream,
   				execute_interpreter_function call_PI,
-				const char * (*whichPI)(ostream &,int),
-				DescriptionRegister* const pushinsPtr =0
+				whichPI_type whichPI,
+				const DescriptionRegister* const pushinsPtr =0
 			);
 
 extern "C" DLLEXPORT 
 int pstoeditwithghostscript(int argc,
 							const char * const argv[],
 							ostream& errstream,
-							DescriptionRegister* const pushinsPtr=0
+							const DescriptionRegister* const pushinsPtr=0
 							);
 
 extern "C" DLLEXPORT 
@@ -65,16 +67,18 @@ int pstoedit_plainC(int argc,
 					const char * const psinterpreter  // if 0, then pstoedit will look for one using whichpi()
 					);
 
-class DriverDescription;
 struct DriverDescription_S;
 
-//extern "C" DLLEXPORT const DriverDescription* const * getPstoeditDriverInfo(ostream& errstream);
+//extern "C" DLLEXPORT const class DriverDescription* const * getPstoeditDriverInfo(ostream& errstream);
 extern "C" DLLEXPORT DriverDescription_S* getPstoeditDriverInfo_plainC(void);
 extern "C" DLLEXPORT int pstoedit_checkversion (unsigned int callersversion);									 
 void ignoreVersionCheck(void); // not exported to the DLL interface, just used internally
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__OS2__)
 #include "cbstream.h"
 extern "C" DLLEXPORT void setPstoeditOutputFunction(void * cbData,write_callback_type* cbFunction);
 #endif
 
+ 
+ 
+ 

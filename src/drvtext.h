@@ -5,7 +5,7 @@
    drvtext.h : This file is part of pstoedit
    Class declaration for a text oriented output driver 
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -65,6 +65,14 @@ public:
 
 	LinePtrList page; 
 
+	char ** charpage; // for text page output
+	bool dumptextpieces;
+	// sizes in terms of lines and characters
+	unsigned int pageheight  ;
+	unsigned int pagewidth  ;
+
 };
 
 #endif
+ 
+ 

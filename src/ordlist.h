@@ -5,7 +5,7 @@
    simple template for a sorted list. I didn't want to use STL
    because not all compilers support it yet. 
   
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,8 +22,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
+#ifndef cppcomp_h
 #include "cppcomp.h"
+#endif
+#ifndef assert
 #include <assert.h>
+#endif
 #include I_stdlib
 #include I_iostream
 
@@ -216,4 +220,6 @@ int main()
 
 // include guard
 #endif
+ 
+ 
  

@@ -5,7 +5,7 @@
    drvFIG.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,21 +36,33 @@ public:
 
 private:
 	int	      objectId;
-	TempFile      tempFile;
-	ofstream      &buffer;
+	TempFile  tempFile;
+	ofstream  &buffer;
 	int	      imgcount;
 	int	      format; // either 31 or something else
+	int	      startdepth; // Start depth for objectID (range 0 - 999)
 
 #include "drvfuncs.h"
 
 	unsigned int nrOfCurvetos() const;
 	void print_polyline_coords();
-	void print_spline_coords_noxsplines(int linestyle, float localLineWidth);
-	void prpoint(ostream & os, const Point& p) const;
+//	void print_spline_coords_noxsplines(int linestyle, float localLineWidth);
+	void prpoint(ostream & os, const Point& p,bool withspaceatend = true) const;
 	void print_spline_coords1();
 	void print_spline_coords2();
+	void new_depth();
+	void addtobbox(const Point& p);
+	void bbox_path();
 
-	void show_image(const Image & imageinfo);
+ // Bounding Box
+   float glob_min_x , glob_max_x , glob_min_y , glob_max_y ;
+   float loc_min_x , loc_max_x , loc_min_y , loc_max_y ;
+   int glo_bbox_flag ,loc_bbox_flag ;
+
+public:
+   void show_image(const Image & imageinfo);
 };
 #endif
 
+ 
+ 

@@ -1,11 +1,11 @@
-#ifndef __drvKIllustrator_h
-#define __drvKIllustrator_h
+#ifndef __drvKontour_h
+#define __drvKontour_h
 
 /* 
    drvsampl.h : This file is part of pstoedit
-   Class declaration for a KIllustrator output driver.
+   Class declaration for a Kontour output driver.
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
    Copyright (C) 1998 Kai-Uwe Sattler, kus@iti.cs.uni-magdeburg.de
 
    This program is free software; you can redistribute it and/or modify
@@ -26,16 +26,20 @@
 
 #include "drvbase.h"
 
-class drvKIllustrator : public drvbase {
+class drvKontour : public drvbase {
 public:
-   derivedConstructor(drvKIllustrator);
-  ~drvKIllustrator (); // Destructor
+   derivedConstructor(drvKontour);
+  ~drvKontour (); // Destructor
 
 private:
   static int cvtColor (float c);
 
 #include "drvfuncs.h"
+private:
+	void print_coords();
 };
 
 #endif
+ 
+ 
  

@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<!-- Manual page created with latex2man on Son Okt 10 20:55:50 CEST 1999 --
+<!-- Manual page created with latex2man on Son Dez 30 21:33:28 CET 2001 --
 -- Author of latex2man: Juergen.Vollmer@acm.org --
 -- NOTE: This file is generated, DO NOT EDIT. -->
 <html>
@@ -9,28 +9,28 @@
 PSTOEDIT 
 </h1>
 <h4 align=center>Dr. Wolfgang Glunz </h4>
-<h4 align=center>1999/10/10</h4>
-<h4 align=center>Version 3.15</h4>
+<h4 align=center>2001/12/30</h4>
+<h4 align=center>Version 3.31</h4>
 <tt>pstoedit</tt>
 - a tool converting PostScript and PDF files into various 
 vector graphic formats 
 <h3>Table of Contents</h3>
 <ul>
-<li><a href="#section_1">Synopsis </a></li>
+<li><a href="#section_1">Synopsis </a>
 <ul>
 <li><a href="#section_2">From the command shell </a></li>
 <li><a href="#section_3">From Gsview </a></li>
 <li><a href="#section_4">From programs that support the ALDUS graphic import filter interface </a></li>
-</ul>
-<li><a href="#section_5">Description </a></li>
+</ul></li>
+<li><a href="#section_5">Description </a>
 <ul>
 <li><a href="#section_6">RELEASE LEVEL </a></li>
 <li><a href="#section_7">USE </a></li>
 <li><a href="#section_8">PRINCIPLE OF CONVERSION </a></li>
 <li><a href="#section_9">NOTES </a></li>
-</ul>
+</ul></li>
 <li><a href="#section_10">Options </a></li>
-<li><a href="#section_11">BACK END-SPECIFIC OPTIONS </a></li>
+<li><a href="#section_11">BACK END-SPECIFIC OPTIONS </a>
 <ul>
 <li><a href="#section_12">NOTES </a></li>
 <li><a href="#section_13">ENVIRONMENT VARIABLES </a></li>
@@ -44,34 +44,51 @@ vector graphic formats
 <li><a href="#section_21">ACKNOWLEDGEMENTS </a></li>
 <li><a href="#section_22">LEGAL NOTICES </a></li>
 </ul>
-</ul>
+</li></ul>
 <p>
 <h2><a name="section_1">Synopsis</a></h2>
 <p>
 <h4><a name="section_2">From the command shell</a></h4>
 <p>
 <tt>pstoedit</tt>
-[ <b>-t -help</b> ]
+[ <b>-v -help</b> ]
 <p>
 <tt>pstoedit</tt>
-[ <b>-df</b><i>&nbsp;fontname</i> ][ <b>-fontmap</b><i>&nbsp;file</i> ][ <b>-dis</b> ]
+[ <b>-adt</b> ]
+[ <b>-df</b><i>&nbsp;fontname</i> ]
+[ <b>-dis</b> ]
 [ <b>-dt</b> ]
 [ <b>-flat</b><i>&nbsp;number</i> ]
+[ <b>-fontmap</b><i>&nbsp;file</i> ]
 [ <b>-include</b><i>&nbsp;includefile</i> ]
-[ <b>-merge</b> ][ <b>-nomaptoisolatin1</b> ][ <b>-nb</b> ][ <b>-nq</b> ]
-[ <b>-page</b><i>&nbsp;number</i> ][ <b>-psarg</b><i>string</i> ][ <b>-pagesize</b><i>string</i> ]
-[ <b>-scale</b><i>factor</i> ][ <b>-sclip</b> ][ <b>-split</b> ][ <b>-ssp</b> ]
+[ <b>-merge</b> ]
+[ <b>-nb</b> ]
+[ <b>-nfr</b> ]
+[ <b>-nomaptoisolatin1</b> ]
+[ <b>-nq</b> ]
+[ <b>-page</b><i>&nbsp;number</i> ]
+[ <b>-pagesize</b><i>&nbsp;string</i> ]
+[ <b>-psarg</b><i>&nbsp;string</i> ]
+[ <b>-pti or -pta</b> ]
+[ <b>-rgb</b> ]
+[ <b>-rotate</b><i>&nbsp;angle (0-360)</i> ]
+[ <b>-scale</b><i>&nbsp;factor</i> ]
+[ <b>-sclip</b> ]
+[ <b>-ssp</b> ]
+[ <b>-split</b> ]
+[ <b>-t2fontsast1</b> ]
+[ <b>-uchar</b><i>&nbsp;character</i> ]
 [ <b>-v</b> ]
-<b>-f</b><i>&nbsp;format</i>[ <i>:options</i> ]&nbsp;
+<b>-f</b><i>&nbsp;"format[:options]"</i>
 [<i>inputfile</i>
 [ <i>outputfile</i> ]]
 <p>
 <tt>pstoedit</tt>
 [ <b>-scale</b><i>&nbsp;factor</i> ]
-<b>-f</b><i>&nbsp;format</i>[ <i>:options</i> ]
+<b>-f</b><i>&nbsp;"format[:options]"</i>
 <b>-bo</b>
-<i>inputfile</i>
-[ <i>outputfile</i> ]
+<i>input-file</i>
+[ <i>output-file</i> ]
 <p>
 <h4><a name="section_3">From Gsview</a></h4>
 <p>
@@ -82,8 +99,8 @@ From within gsview pstoedit can be called via
 <p>
 <tt>pstoedit</tt>
 can also be used as PostScript and PDF graphic import filter for several programs including 
-MS-Office 95/97, PaintShop-Pro and PhotoLine. See 
-<a href ="http://www.geocities.com/SiliconValley/Network/1958/importps/"><tt>http://www.geocities.com/SiliconValley/Network/1958/importps/</tt></a>
+MS-Office 95/97,2000, PaintShop-Pro and PhotoLine. See 
+<a href ="http://www.pstoedit.net/importps/"><tt>http://www.pstoedit.net/importps/</tt></a>
 for more 
 details. 
 <p>
@@ -91,7 +108,7 @@ details.
 <p>
 <h4><a name="section_6">RELEASE LEVEL</a></h4>
 <p>
-This manpage documents release 3.1x of <tt>pstoedit</tt>.
+This manpage documents release 3.31 of <tt>pstoedit</tt>.
 <p>
 <h4><a name="section_7">USE</a></h4>
 <p>
@@ -105,7 +122,7 @@ packages. Type
 to get a list of supported output formats. Pstoedit comes with a 
 large set of format drivers integrated in the binary. Additional drivers can be 
 installed as plugins and are available via 
-<a href ="http://www.geocities.com/SiliconValley/Network/1958/plugins/"><tt>http://www.geocities.com/SiliconValley/Network/1958/plugins/</tt></a>.
+<a href ="http://www.pstoedit.net/plugins/"><tt>http://www.pstoedit.net/plugins/</tt></a>.
 Just 
 copy the plugins to the same directory where the pstoedit binary is installed. 
 However, unless you also get a license key for the plugins, the additional 
@@ -119,7 +136,7 @@ works by redefining the two basic painting operators of
 PostScript, <strong>stroke</strong>
 and <strong>show</strong>
 (bitmaps drawn by the image 
-operator are currently only supported by the xfig and the MIF backend.) After 
+operator are not supported by all backends.) After 
 redefining these operators, the PostScript or PDF file that needs to be 
 converted is processed by a PostScript interpreter, e.g., Ghostscript 
 (<em>gs</em>(1)).
@@ -150,9 +167,42 @@ recommended for processing PDF (and PostScript Level 2) files.
 <dl compact>
 <p>
 <dt><b>-dt</b>
-<dd> Text is drawn as polygons. This might produce a large output file. This option is automatically 
+<dd> Draw text - Text is drawn as polygons. This might produce a large output file. This option is automatically 
 switched on if the selected backend does not support this, e.g. 
 <em>gnuplot</em>(1).
+<p>
+</dd>
+<dt><b>-adt</b>
+<dd> Automatic Draw text - This option turns on the -dt option selectively for fonts that seem to be no normal text fonts, e.g. Symbol.. 
+<p>
+</dd>
+<dt><b>-t2fontsast1</b>
+<dd> Handle type 2 fonts same as type 1. Type 2 fonts sometimes occur as 
+embedded fonts within PDF files. In the default mode, text using such fonts is drawn as polygons 
+since pstoedit assumes that such a font is not available on the users machine. If this option 
+is set, pstoedit assumes that the internal encoding follows the same as for a standard font 
+and generates normal text output. This assumption may not be true in all cases. But it 
+is nearly impossible for pstoedit to verify this assumption - it would have to do a sort of OCR. 
+<p>
+</dd>
+<dt><b>-pti or -pta</b>
+<dd> Precision text - With <b>-pta</b>,
+each character of a text string is placed 
+separately. With <b>-pti</b>,
+this is done only in cases when there is a non zero inter-letter 
+spacing. Normally 
+a text string is drawn as it occurs in the input file. However, in some situations, this might 
+produce wrongly positioned characters. This is due to limitiations in most backends of 
+pstoedit. They cannot represent text with arbitray inter-letter spacing which is easily 
+possible in PDF and PostScript. The downside of "precision text" is a bigger file size and hard to edit 
+text. 
+<p>
+</dd>
+<dt><b>-nfr</b>
+<dd> In normal mode pstoedit replaces bitmap fonts with a font as defined by the <b>-df</b>
+option. This is done, because most backends can't handle such fonts. This behavior can be 
+switched off using the <b>-nfr</b>
+option but then it strongly depends on the application reading the the generated file whether the file is usable and correctly interpreted or not. Any problems are then out of control of pstoedit. 
 <p>
 </dd>
 <dt><b>-dis</b>
@@ -204,11 +254,29 @@ follow each other directly and you specify <b>-merge</b>.
 PostScript or PDF file. 
 <p>
 </dd>
+<dt><b>-rotate</b><i>&nbsp;angle (0-360)</i>
+<dd>Rotage image by angle. 
+<p>
+</dd>
+<dt><b>-rgb</b>
+<dd> Since version 3.30 pstoedit uses the CMYK colors internally. The -rgb option turns on the old behavior to use RGB values. 
+<p>
+</dd>
 <dt><b>-split</b>
 <dd> Create a new file for each page of the input. For this the 
 output filename must contain a %d which is replaced with the current page 
 number. This option is automatically switched on for backends that don't 
 support multiple pages within one file, e.g. fig or gnuplot. 
+<p>
+</dd>
+<dt><b>-uchar</b><i>&nbsp;character</i>
+<dd> Sometimes pstoedit cannot map a character 
+from the encoding used by the PostScript file to the font encoding of the target 
+format. In this case pstoedit replaces the input character by a special character 
+in order to show all the places that couldn't be mapped correctly. The default 
+for this is a "#". Using the <b>-uchar</b>
+option it is possible to specify another character 
+to be used instead. If you want to use a space, use -uchar " ". 
 <p>
 </dd>
 <dt><b>-df</b><i>&nbsp;fontname</i>
@@ -253,15 +321,14 @@ installation directory is:
 <p>
 <ul compact>
 <p>
-<li> Windows: The same directory where the <tt>pstoedit</tt>
-executable is 
+<li>Windows: The same directory where the <tt>pstoedit</tt> executable is
 located 
 <p>
 </li>
-<li> Unix: <br>
-<tt><</tt> 
+<li>Unix: <br>
+<tt>&lt;</tt> 
 <em>The directory where the pstoedit executably is located</em>
-<tt>>/../lib/</tt> 
+<tt>&gt;/../lib/</tt> 
 <p>
 </li>
 </ul>
@@ -387,9 +454,9 @@ option.
 </dd>
 <dt><b>-nq</b>
 <dd> No exit from the PostScript interpreter. Normally Ghostscript 
-exits after processing the pstoedit inputfile. For debugging it can be 
+exits after processing the pstoedit input-file. For debugging it can be 
 useful to avoid this. If you do, you will have to type quit at the 
-<tt>GS></tt> prompt to exit from Ghostscript. 
+<tt>GS&gt;</tt> prompt to exit from Ghostscript. 
 <p>
 </dd>
 <dt><b>-v</b>
@@ -406,12 +473,12 @@ then the encoding from the input PostScript is
 passed unchanged to the output. 
 <p>
 </dd>
-<dt><i>inputfile</i>
-<dd> input file. 
+<dt><i>input-file</i>
+<dd> input file. If a "-" is given, standard input is used. 
 <p>
 </dd>
-<dt><i>outputfile</i>
-<dd> output file. If no output file is given as argument, 
+<dt><i>output-file</i>
+<dd> output file. If no output file or "-" is given as argument, 
 <tt>pstoedit</tt>
 writes the result to standard output. 
 <p>
@@ -432,39 +499,50 @@ option needs to be passed to the backend, the whole argument to <b>-f</b>
 must be 
 enclosed within double-quote characters, thus: 
 <p>
-<strong>-f</strong><strong>&nbsp;"</strong><strong>format:option option ...</strong><strong>"</strong>
+<b>-f</b><i>&nbsp;"format[:option option ...]"</i>
+<p>
+To see which options are supported by a specific format, type: 
+<strong>pstoedit -f format:-help</strong>
+<p>
+The following description is it not up to date at the moment. Sorry! Please use the above command 
+to get a current list of options supported by the specific format. 
 <p>
 Currently <em>met</em>,
 <em>java</em>,
 <em>dxf</em>,
 <em>pic</em>,
 <em>fig</em>,
-<em>metapost</em>
+<em>metapost</em>,
+<em>LaTeX2e</em>,
+<em>mif</em>,
+<em>emf</em>,
 and <em>wmf</em>
 are the only drivers accepting specific options. 
 Other options may be asserted through environment variables. See "ENVIRONMENT 
 VARIABLES" below. 
 <p>
 The <em>wmf</em>
-driver supports two backend specific options, '<b>v</b>'
-and 
-'<b>e</b>'.
+and the <em>emf</em>
+driver supports the following backend specific options: 
 <p>
 <dl compact>
 <p>
-<dt><b>-f wmf:v</b>
-<dd> turns on a verbose mode; 
-<p>
+<dt><b>-f wmf:m</b>
+<dd> Maps all fonts in the document to Arial (should be 
+available on every Windows installation) 
 </dd>
-<dt><b>-f wmf:e</b>
-<dd> tells <tt>pstoedit</tt>
-to generate an enhanced metafile 
-instead of a normal metafile. 
-<p>
+<dt><b>-f wmf:n</b>
+<dd> Emulate narrow fonts by shrinking fonts horizontally 
+(sometimes does not look that good, but it's the only chance, when 
+requested font weight is not available. And this is quite common for 
+off-the-shelf Windows installations) 
 </dd>
-<dt><b>-f wmf:ve</b>
-<dd> specifies both verbose mode and enhanced metafile 
-output. 
+<dt><b>-f wmf:b</b>
+<dd> DON'T draw two white border pixel (upper left and lower 
+right corner). They are normally drawn to keep content always within 
+bounding box (is sometimes clipped otherwise, i.e. Windows doesn't 
+respect pen thickness or rotated text extents). 
+This could be done more smarter for EMF, have to figure out... 
 <p>
 </dd>
 </dl>
@@ -496,9 +574,6 @@ leading -)
 <p>
 <dl compact>
 <p>
-<dt><b>w</b>
-<dd> Draw into an opened window instead of a metafile. 
-</dd>
 <dt><b>p</b>
 <dd> Draw no geometric linewidths, all lines have a width of zero. 
 </dd>
@@ -515,13 +590,13 @@ leading -)
 <dd> Omit all graphics. 
 </dd>
 <dt><b>v</b>
-<dd> Put verbose output to <tt>drvMET.out</tt>.
+<dd> Put verbose output to <tt>STDERR</tt>.
 <p>
 </dd>
 </dl>
 <p>
 Example: 
-<strong>-f</strong><strong>&nbsp;"</strong><strong>met:wlc</strong><strong>"</strong>
+<strong>-f</strong><strong>&nbsp;"</strong><strong>met:lc</strong><strong>"</strong>
 <p>
 The <em>pic</em>
 backend accepts the options: 
@@ -571,10 +646,14 @@ driver accepts the following options:
 <p>
 <dl compact>
 <p>
-<dt><b>-f31</b>
+<dt><b>-startdepth</b>
 <dd> 
-tells the driver to output the version 31 format instead 
-of the default version 32 format. 
+Fig knows about 999 layers (0 is the topmost, 999 the backmost). Per 
+default, pstoedit starts with layer 999 and then places all subsequent 
+objects on lower layers (on top of the previous objects). This can result 
+in problems if you want to put something "below" all the objects that 
+were created by pstoedit. In such a case you should define a lower number 
+to leave some space behind. 
 <p>
 </dd>
 <dt><b>-depth</b>
@@ -613,6 +692,46 @@ future versions.
 </dd>
 </dl>
 <p>
+The <em>tk</em>
+driver supports the following backend specific options: 
+<p>
+<dl compact>
+<p>
+<dt><b>-f tk:I</b>
+<dd> Disables ImPress specific formatting. Only canvas 
+objects will be output. 
+</dd>
+<dt><b>-f tk:N tagname</b>
+<dd> Adds a specific tag to all objects. If ImPress 
+formatting is enabled, the items will be grouped. 
+</dd>
+<dt><b>-f tk:n tagname</b>
+<dd> Deprecated option. Behaves like N. 
+</dd>
+<dt><b>-f tk:R</b>
+<dd> If ImPress formatting is enabled, swap the Width and 
+Height associated with the pagesize. 
+<p>
+</dd>
+</dl>
+<p>
+The <em>mif</em>
+backend allows the following options: 
+<p>
+<dl compact>
+<p>
+<dt><b>-f mif:-nopage</b>
+<dd> Generates an anchored frame instead of a full page. 
+This is useful, if you want to insert a figure into an existing document. 
+<p>
+</dd>
+<dt><b>-f mif:-imagesaspng</b>
+<dd> Bitmap images are written as PNG files instead 
+of EPS. This is still experimental but should work for non rotated bitmaps. 
+<p>
+</dd>
+</dl>
+<p>
 The GNU libplot driver (<em>gmfa</em>,
 <em>gmfb</em>,
 <em>plot</em>)
@@ -623,6 +742,16 @@ set of options. All these are described in the header of the drvlplot.cpp file.
 <p>
 <dl compact>
 <p>
+<dt>autotrace:
+<dd> 
+<p>
+pstoedit cooperates with autotrace. Autotrace can now produce a dump file 
+for further processing by pstoedit using the <b>-bo</b>
+(backend only) option. 
+Autotrace is a program written by a group around Martin Weber and can be 
+found at <a href ="http://sourceforge.net/projects/autotrace/"><tt>http://sourceforge.net/projects/autotrace/</tt></a>.
+<p>
+</dd>
 <dt>Ps2ai:
 <dd> 
 <p>
@@ -636,11 +765,13 @@ convert nicely or at all using ps2ai.ps. So a native pstoedit driver would
 be much better. Anyone out there to take this ? The AI format is usable for 
 example by Mayura Draw (<a href ="http://www.mayura.com"><tt>http://www.mayura.com</tt></a>).
 Also a driver to the 
-Mayura native format would be nice. In order to make this driver work 
-correctly, you have to apply the following simple patch to the 
+Mayura native format would be nice. 
+<p>
+If you have a version of GhostScript older than 5.60, then 
+you have to apply the following simple patch to the 
 <tt>ps2ai.ps</tt>
-file (I hope this will go into future releases of 
-GhostScript): 
+file in order to make this driver work. 
+This patch is already included in newer versions of GhostScript. 
 <p>
 After the line "<tt>/vers {2.13} def</tt>" insert: 
 <p>
@@ -697,6 +828,46 @@ For more on MetaPost see:
 <a href ="http://cm.bell-labs.com/who/hobby/MetaPost.html"><tt>http://cm.bell-labs.com/who/hobby/MetaPost.html</tt></a>
 <p>
 </dd>
+<dt>LaTeX2e:
+<dd>   <br>
+<p>
+<ul compact>
+<li>LaTeX2e's picture environment is not very powerful. As a result, many 
+elementary PostScript constructs are ignored -- fills, line 
+thicknesses (besides "thick" and "thin"), and dash patterns, to name a 
+few. Furthermore, complex pictures may overrun TeX's memory capacity. 
+<p>
+</li>
+<li>Some PostScript constructs are not supported directly by "picture", 
+but can be handled by external packages. If a figure uses color, the 
+top-level document will need to do a <tt>"\usepackage{color}"</tt>. And if a 
+figure contains rotated text, the top-level document will need to do a 
+<tt>"\usepackage{rotating}"</tt>. 
+<p>
+</li>
+<li>All lengths, coordinates, and font sizes output by the backend are in 
+terms of <tt>\unitlength</tt>, so scaling a figure is simply a matter of doing 
+a <tt>"\setlength{\unitlength}{...}"</tt>. 
+<p>
+</li>
+<li>The backend currently supports one backend-specific option, 
+"integers", which rounds all lengths, coordinates, and font sizes to 
+the nearest integer. This makes hand-editing the picture a little 
+nicer. 
+<p>
+</li>
+<li>Why is this backend useful? One answer is portability; any LaTeX2e 
+system can handle the picture environment, even if it can't handle 
+PostScript graphics. (pdfLaTeX comes to mind here.) A second answer 
+is that pictures can be edited easily to contain any arbitrary LaTeX2e 
+code. For instance, the text in a figure can be modified to contain 
+complex mathematics, non-Latin alphabets, bibliographic citations, or 
+-- the real reason Scott wrote the LaTeX2e backend -- hyperlinks to the 
+surrounding document (with help from the hyperref package). 
+</li>
+</ul>
+<p>
+</dd>
 <dt>creating a new backend:
 <dd> 
 <p>
@@ -749,17 +920,9 @@ only. It might run under WIN32s, but certainly does not run under plain
 <p>
 <tt>pstoedit</tt>
 works best if you installed at least version 5.50 of 
-GhostScript and version 2.71 of gsview. Using older version of 
+GhostScript and version 2.72 of gsview. Using older version of 
 GhostScript is possible but requires the setting of some environment 
 variables. 
-<p>
-</dd>
-<dt>OS/2
-<dd> 
-<p>
-When running <tt>pstoedit</tt>
-on OS/2 you need to call it using the 
-script <tt>ps2edit.cmd</tt>.
 <p>
 </dd>
 </dl>
@@ -793,11 +956,11 @@ So far I've seen redefinitions for:
 <p>
 <ul compact>
 <p>
-<li> lt - "less-then" to mean "draw a line to" 
+<li>lt - "less-then" to mean "draw a line to" 
 </li>
-<li> string - "create a string object" to mean "draw a string" 
+<li>string - "create a string object" to mean "draw a string" 
 </li>
-<li> length - "get the length of e.g. a string" to a "float constant" 
+<li>length - "get the length of e.g. a string" to a "float constant" 
 <p>
 </li>
 </ul>
@@ -815,24 +978,26 @@ the replacement font such that the width of the string in the original font is
 the same as in the replacement font. This is done for each text fragment 
 displayed. Special character encoding support is limited in this case. If a 
 character cannot be mapped into the target format, pstoedit displays a '#' 
-instead. 
+instead. See also the -uchar option. 
 <p>
-pstoedit supports bitmap graphics only for the xfig and MIF backends. 
+pstoedit supports bitmap graphics only for some backends. 
 <p>
 The Gnuplot backend and the 3D backends (rpl, lwo, rib) do not support text. 
 <p>
-The OS/2 met backend sometimes causes the viewer to fail, although drawing 
-directly to screen works. This problem is solved with OS/2 FixPak 22. 
+Generally, pstoedit does not support clipping. You can try to use the 
+<b>-sclip</b>
+option to simulate clipping. However, this doesn't work in all cases 
+as expected. 
 <p>
-Generally, pstoedit does not support clipping. 
+Special note about the Java backends (java1 and java2) 
 <p>
-Special note about the Java backend 
-<p>
-The java backend generates a java source file that needs other files in 
+The java backends generate a java source file that needs other files in 
 order to be compiled and usable. These other files are Java classes (one 
 applet and support classes) that allow to step through the individual pages 
 of a converted PostScript document. This applet can easily be activated from 
-a html-document. See the <tt>java/readme_java.txt</tt>
+a html-document. See the <tt>java/java1/readme_java1.txt</tt>
+or 
+<tt>java/java2/readme_java2.htm</tt>
 file for more details. 
 <p>
 <h4><a name="section_17">FAQs</a></h4>
@@ -851,15 +1016,23 @@ version 3.11 you can try the <b>-ssp</b>
 option in combination with the xfig 
 backend. 
 <p>
+Why does pstoedit produce ugly results from PostScript files generated 
+by dvips? 
+<p>
+TeX documents usually use bitmap fonts. Such fonts cannot be used as native 
+font in other format. So pstoedit replaces the TeX font with another native 
+font. Of course, the replacement font will in most cases produce another 
+look, especially if mathematical symbols are used. 
+<p>
 <h4><a name="section_18">NOTICES</a></h4>
 <p>
 <h4><a name="section_19">AUTHOR</a></h4>
 <p>
-Wolfgang Glunz, <a href ="mailto:wglunz@geocities.com"><tt>wglunz@geocities.com</tt></a>
+Wolfgang Glunz, <a href ="mailto:wglunz@pstoedit.net"><tt>wglunz@pstoedit.net</tt></a>
 <p>
 <h4><a name="section_20">CANONICAL ARCHIVE SITE</a></h4>
 <p>
-<a href ="http://www.geocities.com/SiliconValley/Network/1958/pstoedit/"><tt>http://www.geocities.com/SiliconValley/Network/1958/pstoedit/</tt></a>
+<a href ="http://www.pstoedit.net/pstoedit/"><tt>http://www.pstoedit.net/pstoedit/</tt></a>
 <p>
 At this site you also find more information about <tt>pstoedit</tt>
 and related 
@@ -870,149 +1043,141 @@ about new releases and bug-fixes.
 <p>
 <ul compact>
 <p>
-<li> Klaus Steinberger <a href ="mailto:Klaus.Steinberger@physik.uni-muenchen.de"><tt>Klaus.Steinberger@physik.uni-muenchen.de</tt></a>
+<li>Klaus Steinberger <a href ="mailto:Klaus.Steinberger@physik.uni-muenchen.de"><tt>Klaus.Steinberger@physik.uni-muenchen.de</tt></a>
 wrote the initial version of this manpage. 
 <p>
 </li>
-<li> Lar Kaufman <a href ="mailto:lark@walden.com"><tt>lark@walden.com</tt></a>
-revised the increasingly complex 
+<li>Lar Kaufman <a href ="mailto:lark@walden.com"><tt>lark@walden.com</tt></a> revised the increasingly complex
 command syntax diagrams and updated the structure and content of this 
 manpage following release 2.5. (<a href ="http://www.walden.com/&nbsp;lark/"><tt>http://www.walden.com/&nbsp;lark/</tt></a>)
 <p>
 </li>
-<li> David B. Rosen <a href ="mailto:rosen@unr.edu provided"><tt>rosen@unr.edu provided</tt></a>
-ideas and some PostScript 
+<li>David B. Rosen <a href ="mailto:rosen@unr.edu"><tt>rosen@unr.edu</tt></a> provided ideas and some PostScript
 code from his ps2aplot program. 
 <p>
 </li>
-<li> Ian MacPhedran <a href ="mailto:Ian_MacPhedran@engr.USask.CA"><tt>Ian_MacPhedran@engr.USask.CA</tt></a>
-provided the xfig 
+<li>Ian MacPhedran <a href ="mailto:Ian_MacPhedran@engr.USask.CA"><tt>Ian_MacPhedran@engr.USask.CA</tt></a> provided the xfig
 backend. 
 <p>
 </li>
-<li> Carsten Hammer <a href ="mailto:chammer@hermes.hrz.uni-bielefeld.de"><tt>chammer@hermes.hrz.uni-bielefeld.de</tt></a>
-provided the 
+<li>Carsten Hammer <a href ="mailto:chammer@hermes.hrz.uni-bielefeld.de"><tt>chammer@hermes.hrz.uni-bielefeld.de</tt></a> provided the
 gnuplot backend and the initial DXF backend. 
 <p>
 </li>
-<li> Christoph Jaeschke <a href ="mailto:jaeschke@imbe05.imbe.uni-bremen.de"><tt>jaeschke@imbe05.imbe.uni-bremen.de</tt></a>
-provided 
-the OS/2 metafile (MET) backend. 
+<li>Christoph Jaeschke provided the OS/2 metafile (MET) backend. 
+Thomas Hoffmann <a href ="mailto:thoffman@zappa.sax.de"><tt>thoffman@zappa.sax.de</tt></a>
+did some further updates on the OS/2 part. 
 <p>
 </li>
-<li> Jens Weber <a href ="mailto:rz47b7@PostAG.DE"><tt>rz47b7@PostAG.DE</tt></a>
-provided the Windows metafile (WMF) 
+<li>Jens Weber <a href ="mailto:rz47b7@PostAG.DE"><tt>rz47b7@PostAG.DE</tt></a> provided the Windows metafile (WMF)
 backend, and a graphical user interface (GUI). 
 <p>
 </li>
-<li> G. Edward Johnson <a href ="mailto:lorax@nist.gov"><tt>lorax@nist.gov</tt></a>
-provided the CGM Draw library 
+<li>G. Edward Johnson <a href ="mailto:lorax@nist.gov"><tt>lorax@nist.gov</tt></a> provided the CGM Draw library
 used in the CGM backend. 
 <p>
 </li>
-<li> Gerhard Kircher <a href ="mailto:kircher@edvz.tuwien.ac.at"><tt>kircher@edvz.tuwien.ac.at</tt></a>
-provided some bug 
+<li>Gerhard Kircher <a href ="mailto:kircher@edvz.tuwien.ac.at"><tt>kircher@edvz.tuwien.ac.at</tt></a> provided some bug
 fixes. 
 <p>
 </li>
-<li> Bill Cheng <a href ="mailto:william@cs.columbia.edu"><tt>william@cs.columbia.edu</tt></a>
-provided help with the tgif 
+<li>Bill Cheng <a href ="mailto:william@cs.columbia.edu"><tt>william@cs.columbia.edu</tt></a> provided help with the tgif
 format and some changes to tgif to make the backend easier to implement. 
 URL:<a href ="http://www.cs.columbia.edu/&nbsp;william"><tt>http://www.cs.columbia.edu/&nbsp;william</tt></a>
 <p>
 </li>
-<li> Reini Urban <a href ="mailto:rurban@sbox.tu-graz.ac.at"><tt>rurban@sbox.tu-graz.ac.at</tt></a>
-provided input for the 
+<li>Reini Urban <a href ="mailto:rurban@sbox.tu-graz.ac.at"><tt>rurban@sbox.tu-graz.ac.at</tt></a> provided input for the
 extended DXF backend.(<a href ="http://xarch.tu-graz.ac.at/autocad/"><tt>http://xarch.tu-graz.ac.at/autocad/</tt></a>)
 <p>
 </li>
-<li> Glenn M. Lewis <a href ="mailto:glenn@gmlewis.com"><tt>glenn@gmlewis.com</tt></a>
-provided RenderMan (RIB), 
+<li>Glenn M. Lewis <a href ="mailto:glenn@gmlewis.com"><tt>glenn@gmlewis.com</tt></a> provided RenderMan (RIB),
 Real3D (RPL), and LightWave 3D (LWO) backends. 
 (<a href ="http://www.gmlewis.com/"><tt>http://www.gmlewis.com/</tt></a>)
 <p>
 </li>
-<li> Piet van Oostrum <a href ="mailto:piet@cs.ruu.nl"><tt>piet@cs.ruu.nl</tt></a>
-made several bug fixes. 
+<li>Piet van Oostrum <a href ="mailto:piet@cs.ruu.nl"><tt>piet@cs.ruu.nl</tt></a> made several bug fixes.
 <p>
 </li>
-<li> Lutz Vieweg <a href ="mailto:lkv@mania.robin.de"><tt>lkv@mania.robin.de</tt></a>
-provided several bug fixes and 
+<li>Lutz Vieweg <a href ="mailto:lkv@mania.robin.de"><tt>lkv@mania.robin.de</tt></a> provided several bug fixes and
 suggestions for improvements. 
 <p>
 </li>
-<li> Derek B. Noonburg <a href ="mailto:derekn@vw.ece.cmu.edu"><tt>derekn@vw.ece.cmu.edu</tt></a>
-and Rainer Dorsch 
+<li>Derek B. Noonburg <a href ="mailto:derekn@vw.ece.cmu.edu"><tt>derekn@vw.ece.cmu.edu</tt></a> and Rainer Dorsch
 <a href ="mailto:rd@berlepsch.wohnheim.uni-ulm.de"><tt>rd@berlepsch.wohnheim.uni-ulm.de</tt></a>
 isolated and resolved a 
 Linux-specific core dump problem. 
 <p>
 </li>
-<li> Rob Warner <a href ="mailto:rcw2@ukc.ac.uk"><tt>rcw2@ukc.ac.uk</tt></a>
-made pstoedit compile under RiscOS. 
+<li>Rob Warner <a href ="mailto:rcw2@ukc.ac.uk"><tt>rcw2@ukc.ac.uk</tt></a> made pstoedit compile under RiscOS.
 <p>
 </li>
-<li> Patrick Gosling <a href ="mailto:jpmg@eng.cam.ac.uk"><tt>jpmg@eng.cam.ac.uk</tt></a>
-made some suggestions 
+<li>Patrick Gosling <a href ="mailto:jpmg@eng.cam.ac.uk"><tt>jpmg@eng.cam.ac.uk</tt></a> made some suggestions
 regarding the usage of pstoedit in Ghostscript's SAFER mode. 
 <p>
 </li>
-<li> Scott Pakin <a href ="mailto:pakin@cs.uiuc.edu"><tt>pakin@cs.uiuc.edu</tt></a>
-for the Idraw backend. 
+<li>Scott Pakin <a href ="mailto:pakin@cs.uiuc.edu"><tt>pakin@cs.uiuc.edu</tt></a> for the Idraw backend and the
+autoconf support. 
 <p>
 </li>
-<li> Peter Katzmann <a href ="mailto:p.katzmann@thiesen.com"><tt>p.katzmann@thiesen.com</tt></a>
-for the HPGL backend. 
+<li>Peter Katzmann <a href ="mailto:p.katzmann@thiesen.com"><tt>p.katzmann@thiesen.com</tt></a> for the HPGL backend.
 <p>
 </li>
-<li> Chris Cox <a href ="mailto:ccox@airmail.net"><tt>ccox@airmail.net</tt></a>
-contributed the Tcl/Tk backend. 
+<li>Chris Cox <a href ="mailto:ccox@airmail.net"><tt>ccox@airmail.net</tt></a> contributed the Tcl/Tk backend.
 <p>
 </li>
-<li> Thorsten Behrens <a href ="mailto:Thorsten_Behrens@public.uni-hamburg.de"><tt>Thorsten_Behrens@public.uni-hamburg.de</tt></a>
-and 
+<li>Thorsten Behrens <a href ="mailto:Thorsten_Behrens@public.uni-hamburg.de"><tt>Thorsten_Behrens@public.uni-hamburg.de</tt></a> and
 Bjoern Petersen for reworking the WMF backend. 
 <p>
 </li>
-<li> Leszek Piotrowicz <a href ="mailto:leszek@sopot.rodan.pl"><tt>leszek@sopot.rodan.pl</tt></a>
-implemented the image 
+<li>Leszek Piotrowicz <a href ="mailto:leszek@sopot.rodan.pl"><tt>leszek@sopot.rodan.pl</tt></a> implemented the image
 support for the xfig driver and a JAVA based GUI. 
 <p>
 </li>
-<li> Egil Kvaleberg <a href ="mailto:egil@kvaleberg.no"><tt>egil@kvaleberg.no</tt></a>
-contributed the pic backend. 
+<li>Egil Kvaleberg <a href ="mailto:egil@kvaleberg.no"><tt>egil@kvaleberg.no</tt></a> contributed the pic backend.
 <p>
 </li>
-<li> Kai-Uwe Sattler <a href ="mailto:kus@iti.cs.uni-magdeburg.de"><tt>kus@iti.cs.uni-magdeburg.de</tt></a>
-implemented the 
-backend for Killustrator. 
+<li>Kai-Uwe Sattler <a href ="mailto:kus@iti.cs.uni-magdeburg.de"><tt>kus@iti.cs.uni-magdeburg.de</tt></a> implemented the
+backend for Kontour. 
 <p>
 </li>
-<li> Scott Pakin, pakin@cs.uiuc.edu provided the MetaPost backend. 
+<li>Scott Pakin, pakin@cs.uiuc.edu provided the MetaPost and LaTeX2e backend. 
 <p>
 </li>
-<li> Burkhard Plaum (<a href ="mailto:plaum@IPF.Uni-Stuttgart.de"><tt>plaum@IPF.Uni-Stuttgart.de</tt></a>)
-added support for 
+<li>Burkhard Plaum (<a href ="mailto:plaum@IPF.Uni-Stuttgart.de"><tt>plaum@IPF.Uni-Stuttgart.de</tt></a>) added support for
 complex filled paths for the xfig backend. 
 <p>
 </li>
-<li> Bernhard Herzog (<a href ="mailto:herzog@online.de"><tt>herzog@online.de</tt></a>)
-contributed the backend for 
-sketch ( http://www.online.de/home/sketch/ ) 
+<li>Bernhard Herzog (<a href ="mailto:herzog@online.de"><tt>herzog@online.de</tt></a>) contributed the backend for
+sketch ( <a href ="http://sketch.sourceforge.net/"><tt>http://sketch.sourceforge.net/</tt></a>
+) 
 <p>
 </li>
-<li> Rolf Niepraschk (<a href ="mailto:niepraschk@ptb.de"><tt>niepraschk@ptb.de</tt></a>)
-converted the HTML man page 
+<li>Rolf Niepraschk (<a href ="mailto:niepraschk@ptb.de"><tt>niepraschk@ptb.de</tt></a>) converted the HTML man page
 to LaTeX. This allows to generate the UNIX style and the HTML manual from this 
 base format. 
 <p>
 </li>
-<li> several others sent smaller bug fixed and bug reports. Sorry if I don't 
+<li>Several others sent smaller bug fixed and bug reports. Sorry if I don't 
 mention them all here. 
 <p>
 </li>
-<li> But most important: Peter Deutsch <a href ="mailto:ghost@aladdin.com"><tt>ghost@aladdin.com</tt></a>
-and Russell 
+<li>Gisbert W. Selke (<a href ="mailto:gisbert@tapirsoft.de"><tt>gisbert@tapirsoft.de</tt></a>) for the Java 2 backend.
+<p>
+</li>
+<li>Robert S. Maier (<a href ="mailto:rsm@math.arizona.edu"><tt>rsm@math.arizona.edu</tt></a>) for many improvements on
+the libplot backend and for libplot itself. 
+</li>
+<li>The authors of pstotext (<a href ="mailto:mcjones@pa.dec.com"><tt>mcjones@pa.dec.com</tt></a> and <a href ="mailto:birrell@pa.dec.com"><tt>birrell@pa.dec.com</tt></a>)
+for giving me the permission to use their simple PostScript code for 
+performing rotation. 
+</li>
+<li>Daniel Gehriger <a href ="mailto:gehriger@linkcad.com"><tt>gehriger@linkcad.com</tt></a> for his help concerning the handling of Splines in the DXF format.
+</li>
+<li>Allen Barnett <a href ="mailto:libemf@lignumcomputing.com"><tt>libemf@lignumcomputing.com</tt></a> for his work on the libEMF which allows to create WMF/EMF files under *nix systems.
+</li>
+<li>Dave <a href ="mailto:dave@opaque.net"><tt>dave@opaque.net</tt></a> for providing the libming which is a multiplatform library for generating SWF files.
+</li>
+<li>But most important: Peter Deutsch <a href ="mailto:ghost@aladdin.com"><tt>ghost@aladdin.com</tt></a> and Russell
 Lang <a href ="mailto:gsview@ghostgum.com.au"><tt>gsview@ghostgum.com.au</tt></a>
 for their help and answers regarding 
 GhostScript and gsview. 

@@ -6,7 +6,7 @@
    Backend for idraw files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,10 +37,14 @@ public:
 
   ~drvIDRAW(); // Destructor
 
+void show_image(const Image & imageinfo);
+
 private:
+	void print_coords();
+
   static const char *psfont2xlfd(const char *); // Map PS --> XLFD font name
   float IDRAW_SCALING;
-  const char *rgb2name(double, double, double);    // Map RGB --> color name
+  const char *rgb2name(float, float, float) const ;// Map RGB --> color name
   void print_header(const char *);    // Output idraw header
   struct {                            // Map of RGB to color name
     double red, green, blue;
@@ -48,13 +52,25 @@ private:
   } color[IDRAW_NUMCOLORS];
 
   // Scale a PostScript value to an idraw value
-  inline const unsigned int iscale(double invalue) const {
+  inline const unsigned int iscale(float invalue) const {
     return (unsigned int) (invalue/IDRAW_SCALING + 0.5);
   }
+private:
+
+     //  int           objectId;
+       TempFile      tempFile;
+       ofstream      &buffer;
+       int           imgcount;
+
+
 
 #include "drvfuncs.h"
 
+	
 };
 
 #endif
+ 
+ 
+ 
  

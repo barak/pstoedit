@@ -1,5 +1,5 @@
 PSTOEDIT 
-Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
+Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
 pstoedit converts Postscript(TM) and PDF files to other vector graphic
 formats so that they can be edited graphically. See pstoedit.htm or
@@ -15,13 +15,15 @@ all different backends. Get in contact with the author if you need
 more information on how to use this framework.
 
 If you just find this program useful, have made some improvements or 
-implemented other backends please send an email to wogl@geocities.com.
+implemented other backends please send an email to wglunz@pstoedit.net.
 
 If this programs saves you a lot of work consider sending a contribution
 of any kind.
 
 If you include this program on a CDROM, please send me a copy of the CD,
-or if it goes with a book, of the book.
+or if it goes with a book, of the book. 
+
+You can also send a Linux pinguin (Tux) for my daughters. They love it.
 
 My home address is:
 
@@ -33,18 +35,31 @@ Compiling pstoedit:
 -------------------
 You need a C++ compiler, e.g., g++ to compile pstoedit.
 
+If you want to implement or extend a driver that supports PNG images,
+you should have pnglib and zlib installed. Non of the standard
+drivers (except the demo driver -f sample) support this at the moment, 
+so is is not essentially needed. But in future I'm sure some drivers
+will support PNG.
+Further it is recommended to have libplotter installed. Then you
+get a lot of additional formats for free.
+
+If you have a Unix like system, try the following:
+* cd config
+* sh configure
+* cd ../src; make clean; make; make install; 
+
+If you have another system where running configure is not 
+possible, e.g. Windows, do the following:
 * cd to src
-* edit the makefile 
+* edit the makefile.txt
 	- change  BINDIR  according to your local environment
 	- Uncomment the platform specific flags corresponding to your 
 	  platform.
-* Note: pstoedit is configured to use the ANSI C++ headers if
-  it "thinks" that the compiler supports them. Currently it assumes
-  that GNU g++ supports the ANSI C++ headers and the STL. If your
-  installation of g++ does not (e.g. because libstdc++ is missing)
-  eliminate the #define HAVESTL in cppcomp.h. 
-  See the head of drvlplot.cpp for more details about compiling with
-  or without the GNU plotting library.
+* nmake /f makefile.txt 	(in a DOS box)
+
+* Note: pstoedit is configured to use the ANSI C++ headers. If your compiler
+  support then ANSI C++ headers, you might try to compile with those. In
+  this case #define HAVESTL in cppcomp.h
 
   A note regarding Visual C++. In principle the HAVESTL can be activated
   for Visual C++ (>= 5.0). However, I noticed a drastical increase both in 
@@ -54,26 +69,28 @@ You need a C++ compiler, e.g., g++ to compile pstoedit.
   again.
   
 
-* type: make clean; make; make install; (for *nix like systems)
-	nmake /f makefile 	(in a DOS box)
-
 There are several test cases included. To run them type `make test'.
 This works under *nix only.
 
-Installing pstoedit under Windows 9x/NT:
-----------------------------------------
+Installing pstoedit under Windows 9x/NT/2000:
+---------------------------------------------
 
-* create a directory "pstoedit" in parallel to the gsview and gs5.xx directories, e.g.
-  c:\gstools\pstoedit.
-* copy the pstoedit.exe and pstoedit.dll to this directory.
+* create a directory "pstoedit" in parallel to the gsview directory, e.g.
+  c:\gstools\pstoedit (if gsview is in c:\gstools\gsview )
+* copy the pstoedit.exe and pstoedit.dll to that directory.
 * if you plan to call pstoedit from a DOS box, you might consider to extend your
   PATH variable in order to avoid the need to call pstoedit always with with 
   full path name.
-* if you have installed gsview 2.6 or later, you are done, if not you need
+* if you have installed gsview 2.7 or later, you are done, if not you need
   to set the variable GS to point to either the gswin32.dll or gswin32c.exe found
   in the gsx.xx directory. In addition you might need to set GS_LIB (see GhostScript
   manual for details).
 
+Installing pstoedit under OS/2:
+-------------------------------
+
+See the readme.os2 in the os2 directory. There you also find a makefile 
+for OS/2.
 
 pstoedit and the -dSAFER option of Ghostscript:
 -----------------------------------------------
@@ -118,29 +135,29 @@ Try to run it on golfer.ps or tiger.ps that comes with ghostscript, e.g.,
 pstoedit -f <your format> <local path where GhostScript is installed>/examples/tiger.ps tiger.<suffix>
 
 In particular pstoedit does not support
-	* bitmap images (just for xfig and MIF)
+	* bitmap images (just for some backends and only a subset of the PostScript image operators)
 	* general fill patterns
-	* clipping
+	* clipping (only partially via the -sclip option)
 	* ... 
 
 Special note about the Java backend:
 ------------------------------------
-The java backend generates a java source file that needs other files
-in order to be compiled and usable. See the file java/readme_java.txt 
-for more details.
+The java backends generate a java source file that needs other files
+in order to be compiled and usable. See the files java/java1/readme_java.txt 
+and java/java2/readme_java2.htm for more details.
 
 Extending pstoedit:
 -------------------
 To implement a new backend you can start from drvsampl.cc.
 Please don't forget to send any new backend that might be of interest
-for others as well to the author (wglunz@geocities.com) so that
+for others as well to the author (wglunz@pstoedit.net) so that
 it can be incorporated into future versions of pstoedit. Such
 new backends will then be available with the GPL as well.
 
 Acknowledgements:
 -----------------
 
-See manual page in pstoedit.htm for a list of contributors.
+See manual page in pstoedit.htm and the changelog.htm for a list of contributors.
 
 License: 
 --------
@@ -162,4 +179,6 @@ License:
 
 
 ----------------------------------------------------------------------------
+ 
+ 
  

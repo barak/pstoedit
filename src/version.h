@@ -1,1 +1,7 @@
-static const char version[] = "3.15" ; 
+#ifndef __version_h
+#define __version_h
+  static const char version[] = "3.31" ;  
+#endif 
+ 
+ 
+ 

@@ -43,6 +43,7 @@ public:
     virtual bool pathsCanBeMerged(const PathInfo &, const PathInfo &) const;
 
  private:
+	 void print_coords();
     int id;
     int getid();
 
@@ -63,3 +64,5 @@ inline int drvSK::getid()
     return id++;
 }
 #endif
+ 
+ 

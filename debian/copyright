@@ -1,14 +1,12 @@
 This package was re-debianized using debhelper by J.H.M. Dassen (Ray).
 Previous versions were maintained by joost witteveen, <joostje@debian.org>
 
-Old versions of pstoedit have their home at
-ftp://ftp.x.org/contrib/applications/pstoedit/pstoedit.html ; the current
-homepage is http://www.geocities.com/SiliconValley/Network/1958/pstoedit/ .
+pstoedit sources can be found at http://www.pstoedit.net/pstoedit .
 
 Copyright:
 
 PSTOEDIT 
-Copyright (C) 1993-1999 Wolfgang Glunz, wglunz@geocities.com
+Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
 License: 
 --------

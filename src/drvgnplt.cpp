@@ -3,7 +3,7 @@
    simple backend for GNUplot format.
    Contributed by: Carsten Hammer (chammer@hermes.hrz.uni-bielefeld.de)
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
    (for the skeleton and the rest of pstoedit)
 
     This program is free software; you can redistribute it and/or modify
@@ -32,17 +32,15 @@
 
 drvGNUPLOT::derivedConstructor(drvGNUPLOT):
 //(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream):
-	constructBase
+constructBase
 {
 // driver specific initializations
 }
 
-drvGNUPLOT::~drvGNUPLOT() {}
-
-
-void drvGNUPLOT::print_coords()
+drvGNUPLOT::~drvGNUPLOT()
 {
 }
+
 
 void drvGNUPLOT::close_page()
 {
@@ -56,45 +54,46 @@ void drvGNUPLOT::open_page()
 
 void drvGNUPLOT::show_text(const TextInfo & textinfo)
 {
-  unused(&textinfo);
+	unused(&textinfo);
 }
 
 void drvGNUPLOT::show_path()
 {
 	outf << "\n#Polyline:\n";
-    	for (unsigned int n = 0; n < numberOfElementsInPath(); n++) {
+	for (unsigned int n = 0; n < numberOfElementsInPath(); n++) {
 		const Point & p = pathElement(n).getPoint(0);
-		outf << p.x_ <<"	" << p.y_ << "\n";
+		outf << p.x_ << "	" << p.y_ << "\n";
 	}
 };
 
 void drvGNUPLOT::show_rectangle(const float llx, const float lly, const float urx, const float ury)
 {
- // just do show_polyline for a first guess
-  	unused(&llx); unused(&lly); unused(&urx); unused(&ury);
+	// just do show_polyline for a first guess
+	unused(&llx);
+	unused(&lly);
+	unused(&urx);
+	unused(&ury);
 	show_path();
 }
 
-static DriverDescriptionT<drvGNUPLOT> D_gnuplot("gnuplot","gnuplot format","gnuplot",
-								   								 
-		false, // if backend supports subpathes
-		   // if subpathes are supported, the backend must deal with
-		   // sequences of the following form
-		   // moveto (start of subpath)
-		   // lineto (a line segment)
-		   // lineto 
-		   // moveto (start of a new subpath)
-		   // lineto (a line segment)
-		   // lineto 
-		   //
-		   // If this argument is set to false each subpath is drawn 
-		   // individually which might not necessarily represent
-		   // the original drawing.
-
-		false, // if backend supports curves
-		false, // if backend supports elements with fill and edges
-		false, // if backend supports text
-		false, // if backend supports Images
-		DriverDescription::normalopen,
-		false); // if format supports multiple pages in one file
+static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "gnuplot", false,	// if backend supports subpathes
+												   // if subpathes are supported, the backend must deal with
+												   // sequences of the following form
+												   // moveto (start of subpath)
+												   // lineto (a line segment)
+												   // lineto 
+												   // moveto (start of a new subpath)
+												   // lineto (a line segment)
+												   // lineto 
+												   //
+												   // If this argument is set to false each subpath is drawn 
+												   // individually which might not necessarily represent
+												   // the original drawing.
+												   false,	// if backend supports curves
+												   false,	// if backend supports elements with fill and edges
+												   false,	// if backend supports text
+												   false,	// if backend supports Images
+												   false,	// no support for PNG file images
+												   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
+												   false /*clipping */ , nodriverspecificoptions);
  

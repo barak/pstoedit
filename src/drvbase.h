@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,8 +35,9 @@
 //     $Id$
 */
 
-
+#ifndef cppcomp_h
 #include "cppcomp.h"
+#endif
 
 
 #include I_fstream
@@ -45,34 +46,64 @@
 #include I_string_h
 USESTD
 
+#ifndef assert
 #include <assert.h>
+#endif
 #include "miscutil.h"
 
 
 // for compatibility checking
-static const unsigned int drvbaseVersion = 105;
+static const unsigned int drvbaseVersion = 108;
 // 101 introduced the driverOK function
 // 102 introduced the font optimization (lasttextinfo_)
 // 103 introduced the -ssp support and the virtual pathscanbemerged
 // 104 introduced the fontmatrix handling
 // 105 introduced the miterlimit Info and outputPageSize
+// 106 introduced some new utility functions for transformation (*_trans*)
+// 107 new driver descriptions -- added info about clipping
+// 108 new driver descriptions -- added info about driver options
 
 const unsigned int	maxFontNamesLength = 1000;
-const unsigned int	maxpoints    = 20000;	// twice the maximal number of points in a path
-const unsigned int	maxElements  = maxpoints/2;
-const unsigned int	maxsegments  = maxpoints/2;// at least half of maxpoints (if we only have segments with one point)
+const unsigned int	maxPoints    = 80000;	// twice the maximal number of points in a path
+const unsigned int  maxPages     = 10000;   // maximum number of pages - needed for the array of bounding boxes
+const unsigned int	maxElements  = maxPoints/2;
+const unsigned int	maxSegments  = maxPoints/2;// at least half of maxpoints (if we only have segments with one point)
 
 
-struct Point
+class DLLEXPORT Point
 {
 public:
 	Point(float x, float y) : x_(x),y_(y) {}
 	Point() : x_(0.0f), y_(0.0f) {}; // for arrays
 	float x_;
 	float y_;
-	friend bool operator==(const Point & p1, const Point & p2) { return (p1.x_ == p2.x_) && (p1.y_ == p2.y_); }
+	bool operator==(const Point & p2) const { 
+		return (x_ == p2.x_) && (y_ == p2.y_); //lint !e777
+	}
+	Point operator+(const Point & p) const { return Point (x_+p.x_,y_+p.y_); }
+	const Point & operator+=(const Point & p) { x_+=p.x_; y_+=p.y_; return *this; }
+	Point operator*(float f) const { return Point (x_*f,y_*f); }
+
+#if 0
+	friend bool operator==(const Point & p1, const Point & p2) { 
+		return (p1.x_ == p2.x_) && (p1.y_ == p2.y_); //lint !e777
+	}
+#endif
 	Point transform(const float matrix[6]) const;
+	friend ostream & operator<<(ostream & out,const Point &p) {
+		return out << "x: " << p.x_ << " y: " << p.y_ ;
+	}
 private:
+};
+
+struct DLLEXPORT BBox // holds two points describing a Bounding Box 
+{
+public:
+	Point ll;
+	Point ur;
+	friend ostream & operator<<(ostream & out,const BBox &bb) {
+		return out << "LL: " << bb.ll << " UR: " << bb.ur ;
+	}
 };
 
 // image needs Point !
@@ -82,7 +113,7 @@ static const char emptyDashPattern[] =  "[ ] 0.0";
 
 class basedrawingelement ; // forward
 class DriverDescription ;  // forward
-class           drvbase 
+class       DLLEXPORT    drvbase 
     // = TITLE
     // Base class for backends to pstoedit
     //
@@ -104,9 +135,10 @@ public:
 	// = PUBLIC TYPES 
 
 	enum showtype { stroke, fill, eofill };
+	enum cliptype { clip , eoclip };
 	enum linetype { solid=0, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
 
-	struct TextInfo {
+	struct DLLEXPORT TextInfo {
 		float 		x;
 		float		y;
 		float		FontMatrix[6];
@@ -129,26 +161,27 @@ public:
 		float		ax; 
 		float		ay;
 		bool		mappedtoIsoLatin1;
+		bool		remappedfont; // was remapped via fontmap
 		bool		samefont(const TextInfo& cmp) const {
-			return ( currentFontName == cmp.currentFontName ) &&
-				//	( currentFontFamilyName == cmp.currentFontFamilyName ) &&
-				//	( currentFontFullName == cmp.currentFontFullName ) &&
-					( currentFontWeight == cmp.currentFontWeight ) &&
-					( currentFontSize == cmp.currentFontSize ) &&
-					( currentFontAngle == cmp.currentFontAngle ) ;
+			return ( currentFontName == cmp.currentFontName ) && //lint !e1702
+				//	( currentFontFamilyName == cmp.currentFontFamilyName ) && 
+				//	( currentFontFullName == cmp.currentFontFullName ) && 
+					( currentFontWeight == cmp.currentFontWeight ) && //lint !e1702
+					( currentFontSize == cmp.currentFontSize ) && //lint !e777 // testing floats for ==
+					( currentFontAngle == cmp.currentFontAngle ) ; //lint !e777 // testing floats for ==
 		}
 
 		bool		samecolor(const TextInfo& cmp) const {
-			return ( currentR == cmp.currentR ) &&
-					( currentG == cmp.currentG ) &&
-					( currentB == cmp.currentB );
+			return ( currentR == cmp.currentR ) && //lint !e777 // testing floats for ==
+					( currentG == cmp.currentG ) && //lint !e777 // testing floats for ==
+					( currentB == cmp.currentB ); //lint !e777 // testing floats for ==
 		}
 		TextInfo() :
 			x(0.0f),
 			y(0.0f),
 			x_end(0.0f),
 			y_end(0.0f),
-			thetext(0),
+//			thetext(0),  // use standard ctor
 			is_non_standard_font(false),
 			currentFontSize(10.0f),
 			currentFontAngle(0.0f),
@@ -160,7 +193,8 @@ public:
 			Char(32), // 32 means space
 			ax(0.0f),
 			ay(0.0f), 
-			mappedtoIsoLatin1(true) {
+			mappedtoIsoLatin1(true), 
+			remappedfont(false) {
 				for (int i = 0; i < 6 ; i++ ) FontMatrix[i] = 0.0f;
 			}
 		~TextInfo() { }
@@ -176,7 +210,7 @@ private:
 protected:
 	// = PROTECTED TYPES 
 
-	struct PathInfo {
+	struct DLLEXPORT PathInfo {
 		showtype	currentShowType;
 		linetype	currentLineType;
 		unsigned int    currentLineCap;
@@ -221,7 +255,8 @@ protected:
 			{
 			    path = new basedrawingelement *[maxElements];
 			}
-		~PathInfo() {
+
+		virtual ~PathInfo() { // added virtual because of windows memory handling
 			// the path content is deleted by clear
 			clear();
 			delete [] path;
@@ -237,6 +272,24 @@ protected:
 		PathInfo(const PathInfo &);
 	};
 
+//lint -esym(1712,SaveRestoreInfo) // no default ctor
+	class DLLEXPORT SaveRestoreInfo {
+	public:
+		unsigned int clippathlevel; // number of clippathes since opening (=save)
+		unsigned int savelevel;	
+		SaveRestoreInfo * previous;	
+		SaveRestoreInfo * next;
+		SaveRestoreInfo(SaveRestoreInfo * parent) : clippathlevel(0), previous(parent), next(NIL) 
+		{ 
+			if (parent) {
+				parent->next=this;
+				savelevel = parent->savelevel + 1;
+			} else {
+				savelevel = 0;
+			}
+		}
+	};
+
 public:
 	// = PUBLIC DATA
 
@@ -244,40 +297,51 @@ public:
 	bool simulateSubPaths; // simulate sub paths for backend that don't support it directly
 	Image 		imageInfo;
 
-	static FontMapper theFontMapper;
+	static FontMapper& theFontMapper();
 	static bool	verbose;
+	static bool Verbose();  // need a wrapper function because static initialized data cannot be DLLEXPORTed
+	static unsigned int totalNumberOfPages;
+	
+	static BBox	* bboxes() ; // [maxPages]; // array of bboxes - maxpages long
+	static RSString& pstoeditHomeDir(); // usually the place where the binary is installed
+	static RSString& pstoeditDataDir(); // where the fmp and other data files are stored
 
 protected:
 	// = PROTECTED DATA
 
 	ostream &	outf;           // the output stream
 	ostream &	errf;           // the error stream
-	const char*		inFileName; // full name of input file
-	const char*		outFileName; // full name of output file
+	const RSString	inFileName; // full name of input file
+	const RSString	outFileName; // full name of output file
+
 	char*         	outDirName; 	// output path with trailing slash or backslash
 	char*         	outBaseName; 	// just the basename (no path, no suffix)
 	unsigned int	d_argc;
-	char * *	d_argv;
+	char **			d_argv;
 	float           scale;
 	RSString		outputPageSize; // set via -pagesize option
 	float           currentDeviceHeight; // normally 792 pt; used for flipping y values.
 	float           currentDeviceWidth;  
 	float           x_offset;
 	float           y_offset;
+	friend class PSFrontEnd; // PSFrontEnd needs access to currentPageNumber
 	unsigned int    currentPageNumber;
 	bool			domerge;
 	const char *	defaultFontName; // name of default font 
 	bool			ctorOK;			// indicated Constructor failure
 									// returned via driverOK() function
 
+	SaveRestoreInfo saveRestoreInfo;
+	SaveRestoreInfo * currentSaveLevel;
 
 private:
 	// = PRIVATE DATA
 
 	bool    	page_empty;	// indicates whether the current page is empty or not
 	char * 		driveroptions; // string containing options for backend
-	PathInfo 	p1,p2;
+	PathInfo 	p1,p2,clippath; // p1 and p2 are filled alternatively (to allow merge), clippath when a clippath is read
 	PathInfo * 	currentPath; // for filling from lexer
+	PathInfo * 	last_currentPath; // need to save during usage of currentPath for clippath
 protected: // for drvrtf
 	PathInfo * 	outputPath;  // for output driver
 private:
@@ -309,8 +373,14 @@ public:
 
 	void		startup(bool merge);
 
-	void 		finalize(); // needed because base destructor will be called after
-				    // derived destructor
+	virtual void finalize(); 
+	// needed because base destructor will be called after derived destructor
+	// and thus the base destructor could no longer use the backend.
+	// virtual because so we can achieve that it is called in the
+	// context (DLL) of the real backend. Otherwise it would be called
+	// in the context of the main program which causes memory problems
+	// under windows since the plugins are NOT and extension DLL
+	//
 
 	void		setdefaultFontName(const char * n) {defaultFontName = n;}
 
@@ -321,6 +391,30 @@ public:
 			{ currentDeviceWidth = deviceWidth; }
 
 	float           getScale() const { return scale; }
+
+	inline long l_transX			(float x) const	{
+		return (long)((x + x_offset) + .5);	// rounded long	
+	}
+
+	inline long l_transY			(float y) const {
+		return (long)((-1.0f*y + y_offset) + .5);	// rounded long, mirrored
+	}
+
+	inline int i_transX			(float x) const	{
+		return (int)((x + x_offset) + .5);	// rounded int	
+	}
+
+	inline int i_transY			(float y) const {
+		return (int)((-1.0f*y + y_offset) + .5);	// rounded int, mirrored
+	}
+
+	inline float f_transX			(float x) const	{
+		return (x + x_offset) ;	
+	}
+
+	inline float f_transY			(float y) const {
+		return (-1.0f*y + y_offset) ;	
+	}
 
 	const RSString & getPageSize() const { return outputPageSize; }
 
@@ -341,6 +435,14 @@ public:
 
 	void    	showpage();
 
+	const BBox & getCurrentBBox() const;
+
+	void beginClipPath();
+	void endClipPath(cliptype clipmode) ;
+	// virtuals - to be implemented by backends
+	virtual void ClipPath(cliptype clipmode);
+	virtual void Save();
+	virtual void Restore();
 
 	// = DRAWING RELATED METHODS
 
@@ -409,11 +511,16 @@ public:
 
 	void		setCurrentFontAngle(float value);
 
-	float *		getCurrentFontMatrix() { return textInfo_.FontMatrix; }
+	const float *	getCurrentFontMatrix() const { return textInfo_.FontMatrix; }
+	void 		setCurrentFontMatrix(const float mat[6]) { for (unsigned short i = 0; i< 6; i++) textInfo_.FontMatrix[i] = mat[i]; }
 
 	void    	dumpText(const char *const thetext,
-				 const float x, 
-				 const float y);
+					const float x, 
+					const float y);
+
+	void		dumpHEXText(const char *const thetext, 
+					const float x, 
+					const float y);
 
 
 
@@ -435,6 +542,10 @@ public:
 	// overwrite this function and return false in case of an error.
 	// or it can just set the ctorOK to false.
 	virtual bool driverOK() const { return ctorOK; } // some  
+
+	// needed to check for pseude drivers which don't have a real backend
+	// but instead just do the job in the gs frontend.
+	virtual bool withbackend() const { return true; }
 
 protected:
 	// = PROTECTED METHODS
@@ -459,6 +570,7 @@ protected:
 	float           currentR() const { return outputPath->fillR; } // backends that don't support merging 
 	float           currentG() const { return outputPath->fillG; } // don't need to differentiate and
 	float           currentB() const { return outputPath->fillB; } // can use these functions.
+	void			add_to_page();
 
 private:
 	// = PRIVATE METHODS
@@ -466,8 +578,6 @@ private:
 	void 		guess_linetype();
 
 	bool		is_a_rectangle() const;
-
-	void		add_to_page();
 
 
 	// = BACKEND SPECIFIC FUNCTIONS
@@ -499,7 +609,8 @@ private:
 
 };
 
-class DashPattern {
+//lint -esym(1712,DashPattern) // no default ctor
+class DLLEXPORT DashPattern {
 public:
 	DashPattern(const char * patternAsSetDashString);
 	~DashPattern();
@@ -507,27 +618,33 @@ public:
 	int nrOfEntries;
 	float * numbers;
 	float offset;
+
+	NOCOPYANDASSIGN(DashPattern)
 };
 
 typedef const char * (*makeColorNameType)(float r, float g, float b);
-const unsigned int maxcolors = 1000 ; // 1000 colors maximum
-class ColorTable 
+const unsigned int maxcolors = 10000 ; //  maximum number of colors 
+
+//lint -esym(1712,ColorTable) // no default ctor
+class DLLEXPORT ColorTable 
 {
 public:
 	ColorTable(const char * const * defaultColors,
 		   const unsigned int numberOfDefaultColors,
 		   makeColorNameType makeColorName);
 	~ColorTable();
-	unsigned int getColorIndex(float r, float g, float b);
-	const char * const getColorString(float r, float g, float b);
-	bool 	isKnownColor(float r, float g, float b) const;
-	const char * const getColorString(unsigned int index) const;
+	unsigned int  getColorIndex(float r, float g, float b) ; // non const
+	const char *  getColorString(float r, float g, float b); // non const ;
+	bool 		  isKnownColor(float r, float g, float b) const;
+	const char *  getColorString(unsigned int index) const;
 		
 private:
 	const char * const * const defaultColors_;
 	const unsigned int  numberOfDefaultColors_;
 	char * newColors[maxcolors];
-        const makeColorNameType makeColorName_ ;
+    const makeColorNameType makeColorName_ ;
+
+	NOCOPYANDASSIGN(ColorTable)
 };
 
 
@@ -545,17 +662,23 @@ enum  Dtype {moveto, lineto, closepath, curveto};
 // closepath is only generated if backend supportes subpathes
 // curveto   is only generated if backend supportes it
 
-
+//lint -esym(1769,basedrawingelement)
+	// default ctor sufficient since no members anyway
 class basedrawingelement 
 {
 public:
+	// default ctor sufficient since no members anyway
 //	basedrawingelement(unsigned int size_p) /*: size(size_p) */ {}
 	virtual const Point &getPoint(unsigned int i) const = 0;
 	virtual Dtype getType() const = 0;
 	friend ostream & operator<<(ostream & out,const basedrawingelement &elem);
-	friend bool operator==(const basedrawingelement & bd1, const basedrawingelement & bd2);
+	bool operator==( const basedrawingelement & bd2) const;
 	virtual unsigned int getNrOfPoints() const = 0;
 	virtual basedrawingelement* clone() const = 0; // make a copy
+	// deleteyourself is needed because under Windows, the deletion
+	// of memory needs to be done by the same dll which did the allocation.
+	// this is not simply achieved if plugins are loaded as DLL.
+	virtual void deleteyourself() { delete this; } 
 private:
 //	const unsigned int size;
 };
@@ -576,7 +699,7 @@ public:
 //   <1 , 0 >::drawingelement__pt__19_XCUiL11XC5DtypeL10(Point*) with  for statement in inline
 
 	drawingelement(float x1 = 0.0 ,float y1 = 0.0 , float x2 = 0.0, float y2 = 0.0, float x3 = 0.0, float y3 = 0.0)
-	// : basedrawingelement(nr)
+	: basedrawingelement()
 	{
 #if defined (__GNUG__) || defined (_MSC_VER) && _MSC_VER >= 1100
 	const Point  p[] = {Point(x1,y1),Point(x2,y2),Point(x3,y3)};
@@ -597,13 +720,13 @@ public:
 	}
 
 	drawingelement(const Point p[])
-	//: basedrawingelement(nr)
+	: basedrawingelement()
 	{
 //	for (unsigned int i = 0 ; i < nr ; i++ ) points[i] = p[i]; 
 		copyPoints(nr,p,points);
 	}
 	drawingelement(const drawingelement<nr,curtype> & orig)
-		//: basedrawingelement(nr)
+	: basedrawingelement() //lint !e1724 // Argument to copy constructor for class drawingelement<<1>,<2>> should be a const reference
 	{ // copy ctor
 		if (orig.getType() != curtype ) {
 			cerr << "illegal usage of copy ctor of drawingelement" << endl;
@@ -616,6 +739,8 @@ public:
 		return new drawingelement<nr,curtype>(*this);
 	}
 	const Point &getPoint(unsigned int i) const  { 
+		assert( (i+1) < (nr+1) );  // nr can be 0 - so unsigned i could never be < 0
+					   // but if nr==0, i==0 is also invalid. (logically i has to be <nr)
 		return points[i]; 
 	}
 	virtual Dtype getType() const 		     { return (Dtype) curtype; }
@@ -625,7 +750,7 @@ public:
 						// although curtype is of type Dtype
 	virtual unsigned int getNrOfPoints() const { return nr; }
 private:
-	Point points[nr > 0 ? nr : 1];
+	Point points[(nr > 0) ? nr : (unsigned int)1]; //lint !e62 //Incompatible types (basic) for operator ':'
 };
 
 
@@ -636,7 +761,7 @@ private:
 #if 0
 template <unsigned int nr, Dtype curtype>
 inline drawingelement<nr,curtype>::drawingelement(Point p[]) 
-	: basedrawingelement(nr)
+	: basedrawingelement()
 {
 	for (unsigned int i = 0 ; i < nr ; i++ ) points[i] = p[i]; 
 }
@@ -644,7 +769,7 @@ inline drawingelement<nr,curtype>::drawingelement(Point p[])
 
 typedef drawingelement<(unsigned int) 1,moveto>  	Moveto;
 typedef drawingelement<(unsigned int) 1,lineto> 	Lineto;
-typedef drawingelement<(unsigned int) 0,closepath>  Closepath;
+typedef drawingelement<(unsigned int) 0,closepath>  	Closepath;
 typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 
 
@@ -661,24 +786,27 @@ typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 #define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,scalefactor_p,pagesize,descptr)
 
 
-class DescriptionRegister
+class DLLEXPORT DescriptionRegister
 {
 	enum {maxelems = 100 };
 public:
-	DescriptionRegister() { 
-		ind = 0;
+	DescriptionRegister() :ind(0) { 
 		for (int i = 0; i < maxelems; i++) rp[i] = 0; 
 	//	cout << " R constructed " << (void *) this << endl;
 	}
+#if 0
+	// removed - since otherwise one gets a runtime error when the .so is unloaded 
+	// (happens with g++ only). This is a noop anyway.
 	~DescriptionRegister() {
 	//	cout << " R destructed " << (void *) this << endl;
 	}
+#endif
 
 	static DescriptionRegister& getInstance();
 
 	void registerDriver(DriverDescription* xp);
 	void mergeRegister(ostream & out,const DescriptionRegister & src,const char * filename);
-	void explainformats(ostream & out) const;
+	void explainformats(ostream & out,bool withdetails=false) const;
 	const DriverDescription * getdriverdesc(const char * drivername) const;
 
 	DriverDescription* rp[maxelems];
@@ -687,13 +815,16 @@ public:
 private:
 	
 	int ind;
+
+	NOCOPYANDASSIGN(DescriptionRegister)
 };
 
-extern DescriptionRegister* globalRp;
+//extern DLLEXPORT DescriptionRegister* globalRp;
+extern "C" DLLEXPORT DescriptionRegister * getglobalRp(void);
 
 //extern __declspec ( dllexport) "C" {
 //not needed // DescriptionRegister* getglobalRp();
-typedef DescriptionRegister* (*getglobalRpFuncPtr)();
+typedef DescriptionRegister* (*getglobalRpFuncPtr)(void);
 //}
 
 //class Rinit 
@@ -714,30 +845,53 @@ typedef DescriptionRegister* (*getglobalRpFuncPtr)();
 typedef bool (*checkfuncptr)(void);
 class drvbase;
 
-class DriverDescription {
+struct OptionDescription {
+	OptionDescription(const char * n = 0, const char * p = 0, const char * d = 0) :Name(n), Parameter(p), Description(d) {}
+	const char * const Name;
+	const char * const Parameter;   // e.g. "String" or "numeric", or 0 (implicitly a boolean option then (no argument)
+	const char * const Description; // 
+// no special copy ctor, assignment op or dtor needed since this class is NOT owner of the (static) strings.
+};
+
+// An Array of OptionDescription is delimited by an element where Name is 0
+const OptionDescription endofoptions(0,0,0);
+
+const OptionDescription nodriverspecificoptions[] = {OptionDescription("driver has no further options",0,0),endofoptions};
+
+
+//lint -esym(1712,DriverDescription) // no default ctor
+class DLLEXPORT DriverDescription {
 public:
 	enum opentype {noopen, normalopen, binaryopen};
-	DriverDescription(const char * s_name, 
-			const char * expl, 
-			const char * suffix_p, 
+	DriverDescription(const char * const s_name, 
+			const char * const expl, 
+			const char * const suffix_p, 
 			const bool 	backendSupportsSubPathes_p,
 			const bool 	backendSupportsCurveto_p,
 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
 			const bool 	backendSupportsText_p,
 			const bool 	backendSupportsImages_p,  // supports bitmap images
+			const bool  backendSupportsPNGFileImages_p,
 			const opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
+			const bool	backendSupportsClipping_p,
+			const OptionDescription* optionDescription_p,
 			checkfuncptr checkfunc_p = 0);
-	virtual ~DriverDescription() {}
+	virtual ~DriverDescription() {
+		//		symbolicname = NIL; // these are const
+		//		explanation= NIL;
+		//		suffix= NIL;
+		//		additionalInfo= NIL;
+	} //lint !e1540
 
-	virtual drvbase * CreateBackend (const char * driveroptions_P,
+	virtual drvbase * CreateBackend (const char * const driveroptions_P,
 			 ostream & theoutStream, 
 			 ostream & theerrStream,   
-			 const char* nameOfInputFile,
-		     const char* nameOfOutputFile,
+			 const char* const nameOfInputFile,
+		     const char* const nameOfOutputFile,
 			 const float scalefactor,
 			 const RSString & pagesize
-			 ) const;
+			 ) const = 0;
 	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
 
  // Data members
@@ -750,16 +904,24 @@ public:
 	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
 	const bool 	backendSupportsText;
 	const bool 	backendSupportsImages;  // supports bitmap images
+	const bool  backendSupportsPNGFileImages;
 	const opentype  backendFileOpenType;
 	const bool	backendSupportsMultiplePages;
+	const bool	backendSupportsClipping;
+	const OptionDescription* optionDescription;
 	RSString filename; // where this driver is loaded from
 	const checkfuncptr checkfunc;
+
+	static const char * currentfilename; // the name of the file from which the plugin is loaded
+
+	NOCOPYANDASSIGN(DriverDescription)
 };
 
 class DescriptionRegister;
 
+//lint -esym(1712,DriverDescription*) // no default ctor
 template <class T>
-class DriverDescriptionT : public DriverDescription {
+class DLLEXPORT DriverDescriptionT : public DriverDescription {
 public:
 	DriverDescriptionT(const char * s_name, 
 			const char * expl, 
@@ -769,8 +931,11 @@ public:
 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
 			const bool 	backendSupportsText_p,
 			const bool 	backendSupportsImages_p,  // supports bitmap images
+			const bool  backendSupportsPNGFileImages_p, // supports images from a PNG files
 			const DriverDescription::opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
+			const bool	backendSupportsClipping_p,
+			const OptionDescription* optionDescription_p,//= nodriverspecificoptions,
 			checkfuncptr checkfunc_p = 0 ):
 	DriverDescription( 
 			s_name, 
@@ -781,17 +946,20 @@ public:
 			backendSupportsMerging_p, 
 			backendSupportsText_p,
 			backendSupportsImages_p, 
+			backendSupportsPNGFileImages_p,
 			backendFileOpenType_p,
 			backendSupportsMultiplePages_p,
+			backendSupportsClipping_p,
+			optionDescription_p,
 			checkfunc_p
 			)
 		{}
 	drvbase * CreateBackend (
-			const char * driveroptions_P,
+			const char * const driveroptions_P,
 		    ostream & theoutStream, 
 		    ostream & theerrStream,   
-			const char* nameOfInputFile,
-	       	const char* nameOfOutputFile,
+			const char* const nameOfInputFile,
+	       	const char* const nameOfOutputFile,
 			const float scalefactor,
 			const RSString & pagesize
 			 ) const
@@ -800,22 +968,67 @@ public:
 	} 
 //	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
 	virtual unsigned int getdrvbaseVersion() const { return drvbaseVersion; }
+
+private: typedef DriverDescriptionT<T> SHORTNAME;
+	NOCOPYANDASSIGN(SHORTNAME)
 };
 
 
+#if !( defined (__GNUG__)  && (__GNUC__>=3) && defined (HAVESTL) )
+//G++3.0 comes with a STL lib that includes a definition of min and max
 
-inline float min(float x,float y)
+// some systems have a minmax.h which is indirectly included
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
+#ifndef min
+template <class T>
+inline T min(T x, T y)
 {
 	return (x<y) ? x:y;
 }
+#endif
 
-inline float max(float x,float y)
+#ifndef max
+template <class T>
+inline T max(T x, T y)
 {
 	return (x>y) ? x:y;
 }
+#endif
+
+#endif
+
+inline float bezpnt(float t, float z1, float z2, float z3, float z4)
+{
+	// Determine ordinate on Bezier curve at length "t" on curve
+	if (t <= 0.0f) {
+		return z1; // t = 0.0f;
+	}
+	if (t >= 1.0f) {
+		return z4; // t = 1.0f;
+	}
+	const float t1 = (1.0f - t);
+	return t1 * t1 * t1 * z1 + 3.0f * t * t1 * t1 * z2 + 3.0f * t * t * t1 * z3 + t * t * t * z4;
+}
+
+inline Point PointOnBezier(float t, const Point & p1, const Point & p2, const Point & p3, const Point & p4)
+{
+	return Point(bezpnt(t,p1.x_,p2.x_,p3.x_,p4.x_), bezpnt(t,p1.y_,p2.y_,p3.y_,p4.y_));
+}
+
+
 
 
 #endif
+ 
+ 
+ 
+ 
  
  
  

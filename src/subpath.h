@@ -33,6 +33,7 @@ const int PS_PATH_IS_CONNECTED = 1;
 
 class sub_path
   {
+public:
   basedrawingelement ** path;            // Basedrawingelements
 
   int flags;
@@ -40,6 +41,7 @@ class sub_path
   sub_path ** parents;                   // Pointers to possible parents
   sub_path * parent;                     // Parent path
   sub_path ** children;                  // Children paths
+  Point * points;
   
   unsigned int num_outside;              // Number of paths outside of this
   unsigned int num_elements;             // Number of elements
@@ -50,7 +52,7 @@ class sub_path
 
   float llx, lly, urx, ury;
   
-  int read(drvbase::PathInfo &, int start); // Read drawingelements
+  int read(const drvbase::PathInfo &, int start); // Read drawingelements
   void adjust_bbox(const Point & p);
   
   // Check if the path is inside of another path
@@ -63,35 +65,37 @@ class sub_path
 
   void new_points();
   
-  ~sub_path()
-    {
-    if(children)
-      delete children;
-    delete path;
-    delete points;
-    delete parents;
-    
-    };
+  ~sub_path() {
+    delete [] children;
+    delete [] path;
+    delete [] points;
+    delete [] parents;
+  };
 
-  Point * points;
-  friend class sub_path_list;
 
-  sub_path()
-    {
+  sub_path() {
     flags = 0;
     num_elements = 0;
     num_points = 0;
     num_children = 0;
     num_outside = 0;
-    children = (sub_path**)0;
-    }
+
+    // pointers
+    children = 0;
+    path = 0;
+    points = 0;
+    parents = 0;
+  }
 
   // Replace every moveto by a lineto in a child path
   
   void clean();
     
-  friend struct drvbase::PathInfo;
-  };
+  friend class sub_path_list;
+//  friend struct drvbase::PathInfo;
+
+  NOCOPYANDASSIGN(sub_path)
+};
 
 class sub_path_list
   {
@@ -106,11 +110,15 @@ public:
       delete [] paths;
     }
   void find_parents();
-  void read(drvbase::PathInfo &);
+  void read(const drvbase::PathInfo &);
   void new_points();
   void clean_children();
   friend struct drvbase::PathInfo;
-  };
 
+  NOCOPYANDASSIGN(sub_path_list)
+};
+
+ 
+ 
  
  

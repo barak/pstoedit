@@ -1,146 +1,182 @@
 <html>
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage 3.0">
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
 <title>pstoedit</title>
 </head>
 
 <body>
 
-<h1>pstoedit 3.1x</h1>
+<h1>pstoedit 3.31</h1>
 
-<p>pstoedit translates PostScript and PDF graphics into other vector formats. Currently
-pstoedit can generate the following formats: 
-
-<ul>
-  <li>Tgif .obj format (for tgif version &gt;= 3) </li>
-  <li>.fig format for xfig </li>
-  <li>pdf - Adobe's Portable Document Format </li>
-  <li>gnuplot format </li>
-  <li>Flattened PostScript (with or without Bezier curves)</li>
-  <li>DXF - CAD exchange format </li>
-  <li>LWO - LightWave 3D </li>
-  <li>RIB - RenderMan </li>
-  <li>RPL - Real3D </li>
-  <li>Java applet </li>
-  <li>Idraw format </li>
-  <li>Tcl/Tk</li>
-  <li>HPGL</li>
-  <li>AI (Adobe Illustrator) (base on ps2ai.ps - not a real pstoedit driver - see notes below
-    and manual)</li>
-  <li>Windows Meta Files (WMF) (Windows 9x/NT only) </li>
-  <li>Enhanced Windows Meta Files (EMF) (Windows 9x/NT only)</li>
-  <li>OS/2 meta files (OS/2 only (currently not up-to-date)) </li>
-  <li>PIC format for troff/groff</li>
-  <li>MetaPost format for usage with TeX/LaTeX</li>
-  <li>Killustrator</li>
-  <li>GNU Metafile (plotutils / libplot)</li>
-  <li>Sketch&nbsp; ( <a href="http://www.online.de/home/sketch/">http://www.online.de/home/sketch/</a>
-    )</li>
-</ul>
-
-<p>The following formats are available as additional plugins on a shareware basis. See <a
-href="http://www.geocities.com/SiliconValley/Network/1958/plugins/">http://www.geocities.com/SiliconValley/Network/1958/plugins/</a>
-for more details. 
+<p>pstoedit translates PostScript and PDF graphics into other
+vector formats. Currently pstoedit can generate the following
+formats: </p>
 
 <ul>
-  <li>(Frame)Maker Intermediate Format (MIF)</li>
-  <li>CGM Format (both binary and textual) </li>
-  <li>Better Enhanced Windows Meta Files (EMF) (supports curves and compound pathes and does
-    more accurate text formatting) (Windows 9x/NT only)</li>
-  <li>RTF (MS Word)</li>
+    <li>Tgif .obj format (for tgif version &gt;= 3) </li>
+    <li>.fig format for xfig </li>
+    <li>pdf - Adobe's Portable Document Format </li>
+    <li>gnuplot format </li>
+    <li>Flattened PostScript (with or without Bezier curves)</li>
+    <li>DXF - CAD exchange format </li>
+    <li>LWO - LightWave 3D </li>
+    <li>RIB - RenderMan </li>
+    <li>RPL - Real3D </li>
+    <li>Java 1 or Java 2 applet </li>
+    <li>Idraw format (in fact a special form of EPS that idraw
+        can read)</li>
+    <li>Tcl/Tk</li>
+    <li>HPGL</li>
+    <li>AI (Adobe Illustrator) (based on ps2ai.ps - not a real
+        pstoedit driver - see notes below and manual)</li>
+    <li>Windows Meta Files (WMF) (Windows 9x/NT only) </li>
+    <li>Enhanced Windows Meta Files (EMF) (Windows 9x/NT only)</li>
+    <li>OS/2 meta files (OS/2 only) </li>
+    <li>PIC format for troff/groff</li>
+    <li>MetaPost format for usage with TeX/LaTeX</li>
+    <li>LaTeX2e picture</li>
+    <li>Kontour</li>
+    <li>GNU Metafile (plotutils / libplot)</li>
+    <li>Sketch&nbsp; ( <a href="http://sketch.sourceforge.net">http://sketch.sourceforge.net</a>
+        )</li>
+    <li>Mathematica</li>
+    <li>SWF (beta release state - still lot's of features missing
+        (fonts, dash handling, ...)</li>
 </ul>
 
-<p>Implementing support for other formats should be very easy. The architecture of
-pstoedit consists of a PostScript frontend which needs to call a PostScript interpreter
-like Ghostscript and the individual backends which are pugged into a kind of framework.
-This framework can be used independently from the PostScript frontend from any other
-program. The framework provides a uniform interface to all different backends. You need a
-C++ compiler to compile and GhostScript to run pstoedit. pstoedit should run on all Un*x
-like systems and has also been ported to OS/2, Windows 9x/NT, and RiscOS. </p>
-
-<p>Since version 3.00 it is possible to add new drivers without even recompiling the core
-program. pstoedit can load additional drivers as plugins.</p>
-
-<p>You can download pstoedit: 
+<p>The following formats are available as additional plugins on a
+shareware basis. See <a href="http://www.pstoedit.net/plugins/">http://www.pstoedit.net/plugins/</a>
+for more details. </p>
 
 <ul>
-  <li><a HREF="http://www.geocities.com/SiliconValley/Network/1958/pstoedit/pstoedit_3_14.zip">source
-    code</a> </li>
-  <li><a href="http://www.geocities.com/SiliconValley/Network/1958/pstoedit/pstoedit_win.zip">binary
-    for Windows 9x/NT</a></li>
-  <li><a href="http://www.geocities.com/SiliconValley/Network/1958/plugins/">additional
-    plugins</a></li>
-  <li><a href="http://www.geocities.com/SiliconValley/Network/1958/importps/">a version of
-    pstoedit that can be used as graphic import filter for MS-Office 95/97, Paint Shop Pro, or
-    Photoline</a></li>
+    <li>(Frame)Maker Intermediate Format (MIF)</li>
+    <li>CGM Format (both binary and textual) </li>
+    <li>SVG - scalable vector format. One candidate of the W3C
+        for a web standard for vector drawings. See <a
+        href="http://www.w3.org/Graphics/SVG">http://www.w3.org/Graphics/SVG</a>/
+        for more details.</li>
+    <li>Better Enhanced Windows Meta Files (EMF) (supports curves
+        and compound pathes and does more accurate text
+        formatting) (Windows 9x/NT only)</li>
+    <li>RTF (MS Word) (Windows 9x/NT only)</li>
 </ul>
 
-<p>pstoedit can also be used from within <a HREF="http://www.cs.wisc.edu/~ghost/gsview/">gsview</a>.
+<p>Implementing support for other formats should be very easy.
+The architecture of pstoedit consists of a PostScript frontend
+which needs to call a PostScript interpreter like Ghostscript and
+the individual backends which are pugged into a kind of framework.
+This framework can be used independently from the PostScript
+frontend from any other program. The framework provides a uniform
+interface to all different backends. You need a C++ compiler to
+compile and GhostScript to run pstoedit. pstoedit should run on
+all Un*x like systems and has also been ported to OS/2, Windows 9x/NT,
+and RiscOS. </p>
+
+<p>Since version 3.00 it is possible to add new drivers without
+even recompiling the core program. pstoedit can load additional
+drivers as plugins.</p>
+
+<p>You can download pstoedit: </p>
+
+<ul>
+    <li><a
+        href="http://www.pstoedit.net/pstoedit/pstoedit_3_30.zip">source
+        code</a> </li>
+    <li><a
+        href="http://www.pstoedit.net/pstoedit/pstoedit_win.zip">binary
+        for Windows 9x/NT</a></li>
+    <li><a href="http://www.pstoedit.net/plugins/">additional
+        plugins</a></li>
+    <li><a
+        href="http://www.pstoedit.net/plugins/pstoedit_bin_solaris.zip">binary
+        for Solaris</a> (including the MIF, CGM and SVG plugin) </li>
+    <li><a
+        href="http://www.pstoedit.net/plugins/pstoedit_bin_linux.zip">binary
+        for Linux</a> (including the MIF, CGM and SVG plugin) </li>
+    <li><a href="http://www.pstoedit.net/importps/">a version of
+        pstoedit that can be used as graphic import filter for MS-Office
+        95/97, Paint Shop Pro, or Photoline</a></li>
+</ul>
+
+<p>pstoedit can also be used from within <a
+href="http://www.cs.wisc.edu/~ghost/gsview/">gsview</a>. </p>
+
+<p><b>Please note: gsview 2.70 is not compatible with this
+version of pstoedit. You need a newer version of gsview. All
+versions above 3 should be OK. The setup of gsview already
+includes a recent version of pstoedit. If you want to use the
+latest version instead, install the content of the </b><a
+href="http://www.pstoedit.net/pstoedit/pstoedit_win.zip"><b>Windows
+binaries for pstoedit</b></a><b> into the pstoedit directory that
+is in parallel to the gsview directory where gsview is installed.
+Usually this is something like C:\Ghostgum\gsview. So pstoedit
+would go to C:\Ghostgum\pstoedit. </b></p>
+
+<p><strong>For the&nbsp; ps2ai backend, you first need to install
+a simple patch to ps2ai.ps in your gs directory if your version
+of GhostScript is older than 5.60. See </strong><a
+href="pstoedit.htm">the manual</a><strong> for more details.</strong></p>
+
+<p>You get can more information from: </p>
+
+<ul>
+    <li><a href="pstoedit.htm">The manual</a>, </li>
+    <li><a href="readme.txt">The readme file</a>. </li>
+    <li><a href="changelog.htm">The change log</a></li>
+</ul>
+
+<p>pstoedit also cooperates with autotrace. Autotrace can produce
+a dump file for further processing by pstoedit using the -bo (backend
+only) option. Autotrace is a program written by a group around
+Martin Weber and can be found at&nbsp; <a
+href="http://sourceforge.net/projects/autotrace/">http://sourceforge.net/projects/autotrace/</a>
 </p>
-
-<p><b>Please note: gsview 2.70 is not compatible with this version of pstoedit. You need a
-newer version of gsview. See <a HREF="http://www.cs.wisc.edu/~ghost/gsview/pstoedit.html">http://www.cs.wisc.edu/~ghost/gsview/pstoedit.html</a>
-regarding the update to 2.71. This update will install you version 3.00 of pstoedit. You
-should then install the new version of pstoedit directly afterwards.</b> </p>
-
-<p><strong>For the new ps2ai backend, you first need to install a simple patch to ps2ai.ps
-in your gs directory. See </strong><a HREF="pstoedit.htm">the manual</a><strong> for more
-details.</strong></p>
-
-<p>You get can more information from: 
-
-<ul>
-  <li><a HREF="pstoedit.htm">The manual</a>, </li>
-  <li><a HREF="readme.txt">The readme file</a>. </li>
-  <li><a href="changelog.htm">The change log</a></li>
-</ul>
-
-<p>&nbsp;</p>
 
 <hr>
 
-<p>There is an e-mail list for people that want to be informed about updates and bug-fixes
-related to pstoedit and importps. </p>
+<p>There is an e-mail list for people that want to be informed
+about updates and bug-fixes related to pstoedit and importps. </p>
 
-<p>Please note: This list is provided via egroups.com which adds a small commercial
-message to every mail sent to the list. You won't get additional advertisement via this
-list. Only the one that comes with each message sent explicitly to the list. If you don't
-like this policy, don't subscribe.</p>
+<p>Please note: This list is provided via egroups.com which adds
+a small commercial message to every mail sent to the list. You
+won't get additional advertisement via this list. Only the one
+that comes with each message sent explicitly to the list. If you
+don't like this policy, don't subscribe.</p>
 
-<form method="GET" action="http://www.eGroups.com/subscribe">
-  <input type="hidden" name="listname" value="pstoedit"><input type="hidden"
-  name="SubmitAction" value="Subscribe"><table width="200" cellspacing="0" cellpadding="2"
-  border="0" bgcolor="#E0E0E0">
-    <tr>
-      <td colspan="2" align="center"><b><z111a>Subscribe to</z> pstoedit and importps users</b> </td>
-    </tr>
-    <tr>
-      <td><input type="text" name="emailaddr" value="enter e-mail" size="21"> </td>
-      <td><input type="image" border="0" alt="Click here to join pstoedit"
-      name="Click here to join pstoedit" SRC="bevel.gif" width="88" height="31"> </td>
-    </tr>
-    <tr>
-      <td><a href="http://www.eGroups.com/list/pstoedit/">pstoedit archive</a> </td>
-      <td><small><z112>Hosted by</z> <a href="http://www.eGroups.com/">eGroups.com</a></small> </td>
-    </tr>
-  </table>
+<form action="http://www.eGroups.com/subscribe" method="GET">
+    <input type="hidden" name="listname" value="pstoedit"><input
+    type="hidden" name="SubmitAction" value="Subscribe"><table
+    border="0" cellpadding="2" cellspacing="0" width="200"
+    bgcolor="#E0E0E0">
+        <tr>
+            <td align="center" colspan="2"><b><z111a>Subscribe to</z>
+            pstoedit and importps users</b> </td>
+        </tr>
+        <tr>
+            <td><input type="text" size="21" name="emailaddr"
+            value="enter e-mail"> </td>
+            <td><input type="image"
+            name="Click here to join pstoedit" src="bevel.gif"
+            alt="Click here to join pstoedit" align="bottom"
+            border="0" width="88" height="31"> </td>
+        </tr>
+        <tr>
+            <td><a href="http://www.eGroups.com/list/pstoedit/">pstoedit
+            archive</a> </td>
+            <td><font size="2"><z112>Hosted by</z> </font><a
+            href="http://www.eGroups.com/"><font size="2">eGroups.com</font></a>
+            </td>
+        </tr>
+    </table>
 </form>
 
 <hr>
-<!--LINE3-->
-
-<p align="center">This page was accessed <img src="/cgi-bin/counter/2"> times. <!--LINE4--> </p>
-
-<hr align="center">
-
-<p align="center">This page hosted by <a href="/"><img src="/pictures/gc_icon.gif"
-border="0" align="middle"></a>&nbsp;&nbsp; Get your own <a href="/">Free Home Page</a><br>
-</p>
 
 <address>
-  Wolfgang Glunz email: <a HREF="mailto:wglunz@geocities.com">wglunz@geocities.com</a> 
+    Wolfgang Glunz email: <a href="mailto:wglunz@pstoedit.net">wglunz@pstoedit.net</a>
 </address>
 </body>
 </html>
