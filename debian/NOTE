@@ -1,0 +1,20 @@
+This version contains a patch provided by the author of pstoedit:
+
+Subject: Re: Bug Report: pstoedit 2.60 vs. gs 5.03
+Message-Id: <199710241804.UAA13079@weisshorn.mchp.siemens.de>
+Date: Fri, 24 Oct 1997 20:04:59 +0200 (MET DST)
+From: Wolfgang Glunz <Wolfgang.Glunz@mchp.siemens.de>
+
+Unfortunately, there is a small incompatibility between pstoedit 2.60 and
+GhostScript 5.x which causes every translation to fail. However, the
+fix is very easy:
+just replace deviceinfo with currentpagedevice in pstoedit.ph and
+compile again. 
+
+Actually this bug in pstoedit is caused by a bug fix in GhostScript.
+pstoedit used the deviceinfo operator but its presence in earlier
+releases was a bug in GhostScript. 
+Thanks for L. Peter Deutsch - the author of GhostScript - for pointing out the 
+simple fix. 
+
+	Wolfgang

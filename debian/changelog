@@ -1,6 +1,44 @@
+pstoedit (2.60-2) frozen unstable; urgency=low
+
+  * New maintainer.
+  * Fixes all reported bugs; lintian-clean.
+  * Acknowledge non-maintainer upload (Fixes #16499).
+  * Fixed typo and spello in Description (Fixes #19011, #16576).
+  * Downgraded Recommends: (vector format graphics editors/converters) 
+    to Suggests: ; use "or" rather than "and"; added ivtools-bin (for idraw)
+    and transfig. (Fixes #20314, #20976; brings compliance to policy wrt 
+    relationships between packages in and outside main).
+  * Disabled the "sample" driver (which is an actual driver, albeit a dummy
+    one). (Fixes #20429)
+  * Updated Standards-Version.
+  * Lintian fixes:
+    E: pstoedit: old-fsf-address-in-copyright-file
+    E: pstoedit: changelog-file-not-compressed usr/doc/pstoedit/changelog
+    W: pstoedit: executable-not-elf-or-script usr/man/man1/pstoedit.1.gz
+    E: pstoedit: manpage-not-compressed-with-max-compression usr/man/man1/pstoedit.1.gz
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sun, 24 May 1998 18:57:16 +0200
+
+pstoedit (2.60-1.1) unstable; urgency=low
+
+  * Non-maintainer release.
+  * Compiled with libc6.
+  * Applied fix from bug #14125.  It replaces "deviceinfo" with
+    "currentpagedevice" in pstoedit.ph, which makes it work with
+    newer gs versions.
+
+ -- Richard Braakman <dark@xs4all.nl>  Fri,  2 Jan 1998 23:30:45 +0100
+
+pstoedit (2.60-1) unstable; urgency=low
+
+  * Upgraded to upstream source.
+  * Include proper copyright file, in proper location.
+
+ -- joost witteveen <joost@rulcmc.leidenuniv.nl>  Fri, 2 May 1997 22:31:07 +0200
+
 pstoedit (2.3.3-3) unstable; urgency=low
   * Converted to new source format
-  * stripted makeedit
+  * stripped makeedit
  -- joost witteveen <joost@rulcmc.leidenuniv.nl>  Wed, 1 Jan 1997 20:45:28 +0100
 
 Local variables:

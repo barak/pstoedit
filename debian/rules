@@ -7,20 +7,25 @@
 # my name from the file itself.  (I assert my moral right of
 # paternity under the Copyright, Designs and Patents Act 1988.)
 
+SHELL+= -e
+
 package=pstoedit
 p=$(package)
 
-MAKEOPTS=BINDIR=debian/tmp/usr/bin \
- LIBDIR=debian/tmp/usr/lib/pstoedit\
- MANDIR=debian/tmp/usr/man
+MAKEOPTS=BINDIR=../debian/tmp/usr/bin \
+ LIBDIR=../debian/tmp/usr/lib/pstoedit\
+ MANDIR=../debian/tmp/usr/man
 
 # The next section may have to be extensively modified
 
 build:
-	make $(MAKEOPTS)
+	make -C src $(MAKEOPTS)
 
 clean:
-	$(MAKE) -i clean
+	$(MAKE) -C src -i clean
+	-cd examples ; rm -f *.ps.* *.man.ps*
+	rm -f debian/files debian/substvars
+	rm -rf debian/tmp
 
 binary-indep:   checkroot build
 	$(checkdir)
@@ -30,23 +35,31 @@ binary-indep:   checkroot build
 
 binary-arch:    checkroot build
 	-rm -rf debian/tmp
-	install -m 0755 -d debian/tmp/usr/doc/$(package)/copyright\
+	install -m 0755 -d debian/tmp/usr/doc/$(package)\
 	           debian/tmp/usr/lib/pstoedit\
 		   debian/tmp/DEBIAN\
 		   debian/tmp/usr/bin\
-		   debian/tmp/usr/man/man1
-	strip makeedit
-	make  $(MAKEOPTS) install
+		   debian/tmp/usr/man/man1\
+		   debian/tmp/usr/doc/$(package)/examples
+	make  -C src $(MAKEOPTS) install
+	strip debian/tmp/usr/bin/pstoedit
 	install -m 0644 debian/copyright debian/tmp/usr/doc/$(package)/copyright
 	install -m 0644 debian/changelog debian/tmp/usr/doc/$(package)/changelog.Debian
-	dpkg-shlibdeps makeedit
+	install -m 0644 readme.txt debian/tmp/usr/doc/$(package)/readme.txt
+	install -m 0644 news.txt debian/tmp/usr/doc/$(package)/changelog
+	install -m 0644 examples/*.ps debian/tmp/usr/doc/$(package)/examples
+	rm -f debian/tmp/usr/doc/$(package)/examples/*.man.ps*
+	-gzip -v9 debian/tmp/usr/doc/$(package)/*.* debian/tmp/usr/doc/$(package)/changelog
+	-gzip -v9 debian/tmp/usr/man/man1/*
+	chmod 644 debian/tmp/usr/man/man1/*
+	dpkg-shlibdeps src/pstoedit
 	dpkg-gencontrol
 	chown -R root.root debian/tmp
 	chmod -R g-ws debian/tmp
 	dpkg --build debian/tmp ..
 
 define checkdir
-	test -f $(package)
+	test -f src/$(package).cpp
 endef
 
 # Below here is fairly generic really
