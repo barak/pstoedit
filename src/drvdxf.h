@@ -5,7 +5,7 @@
    drvDXF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ class drvDXF : public drvbase {
 
 public:
 
-        drvDXF(const char * driveroptions_P,ostream & theoutStream ,ostream & theerrStream ); // Constructor
+        derivedConstructor(drvDXF);
+	// (const char * driveroptions_P,ostream & theoutStream ,ostream & theerrStream ); // Constructor
 
         ~drvDXF(); // Destructor
 

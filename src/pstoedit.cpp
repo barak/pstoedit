@@ -2,7 +2,7 @@
    pstoedit.cpp : This file is part of pstoedit
    main control procedure
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,93 +19,29 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-#include <stdio.h>
+#include "cppcomp.h"
 
-#include <iostream.h>
-#include <fstream.h>
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-  #include "unix:string.h"
-#else
-  #include <string.h>
-#endif
-#include <stdlib.h>
+#include I_fstream
+#include I_stdio
+#include I_stdlib
+#include I_string_h
 
-// #ifdef _MSC_VER
-// for getcwd ( at least for Visual C++)
-
-#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__EMX__)
-#include <unistd.h>
-#else
-#include <direct.h>
-#endif
+#include <assert.h>
 
 #include "pstoedit.h"
+
+// for the DLL export data types (the description struct)
+#include "pstoedll.h"
+
 #include "version.h"
-#include "config.h"
 
-#if WITHWMF
-#include "drvwmf.h"
-#endif    
+#include "miscutil.h"
 
-#if WITHTGIF
-#include "drvtgif.h"
-#endif    
+#include "drvbase.h"
 
-#if WITHIDRAW
-#include "drvidraw.h"
-#endif    
+#include "dynload.h"
 
-#if WITHRPL
-#include "drvrpl.h"
-#endif    
-
-#if WITHRIB
-#include "drvrib.h"
-#endif    
-
-#if WITHLWO
-#include "drvlwo.h"
-#endif    
-
-#if WITHMIF
-#include "drvmif.h"
-#endif    
-
-#if WITHFIG
-#include "drvfig.h"
-#endif    
-
-#if WITHGNUPLOT
-#include "drvgnplt.h"
-#endif    
-
-#if WITHDXF
-#include "drvdxf.h"
-#endif    
-
-#if WITHMET && defined(__OS2__)
-#include <io.h>
-#include "drvMET.h"
-#endif    
-
-#if WITHPDF
-#include "drvpdf.h"
-#endif
-
-#if WITHCGM
-#include "drvcgm.h"
-#endif
-
-#if WITHJAVA
-#include "drvjava.h"
-#endif
-
-// next include only for verifying that drvsampl is kept up to date
-#if WITHSAMPLE
-#include "drvsampl.h"
-#endif
-
+#define strequal(s1,s2) (strcmp(s1,s2) == 0)
 
 #ifndef USEPROLOGFROMFILE
 #include "pstoedit.ph"
@@ -113,27 +49,33 @@
 
 #include "psfront.h"
 
-#ifdef riscos
-// rcw2: tempnam doesn't seem to be defined in UnixLib 3.7b for RiscOS
-char *tempnam(const char *, const char *pfx)
-{
-	char tmp[1024];
-	
-	strcpy(tmp,"<Wimp$ScrapDir>.");
-	strcat(tmp,pfx);
-	return strdup(tmp);
-}
-#endif
+extern const char * defaultPIoptions(ostream & errstream,int verbose); // in callgs.cpp
 
-void usage(ostream & errstream) 
+static void writeFileName(ostream & outstream, const char * const filename)
 {
-	errstream << "usage: pstoedit [-help] [-dt] [-merge] [-df fontname] [-s nn] [-dis] [-nomaptoisolatin1] [-nq] [-flat nn] [-bo] [-psargs string] [-include file] -f format [infile [outfile]]" << endl;
+	const unsigned int len = strlen(filename);
+	for (unsigned int i = 0 ; i < len; i++ ) {
+		if (filename[i] =='\\') {
+			outstream << '/' ; // '/' works on DOS also
+		} else {
+			outstream << filename[i];
+		}
+	}
+}
+
+
+static void usage(ostream & errstream)
+{
+	errstream << "usage: pstoedit [-v] [-help] [-split] [-page nn] [-dt] "
+		"[-merge] [-df fontname] [-pagesize pagesize(e.g. a4)] [-scale nn] [-dis] [-nomaptoisolatin1]"
+		"[-nc] [-nq] [-nb] [-flat nn] [-bo] [-psarg string] [-include file] "
+		"[-sclip] [-ssp] [-fontmap mapfile] -f format [infile [outfile]]" << endl;
 }
 
 
 // cannot make this static, because it's used in a template, that might be
 // stored in a repository (separate .o file)
-int checkNextArgument(int argc, char ** argv, int arg,ostream & errstream) 
+static int checkNextArgument(int argc, const char * const argv[], int arg,ostream & errstream)
 {
 	// if there is no next arg, usage is printed and
 	// the program is terminated
@@ -149,8 +91,8 @@ int checkNextArgument(int argc, char ** argv, int arg,ostream & errstream)
 // made non template, because some compilers (cfront) have
 // problems with instantiating this
 // template <class T>
-// void getvalue(int argc, char ** argv, int arg, T & value) 
-void getvalue(int argc, char ** argv, int arg, float & value,ostream& errstream) 
+// void getvalue(int argc, char ** argv, int arg, T & value)
+static void getfvalue(int argc, const char * const argv[], int arg, float & value,ostream& errstream)
 {
 	// get value for option arg (value is next argument)
 	if (checkNextArgument(argc,argv,arg,errstream)) {
@@ -162,36 +104,19 @@ void getvalue(int argc, char ** argv, int arg, float & value,ostream& errstream)
 
 	}
 }
-
-static const char * full_qualified_tempnam(const char * pref)
+static void getivalue(int argc, const char * const argv[], int arg, int & value,ostream& errstream)
 {
-#if defined (__BCPLUSPLUS__)
-/* borland has a prototype that expects a char * as second arg */ 
-	const char * filename = tempnam(0,(char *) pref);
-#else
-	const char * filename = tempnam(0,pref);
-#endif
-	// W95: Fkt. tempnam() erzeugt Filename+Pfad
-  	// W3.1: es wird nur der Name zurueckgegeben
+	// get value for option arg (value is next argument)
+	if (checkNextArgument(argc,argv,arg,errstream)) {
 
-// rcw2: work round weird RiscOS naming conventions
-#ifndef riscos
-	if ( (strchr(filename,'\\')==0) &&
-	     (strchr(filename,'/') ==0) ) { // keine Pfadangaben..
-		char cwd[400];
-	  	getcwd(cwd,400); //JW akt. Verzeichnis holen
-		char * result = new char [strlen(filename) + strlen(cwd) + 2];
-		strcpy(result,cwd);
-		strcat(result,"/"); 
-		strcat(result,filename);
-		freeconst(filename);
-		return result;
-	} else 
-#endif
-	{
-		return filename;
+// Work around for Linux libg++ bug (use atof instead of strstream)
+		value = (int) atoi(argv[arg+1]);
+// C++'ish	istrstream strvalue(argv[arg+1]);
+//		strvalue >> value;
+
 	}
 }
+
 
 static int grep(const char * const matchstring, const char * const filename,ostream& errstream)
 {
@@ -202,13 +127,28 @@ static int grep(const char * const matchstring, const char * const filename,ostr
 		errstream << "Could not open file " << filename << " in grep" << endl;
 		return 1; // fail
 	} else {
-		const unsigned int matchlen = strlen(matchstring) ;
-		const unsigned int bufferlen = matchlen + 1;
+		const size_t matchlen = strlen(matchstring) ;
+		const size_t bufferlen = matchlen + 1;
 		// allocate buffer for reading begin of lines
 		char * buffer = new char[bufferlen];
-		while (inFile.get(buffer,bufferlen,'\n'), !inFile.eof() ) {
-//debugonly			errstream << " read in grep :`" << buffer << "'" << inFile.gcount() << " " << matchlen << endl;
-			if ((inFile.gcount() == matchlen) && 
+
+
+		while (inFile.get(buffer,bufferlen,'\n'), !inFile.eof() /* && !inFile.fail() */ ) {
+// debug	errstream << " read in grep :`" << buffer << "'" << inFile.gcount() << " " << matchlen << endl;
+			// gcount returns int on MSVC 
+#ifdef HAVESTL
+		// Notes regarding ANSI C++ version (from KB)
+		// istream::get( char* pch, int nCount, char delim ) is different in three ways: 
+		//•When nothing is read, failbit is set.
+		//•An eos is always stored after characters extracted (this happens regardless of the outcome).
+		//•A value of -1 for nCount is an error.
+
+			// If the line contains just a \n then the failbit
+			// is set in the ANSI version
+			if (inFile.gcount() == 0) { inFile.clear(); } 
+			else 
+#endif
+			if ((inFile.gcount() ==  matchlen) &&
 			    (strcmp(buffer,matchstring) == 0) ) {
 				delete [] buffer;
 				return 0;
@@ -221,202 +161,185 @@ static int grep(const char * const matchstring, const char * const filename,ostr
 }
 
 
-enum driverType { unknown, tgif, idraw, rpl, lwo, rib, mif, fig, cgm, cgmt, pdf, gnuplot, ps, debug, met, wmf, dxf,java, sample };
 
-struct driverdescription_T {
-	driverdescription_T(const char * s_name, const char * expl, driverType code, bool enabled_p):
-		symbolicname(s_name),
-		explanation(expl),
-		internalcode(code),
-		enabled(enabled_p) {}
-	const char * const symbolicname;
-	const char * const explanation;
-	const driverType internalcode;
-	const bool enabled;
-};
-
-static const driverdescription_T driverdescription [] = {
-	driverdescription_T("tgif","Tgif .obj format (for tgif version >= 3)",tgif,WITHTGIF),
-	driverdescription_T("rpl","Real3D Programming Language Format",rpl,WITHRPL),
-	driverdescription_T("lwo","LightWave 3D Object Format",lwo,WITHLWO),
-	driverdescription_T("rib","RenderMan Interface Bytestream",rib,WITHRIB),
-	driverdescription_T("mif","(Frame)Maker Intermediate Format",mif,WITHMIF),
-	driverdescription_T("fig" ,".fig format for xfig",fig,WITHFIG),
-	driverdescription_T("xfig",".fig format for xfig",fig,WITHFIG),
-	driverdescription_T("pdf","Adobe's Portable Document Format",pdf,WITHPDF),
-	driverdescription_T("gnuplot","gnuplot format",gnuplot,WITHGNUPLOT),
-	driverdescription_T("ps","Flattened PostScript",ps,1),
-	driverdescription_T("debug","for test purposes ",debug,1),
-	driverdescription_T("dump","for test purposes (same as debug)",debug,1),
-	driverdescription_T("met","OS/2 meta files",met,WITHMET),
-	driverdescription_T("wmf","Windows meta files",wmf,WITHWMF),
-	driverdescription_T("dxf","CAD exchange format",dxf,WITHDXF),
-	driverdescription_T("cgm","CGM Format (binary)",cgm,WITHCGM),
-	driverdescription_T("cgmt","CGM Format (textual)",cgmt,WITHCGM),
-	driverdescription_T("java","java applet source code",java,WITHJAVA),
-	driverdescription_T("idraw","Interviews draw format",idraw,WITHIDRAW),
-	driverdescription_T("sample","insert your new format here",sample,WITHSAMPLE)
-};
-
-driverType getdrivertype(const char * drivername)
-{
-	const unsigned int nrOfFormats = sizeof(driverdescription) / sizeof(driverdescription_T);
-	for (unsigned int i = 0; i < nrOfFormats; i++ ) {
-		if ( ( strcmp(drivername,driverdescription[i].symbolicname) == 0 ) &&
-		       driverdescription[i].enabled)  {
-			return  driverdescription[i].internalcode ;
-		} 
-	}
-	return unknown;
-}
-
-
-static void explainformats(ostream & out)
-{
-	const unsigned int nrOfFormats = sizeof(driverdescription) / sizeof(driverdescription_T);
-	{ 
-	out << "Enabled formats :\n";
-	for (unsigned int i = 0; i < nrOfFormats; i++ ) 
-          if (driverdescription[i].enabled)  {
-		out << '\t' << driverdescription[i].symbolicname << ":\t" ;
-		if (strlen(driverdescription[i].symbolicname) <7) {
-			out << '\t';
-		}
-		out << driverdescription[i].explanation << endl;
-	}
-	}
-	{
-	out << "Disabled formats (due to machine or compiler constraints, or manual configuration (config.h)):\n";
-	for (unsigned int i = 0; i < nrOfFormats; i++ ) 
-          if (!driverdescription[i].enabled)  {
-		out << '\t' << driverdescription[i].symbolicname << ":\t" ;
-		if (strlen(driverdescription[i].symbolicname) <7) {
-			out << '\t';
-		}
-		out << driverdescription[i].explanation << endl;
-	}
-	}
-}
-
-#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__EMX__)
-void convertBackSlashes(char* string) { unused(string); }
-// nothing to do on systems with unix style file names ( / for directories)
-#else
-void convertBackSlashes(char* string) {
-
-    char* c;
-
-    while ((c = strchr(string,'\\')) != NULL)
-       *c = '/';
-}
-#endif
-
-static void writeFileName(ostream & outstream, const char * const filename)
-{
-	const unsigned int len = strlen(filename);
-	for (unsigned int i = 0 ; i < len; i++ ) {
-		if (filename[i] =='\\') {
-			outstream << '/' ; // '/' works on DOS also
-		} else {
-			outstream << filename[i];
-		}
-	}
-}
-
+static DriverDescription D_psf("psf","Flattened PostScript (no curves)","fps",1,0,1,1,1,DriverDescription::normalopen,true);
+static DriverDescription D_ps("ps","PostScript","fps",1,1,1,1,1,DriverDescription::normalopen,true);
+static DriverDescription D_debug("debug","for test purposes","dbg",1,1,1,1,1,DriverDescription::normalopen,true);
+static DriverDescription D_dump("dump","for test purposes (same as debug)","dbg",1,1,1,1,1,DriverDescription::normalopen,true);
+static DriverDescription D_gs("gs","any device that GhostScript provides - use gs:format, e.g. gs:pdfwrite","gs",1,1,1,1,1,DriverDescription::normalopen,true);
+static DriverDescription D_ps2ai("ps2ai","Adobe Illustrator via ps2ai.ps of GhostScript","ai",1,1,1,1,1,DriverDescription::normalopen,false);
 
 class Closer {
 public:
 	Closer() : fromgui(false) {};
 	~Closer() {
 			if (fromgui) {
-				cout << "Program finished, please press CR to close window\n";
+				cerr << "Program finished, please press CR to close window\n";
 				cin.get();
 			}
 		  }
 	bool fromgui;
-	
 };
 
-int pstoedit(int argc,char **argv,ostream& errstream, 
+
+
+static void loadpstoeditplugins(const char * progname, ostream& errstream) {
+	static bool pluginsloaded = false;
+	if (pluginsloaded) return;
+	char * plugindir = getRegistryValue(errstream,"common","plugindir");
+	if(plugindir && strlen(plugindir) ) {
+		loadPlugInDrivers(plugindir,errstream); // load the driver plugins
+		pluginsloaded = true;
+	}	
+
+	// also look in the directory where the pstoedit .exe/dll was found
+	char szExePath[1000];
+	szExePath[0]= '\0';
+	const int r = P_GetPathToMyself(progname,szExePath, sizeof(szExePath));
+//	errstream << "r : " << r << " " << szExePath<< endl;
+	char * p = 0;
+	if ( r &&  (p = strrchr(szExePath,directoryDelimiter)) != 0) {
+	   	*p = '\0';
+		if (strcmp(szExePath,plugindir?plugindir:"") != 0) {
+			loadPlugInDrivers(szExePath,errstream);
+			pluginsloaded = true;
+		}
+	}
+
+	delete [] plugindir;
+}
+
+
+extern FILE * yyin;	    // used by lexer 
+					    // This has to be declared here because of the extern "C"
+						// otherwise we could declare it locally where it is used
+
+extern "C" DLLEXPORT 
+int pstoedit(int argc,const char * const argv[],ostream& errstream,
 		execute_interpreter_function call_PI,
-		const char * (*whichPI)(ostream &)
+		const char * (*whichPI)(ostream &,int),
+		DescriptionRegister* const pushinsPtr
 		)
 {
 	Closer closerObject;
+
 	// cannot be const  because it needs to be changed on non UNIX systems (convertBackSlashes)
 	      char * nameOfInputFile = 0;
-	const char * nameOfOutputFile = 0;
-	const char * psArgs = ""; // Pass through arguments to PostScript interpreter
+		  char * nameOfOutputFile = 0; // can contain %d for page splitting
+	//const char * psArgs = 0; // Pass through arguments to PostScript interpreter
+			Argv psArgs; // Pass through arguments to PostScript interpreter
 	const char * nameOfIncludeFile = 0; // name of an option include file
-//old	const char * resolution_option = "-r72x72"; // default
 	const char * replacementfont = "Courier";
 						      // can be changed via -r
-	bool    maptoisolatin1 = true;
-	bool    withdisplay = false;
-	bool    doquit 	    = true;
-	bool    merge       = false;
-	bool    drawtext    = false;
-	bool    escapetext  = false;                        // only for PostScript backend
-	bool    usepdfmark  = false;                        // only for PDF backend
-	float   flatness    = 1.0f;			    // used for setflat
-							    // in combination with -dt
-	char    *drivername = 0;
-#if WITHWMF
-   DRVWMFSETUP * pDrvWMFsetup = 0;
-#endif
-	float   magnification = 1.0f;
+	bool	maptoisolatin1 = true;
+	bool	withdisplay = false;
+	bool	doquit	    = true;
+	bool	nocurves    = false; // normally curves are shown as curves if backend supports
+	bool	merge	    = false;
+	bool	drawtext    = false;
+	bool	splitpages	= false;
+	bool	verbose		= false;
+	bool	simulateSubPaths = false;
+	bool	loadplugins = true;
+	bool	nobindversion = false; // use old NOBIND instead of DELAYBIND
+	int     pagetoextract = 0; // 0 stands for all pages
+	float	flatness    = 1.0f;			    // used for setflat
+	bool	useFlatness = false;
+	bool	simulateClipping = false; // simulate clipping
+	const char*	explicitFontMapFile = 0;
+	RSString outputPageSize("");
 
-	bool    backendonly = false;                        // used for easier debugging of backends
+							    // in combination with -dt
+	char	*drivername = 0;
+
+	float	magnification = 1.0f;
+	bool	showhelp = false;
+
+	bool	backendonly = false;			    // used for easier debugging of backends
 	// directly read input file by backend
 	// bypass ghostscript. The input file
 	// is assumed to be produced by a
 	// previous call with -f debug
+	bool	readfontmap = false; // Have we read a fontmap?
 
-	errstream << "pstoedit: version " << version << " : Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz\n" ;
+	errstream << "pstoedit: version " << version << " / DLL interface " << drvbaseVersion << " (build " << __DATE__ << ")" << " : Copyright (C) 1993 - 1999 Wolfgang Glunz\n" ;
 	int arg = 1;
+	drvbase::verbose=false; // init
+
+//	obsolete now because of <driver>.fmp look-up
+//	char * fontmapfile = getRegistryValue(errstream,"common","fontmap");
+//	if (fontmapfile != 0) drvbase::theFontMapper.readMappingTable(errstream,fontmapfile);
+
 	while (arg < argc) {
 		if ( argv[arg][0] == '-' ) {
 			// it is an option
-			if (strncmp(argv[arg],"-s",2) == 0) {
-				getvalue(argc,argv,arg,magnification,errstream);
+			if (strncmp(argv[arg],"-scale",6) == 0) {
+				getfvalue(argc,argv,arg,magnification,errstream);
 				arg++;
 			} else if (strncmp(argv[arg],"-help",2) == 0) {
-				usage(errstream);
-				errstream << "Default interpreter is " << whichPI(errstream) << endl;
-				explainformats(errstream);
-				return 1;
-			} else if (strncmp(argv[arg],"-flat",3) == 0) {
-				getvalue(argc,argv,arg,flatness,errstream);
+				showhelp=true;
+			} else if (strncmp(argv[arg],"-page",3) == 0) {
+				getivalue(argc,argv,arg,pagetoextract,errstream);
 				arg++;
+			} else if (strncmp(argv[arg],"-flat",3) == 0) {
+				useFlatness = true;
+				getfvalue(argc,argv,arg,flatness,errstream);
+				arg++;
+			} else if (strncmp(argv[arg],"-v",2) == 0) {
+				verbose = true;
+			} else if (strncmp(argv[arg],"-ssp",4) == 0) {
+				simulateSubPaths = true;
+			} else if (strncmp(argv[arg],"-sclip",6) == 0) {
+				simulateClipping = true;
 			} else if (strncmp(argv[arg],"-bo",3) == 0) {
 				backendonly = true;
 			} else if (strncmp(argv[arg],"-merge",6) == 0) {
 				merge = true;
 			} else if (strncmp(argv[arg],"-dt",3) == 0) {
 				drawtext = true;
-//			} else if (strncmp(argv[arg],"-r",2) == 0) {
-//				resolution_option = argv[arg];
+			} else if (strncmp(argv[arg],"-split",6) == 0) {
+				splitpages = true;
 			} else if (strncmp(argv[arg],"-dis",4) == 0) {
 				withdisplay = true;
 			} else if (strncmp(argv[arg],"-nomaptoisolatin1",6) == 0) {
 				maptoisolatin1 = false;
+			} else if (strncmp(argv[arg],"-dontloadplugins",8) == 0) {
+				loadplugins = false;
 			} else if (strncmp(argv[arg],"-guimode",8) == 0) {
 				closerObject.fromgui = true;
+			} else if (strncmp(argv[arg],"-nc",3) == 0) {
+				nocurves = true;
 			} else if (strncmp(argv[arg],"-nq",3) == 0) {
 				doquit = false;
+			} else if (strncmp(argv[arg],"-nb",3) == 0) {
+				nobindversion = true;
 			} else if (strcmp(argv[arg],"-df") == 0) {
 				if (checkNextArgument(argc,argv,arg,errstream)) {
 					replacementfont = argv[arg+1];
 					arg++;
-				}
+				}			
 			} else if (strcmp(argv[arg],"-f") == 0) {
 				if (checkNextArgument(argc,argv,arg,errstream)) {
-					drivername = argv[arg+1];
+					drivername = cppstrdup(argv[arg+1]);
 					arg++;
 				}
-			} else if (strcmp(argv[arg],"-psargs") == 0) {
+			} else if (strcmp(argv[arg],"-pagesize") == 0) {
 				if (checkNextArgument(argc,argv,arg,errstream)) {
-					psArgs = argv[arg+1];
+					outputPageSize = argv[arg+1];
+					arg++;
+				}
+			} else if (strcmp(argv[arg],"-fontmap") == 0) {
+				if (checkNextArgument(argc,argv,arg,errstream)) {
+					//fontmapfile = cppstrdup(argv[arg+1]);
+					//drvbase::theFontMapper.readMappingTable(errstream,argv[arg+1]);
+					explicitFontMapFile = argv[arg+1];
+					arg++;
+				}
+			} else if (strcmp(argv[arg],"-psarg") == 0) {
+				if (checkNextArgument(argc,argv,arg,errstream)) {
+					psArgs.addarg(argv[arg+1]);
+//					errstream<<psArgs;
+					readfontmap = true;
 					arg++;
 				}
 			} else if (strcmp(argv[arg],"-include") == 0) {
@@ -431,9 +354,9 @@ int pstoedit(int argc,char **argv,ostream& errstream,
 			}
 		} else {
 			if (nameOfInputFile == 0) {
-				nameOfInputFile = argv[arg];
+				nameOfInputFile = cppstrdup(argv[arg]);
 			} else if (nameOfOutputFile == 0) {
-				nameOfOutputFile = argv[arg];
+				nameOfOutputFile = cppstrdup(argv[arg]);
 			} else {
 				errstream << "more than two file arguments " << endl;
 				usage(errstream);
@@ -443,251 +366,256 @@ int pstoedit(int argc,char **argv,ostream& errstream,
 		//     errstream << "argv[" << arg << "] = " << argv[arg] << endl;
 		arg++;
 	}
+	if(loadplugins) {
+		loadpstoeditplugins(argv[0],errstream); // load the driver plugins
+	}
+	if ( (pushinsPtr != 0) && (pushinsPtr != globalRp) ) {
+		globalRp->mergeRegister(errstream,*pushinsPtr,"push-ins");
+	}
+	if (showhelp) {
+		usage(errstream);
+		const char * gstocall = whichPI(errstream,verbose);
+		if (gstocall != 0) {
+			errstream << "Default interpreter is " << gstocall << endl;
+		}
+		globalRp->explainformats(errstream);
+		return 1;
+	}
 	if (drivername == 0) {
 		errstream << "No backend specified" << endl;
 		usage(errstream);
 		return 1;
 	} else {
+
 		char * driveroptions = strchr(drivername,':');
 		if (driveroptions) {
 			*driveroptions = '\0'; // replace : with 0 to separate drivername
 			driveroptions++;
 		}
-		driverType    currentDriver = getdrivertype(drivername);
-		if (currentDriver == unknown) {
+		const DriverDescription *    currentDriverDesc = globalRp->getdriverdesc(drivername);
+		if (currentDriverDesc == 0) {
 			errstream << "unsupported driver " << drivername << endl;
-			explainformats(errstream);
+			globalRp->explainformats(errstream);
 			return 1;
+		} else if (strcmp(drivername,"gs") == 0) {
+// TODO:
+			// Check for input file (exists, or stdin) stdout handling
+			if (!nameOfInputFile) {
+				errstream << "cannot read from standard input if GS drivers are selected" << endl;
+				return 1;
+			}
+			// an input file was given as argument
+
+			// just test whether InputFile is readable.
+			// The file will be read directly from the PostScript
+			// interpreter later on
+			convertBackSlashes(nameOfInputFile);
+
+			if (!fileExists(nameOfInputFile)) {
+					errstream << "Could not open file " << nameOfInputFile << " for input" << endl;
+					return 1;
+			}
+		
+			if(!nameOfOutputFile) {
+				errstream << "cannot write to from standard output if GS drivers are selected" << endl;
+				return 1;
+			}
+			// special handling of direct ghostscript drivers
+			Argv commandline;
+//			char commandline[1000];
+			// TODO check for overflow
+//			commandline[0]= '\0';
+			const char * gstocall = whichPI(errstream,verbose);
+			if (gstocall == 0) {
+				return 3;
+			}
+			commandline.addarg(gstocall);
+// rcw2: Current RiscOS port of gs can't find its fonts without this...
+#ifdef riscos
+			commandline.addarg("-I<GhostScript$Dir>");
+#endif
+			if (!verbose) commandline.addarg("-q");
+
+			const char * pioptions = defaultPIoptions(errstream,verbose);
+			if (pioptions && (strlen(pioptions) > 0)) {
+				commandline.addarg(pioptions);
+			}
+			commandline.addarg("-dNOPAUSE");
+			commandline.addarg("-dBATCH");
+			char tempbuffer[1000];
+			tempbuffer[0] = '\0';
+			strcat(tempbuffer,"-sDEVICE=");
+			strcat(tempbuffer,driveroptions); // e.g., pdfwrite ;
+			commandline.addarg(tempbuffer);
+			for (unsigned int psi = 0; psi < psArgs.argc; psi++) {
+				commandline.addarg(psArgs.argv[psi]);
+			}
+			tempbuffer[0] = '\0';
+			strcat(tempbuffer,"-sOutputFile=");
+			strcat(tempbuffer,nameOfOutputFile);
+			commandline.addarg(tempbuffer);
+			commandline.addarg("-c");
+			commandline.addarg("save");
+			commandline.addarg("pop");
+			commandline.addarg("-f");
+			commandline.addarg(nameOfInputFile);
+			if (verbose) errstream << "now calling the interpreter via: " << commandline << endl;
+			// gsresult = system(commandline);
+			const int gsresult = call_PI(commandline.argc,commandline.argv);
+			errstream << "Interpreter finished. Return status " << gsresult << endl;
+			return gsresult; 
 		} else {
+			if ((strcmp(drivername,"mpost") == 0) && !readfontmap) {
+				/* Set a sensible default */
+				drvbase::theFontMapper.readMappingTable(errstream,"/etc/pstoedit/fontmap.mpost");
+			}
 			//istream *inputFilePtr = 0;
 			// cannot be const because nameOfInputFile cannot be const
 			// because it needs to be changed on non UNIX systems (convertBackSlashes)
-			char stdinFileName[10] ;
-			strcpy(stdinFileName,"%stdin");  // for PostScript
-//using 'char * const stdinFileName = "%stdin";' is "wrong" with non writeable strings
+			const char stdinFileName[] = "%stdin" ;
 			if (nameOfInputFile) {
 				// an input file was given as argument
 
 				// just test whether InputFile is readable.
-				// The file will be read directly from the PostScrip
-                                // interpreter later on
-                                convertBackSlashes(nameOfInputFile);
-				ifstream inFile(nameOfInputFile);
-				if (!inFile) {
+				// The file will be read directly from the PostScript
+				// interpreter later on
+				convertBackSlashes(nameOfInputFile);
+				if (!fileExists(nameOfInputFile)) {
 					errstream << "Could not open file " << nameOfInputFile << " for input" << endl;
 					return 1;
 				}
-				// done by destructor  inFile.close();
 			} else {
-				nameOfInputFile = stdinFileName;
+				nameOfInputFile = cppstrdup(stdinFileName);
 			}
 			ostream *outputFilePtr = 0;
 			ofstream outFile;
-			if (nameOfOutputFile) {
-       	 			if (currentDriver != wmf ){ // no need to open file for wmf
-       	 				if (currentDriver == cgm ||
-					    currentDriver == lwo) {
-#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__EMX__)
+			drvbase *outputdriver = 0;
+
+			splitpages = splitpages || (!currentDriverDesc->backendSupportsMultiplePages);
+			// if -split is given or if backend does not support multiple pages
+
+			if(nameOfOutputFile) {
+				outputFilePtr = &outFile;
+				convertBackSlashes(nameOfOutputFile);
+				char newname[2000] ;
+				sprintf(newname,nameOfOutputFile,1); //first page is page 1
+				if (currentDriverDesc->backendFileOpenType != DriverDescription::noopen ){ 
+					if (currentDriverDesc->backendFileOpenType == DriverDescription::binaryopen ) { 
+#if (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) ) && !defined(DJGPP)
 // binary is not available on UNIX, only on PC
-						outFile.open(nameOfOutputFile);
+						outFile.open(newname,ios::out);
 #else
-						outFile.open(nameOfOutputFile,ios::binary);
+						// use redundant ios::out because of bug in djgpp
+						outFile.open(newname,ios::out | ios::binary);
 #endif
-					} else 
-					{
-						outFile.open(nameOfOutputFile);
+						// errstream << "opened " << newname << " for binary output" << endl;
+					} else {
+						outFile.open(newname);
+						// errstream << "opened " << newname << " for output" << endl;
 					}
 					if (outFile.fail() ) {
-						errstream << "Could not open file " << nameOfOutputFile << " for output" << endl;
+						errstream << "Could not open file " << newname << " for output" << endl;
 						return 1;
+					} // fail
+				} // backend opens file by itself
+				outputdriver = currentDriverDesc->CreateBackend(driveroptions,*outputFilePtr,errstream,nameOfInputFile,newname,magnification,outputPageSize);
+			} else {
+				if (splitpages) {
+					errstream << "Cannot split pages if output goes to standard output" << endl;
+					return 1;
+				} else  {
+					outputFilePtr = &cout;
+					outputdriver  = currentDriverDesc->CreateBackend(driveroptions,cout,errstream,nameOfInputFile,0,magnification,outputPageSize);
+				}
+			}
+
+			if (outputdriver && (!outputdriver->driverOK()) ) {
+				errstream << "Creation of driver failed " << endl;
+				return 1;
+			}
+			outputdriver->verbose=verbose;
+			if (explicitFontMapFile) {
+				if (fileExists(explicitFontMapFile)) {
+					if(verbose) {
+							errstream << "loading fontmap from " << explicitFontMapFile << endl;
 					}
-					outputFilePtr = &outFile;
+					outputdriver->theFontMapper.readMappingTable(errstream,explicitFontMapFile);
+				} else {
+					errstream << "Warning: Fontmap file " << explicitFontMapFile << " not found. Option ignored." << endl;
 				}
 			} else {
-				outputFilePtr = &cout;
-			}
-
-			drvbase * outputdriver = 0;
-			switch (currentDriver) {
-#if WITHCGM
-			case cgm:
-				outputdriver = new drvCGM(driveroptions,*outputFilePtr,errstream,1);
-				break;
-			case cgmt:
-				outputdriver = new drvCGM(driveroptions,*outputFilePtr,errstream,0);
-				break;
-#endif
-#if WITHDXF
-			case dxf:
-				outputdriver = new drvDXF(driveroptions,*outputFilePtr,errstream);
-				break;
+				// look for a driver specific fontmap 
+				// also look in the directory where the pstoedit .exe/dll was found
+				char szExePath[1000];
+				szExePath[0]= '\0';
+				const int r = P_GetPathToMyself(argv[0],szExePath, sizeof(szExePath));
+				if( r && verbose) {
+					errstream << " path to myself: " << szExePath << endl;
+				}	
+				char * p;
+				if ( r &&  (p = strrchr(szExePath,directoryDelimiter)) != 0) {
+				   	*p = '\0';
+					RSString test(szExePath);
+#if (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) ) && !defined(DJGPP)
+					test+="/../lib/";
+					test+=drivername;
+					test+=".fmp";
+#else
+					char delim[] = {directoryDelimiter,'\0'};
+					test+=delim;
+					test+=drivername;
+					test+=".fmp";
 #endif 
-			case debug:
-				// no driver needed for debug/dump output
-				usepdfmark = true;
-				break;
-#if WITHGNUPLOT
-			case gnuplot:
-				outputdriver = new drvGNUPLOT(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHFIG
-			case fig:
-				outputdriver = new drvFIG(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHSAMPLE
-			case sample:
-				outputdriver = new drvSAMPL(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHJAVA
-			case java:
-				outputdriver = new drvJAVA(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHLWO
-			case lwo:
-				outputdriver = new drvLWO(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHRIB
-			case rib:
-				outputdriver = new drvRIB(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHRPL
-			case rpl:
-				outputdriver = new drvRPL(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHMIF
-			case mif:
-				outputdriver = new drvMIF(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHMET && defined(__OS2__)
-			case met:
-				// driver specific options are appended to the drivers name
-				// e.g. -f met:wp
-				// The backend is responsible for parsing the additional option string
-				outFile.close();
-				pDrvMETsetup = new DRVMETSETUP(driveroptions);
-				if (pDrvMETsetup->exit) {
-				  	delete pDrvMETsetup;
-				  	return 0;
+					// errstream << test.value() << endl;
+					if (fileExists(test.value())) {
+						if(verbose) {
+							errstream << "loading driver specific fontmap from " << test.value() << endl;
+						}	
+						outputdriver->theFontMapper.readMappingTable(errstream,test.value());
+					}
 				}
-				if (!nameOfOutputFile) {
-				  	nameOfOutputFile = "stdout.met";
-				}
-				pDrvMETsetup->pMetaFileName = new char[strlen(nameOfOutputFile)+1];
-				strcpy(pDrvMETsetup->pMetaFileName,nameOfOutputFile);
-				break;
-#endif
-// JW
-#if WITHWMF
-			case wmf:     {
-				// driver specific options are appended to the drivers name
-				// e.g. -f wmf:wp
-				// The backend is responsible for parsing the additional option string
-				// errstream << "wmf-driver selected" << endl;
-//				outFile.close(); // MetaFileDC oeffnet sein eigenes File
-            			pDrvWMFsetup = new DRVWMFSETUP ;
-			
-			      	memset(pDrvWMFsetup,'\0',sizeof(DRVWMFSETUP));
-
-				if (pDrvWMFsetup->exit) {
-				  	delete pDrvWMFsetup;
-				  	return 0;
-				}
-
-        			if(driveroptions)
-					strcpy(pDrvWMFsetup->wmf_options, driveroptions);
-
-				if (nameOfOutputFile==0) {
-				  	nameOfOutputFile="drvWMF.out";
-				}
-				pDrvWMFsetup->pOutFileName = new char[strlen(nameOfOutputFile)+1];
-				strcpy(pDrvWMFsetup->pOutFileName,nameOfOutputFile);
-				pDrvWMFsetup->pInFileName = new char[strlen(nameOfInputFile)+1];
-				strcpy(pDrvWMFsetup->pInFileName,nameOfInputFile);
-
-		    		errstream << "WMF Driver Options: " << pDrvWMFsetup->wmf_options << endl;
-		    		for(int i=0;i<strlen(pDrvWMFsetup->wmf_options);i++)  {
-			   		switch((int)pDrvWMFsetup->wmf_options[i]) {
-
-				   	case('v'):
-					   	errstream << "wmf: verbose option selected" << endl;
-					    	pDrvWMFsetup->info=1;
-					    	break;
-				   	case('e'):
-					   	errstream << "wmf: enhanced meta file format selected" << endl;
-					    	pDrvWMFsetup->enhanced=1;
-					    	break;
-				    	default:
-					   	errstream << "wmf: unknown option: '" << pDrvWMFsetup->wmf_options[i] << "'" << endl;
-					   	break;
-
-			    		}
-		    		}
-            			outputFilePtr=&cout;
-		   		outputdriver = new drvWMF(*outputFilePtr,errstream ,magnification,pDrvWMFsetup->wmf_options ,pDrvWMFsetup);
-            			}
-				break;
-#endif
-
-#if WITHPDF
-			case pdf:
-				outputdriver = new drvPDF(driveroptions,*outputFilePtr,errstream);
-				usepdfmark = true;
-				break;
-#endif
-			case ps:
-				escapetext = true;
-				break;
-#if WITHIDRAW
-			case idraw:
-				outputdriver = new drvIDRAW(driveroptions,*outputFilePtr,errstream);
-				break;
-#endif
-#if WITHTGIF
-			case tgif:
-				outputdriver = new drvTGIF(driveroptions,*outputFilePtr,errstream,magnification);
-				break;
-#endif
-			default:
-				errstream << "unsupported driver " << drivername << endl;
-				explainformats(errstream);
-				return 1;
-				// unreachable break;
 			}
 
-			const char * gsoutName = 0;
+			char * gsoutName = 0;
 			const char * gsout;
 			int gsresult = 0;
 			if (backendonly) {
 				gsout = nameOfInputFile;
-				gsresult = 0;                       // gs was skipped, so there is no problem
+				gsresult = 0;			    // gs was skipped, so there is no problem
 			} else {
-				const char * gsin = full_qualified_tempnam("psin");
+				char * gsin = full_qualified_tempnam("psin");
+				const char * successstring; // string that indicated success of .pro
 				ofstream inFileStream(gsin);
+				inFileStream << "/pagetoextract " << pagetoextract << " def" << endl;
 				if (!maptoisolatin1) {
 					inFileStream << "/maptoisolatin1 false def" << endl;
 				}
-				if (drawtext) {
-					inFileStream << "/textastext false def" << endl;
+				if (verbose) {
+					inFileStream << "/verbosemode true def" << endl;
+				}
+				if (useFlatness) {
 					inFileStream << "/flatnesstouse " << flatness << " def" << endl;
 				}
-				if (escapetext) {
+				if (drawtext) {
+					inFileStream << "/textastext false def" << endl;
+				}
+				if (simulateClipping) {
+					inFileStream << "/simulateclipping true def" << endl;
+				}
+				if ( strequal(drivername,"ps") || strequal(drivername,"psf") ) {
 					inFileStream << "/escapetext true def" << endl;
 				}
-				if (usepdfmark) {
+				if ( (strequal(drivername,"debug")) ||
+				     (strequal(drivername,"pdf")) ) {
 					inFileStream << "/usepdfmark true def" << endl;
 				}
 
 				inFileStream << "/replacementfont (" << replacementfont << ") def" << endl;
-	
+
 				gsout = gsoutName = full_qualified_tempnam("psout");
+				assert((gsin != gsout) && ("You seem to have a buggy version of tempnam" != 0));
+				// tempnam under older version of DJGPP are buggy
+				// see search for BUGGYTEMPNAME in this file !! 
 				if (!nameOfOutputFile) {
 					inFileStream << "/redirectstdout true def" << endl;
 				}
@@ -711,10 +639,24 @@ int pstoedit(int argc,char **argv,ostream& errstream,
 					inFileStream <<") def" << endl;
 				}
 
-				if (outputdriver && outputdriver->backendSupportsCurveto ) {
+				if ( currentDriverDesc->backendSupportsImages ) {
+					inFileStream << "/withimages true def" << endl;
+				}
+				if ( (!nocurves) && currentDriverDesc->backendSupportsCurveto ) {
 					inFileStream << "/doflatten false def" << endl;
-				} 
-
+				} else {
+					inFileStream << "/doflatten true def" << endl;
+				}
+				if (doquit) {
+					inFileStream << "/pstoedit.quitprog { quit } def" << endl;
+				} else {
+					inFileStream << "/pstoedit.quitprog { } def" << endl;
+				}
+				if ( nobindversion ) {
+					inFileStream << "/delaybindversion  false def" << endl;
+				} else {
+					inFileStream << "/delaybindversion  true def" << endl;
+				}	 
 				if (outputdriver && (outputdriver->knownFontNames() != 0) ) {
 					const char * const * fnames = outputdriver->knownFontNames();
 					unsigned int size = 0;
@@ -728,75 +670,128 @@ int pstoedit(int argc,char **argv,ostream& errstream,
 						fnames++;
 					}
 					inFileStream << "end" << endl;
-				} 
-	
-#ifdef 	USEPROLOGFROMFILE
-				ifstream prologue("pstoedit.pro");
-				//     errstream << " copying prologue file to " << gsin << endl;
-					copy_file(prologue,inFileStream);
-#else
-				const char * * prologueline = PS_prologue;
-				while (prologueline && *prologueline ) {
-					inFileStream << *prologueline << '\n';
-					prologueline++;
 				}
+				if (strcmp(drivername,"ps2ai") == 0) {
+					successstring = "%EOF"; // This is written by the ps2ai.ps 
+										    // showpage in ps2ai does quit !!!
+					// ps2ai needs special headers
+					inFileStream <<
+							"/pstoedit.preps2ai where not { \n"
+								// first run through this file (before ps2ai.ps)
+							"	/jout true def \n" 
+							"	/joutput outputfilename def \n" ;
+					if (driveroptions && (strcmp(driveroptions,"-88") == 0) ) {
+						inFileStream << "	/jtxt3 false cdef\n" ;
+					}
+					inFileStream <<
+							"	/textastext where { pop textastext not {/joutln true def } if } if \n"
+							"	/pstoedit.preps2ai false def \n"
+							"}{ \n"
+							"	pop\n" // second run (after ps2ai.ps)
+							"	inputfilename run \n"
+						//	"	(\\" << successstring << "\\n) jp" 
+						//	"	pstoedit.quitprog \n"
+							"} ifelse \n" << endl;
+					
+				} else {
+					successstring = "% normal end reached by pstoedit.pro";
+#ifdef	USEPROLOGFROMFILE
+					ifstream prologue("pstoedit.pro");
+					//     errstream << " copying prologue file to " << gsin << endl;
+						copy_file(prologue,inFileStream);
+#else
+					const char * * prologueline = PS_prologue;
+					while (prologueline && *prologueline ) {
+						inFileStream << *prologueline << '\n';
+						prologueline++;
+					}
 #endif
-				if (doquit) {
-					inFileStream << "quit" << endl;
 				}
 				inFileStream.close();
 				// now call ghostscript
-				char commandline[1000];
-				// TODO check for overflow
-				commandline[0]= '\0';
-				const char * gstocall = whichPI(errstream);
-				strcat(commandline,gstocall);
+
+				Argv commandline;
+
+				const char * gstocall = whichPI(errstream,verbose);
+				if (gstocall == 0) {
+					return 3;
+				}
+				commandline.addarg(gstocall);
 // rcw2: Current RiscOS port of gs can't find its fonts without this...
 #ifdef riscos
-				strcat(commandline," -I<GhostScript$Dir> ");
+				commandline.addarg("-I<GhostScript$Dir>");
 #endif
-				strcat(commandline," -q ");
-				// NOBIND disables bind in, e.g, gs_init.ps
-				// these files are loaded before pstoedit.pro
-				// so any already bound call to, e.g., show could
-				// not be intercepted by pstoedit's show
-				strcat(commandline," -dNOBIND ");
-//				strcat(commandline,resolution_option);
-//				strcat(commandline," ");
 #if 0
-				if (usepdfmark) {
-					// for overloading pdfmark, we need write access to systemdict
+				// now handled by the next block (pioptions)
+				char * gsargs = getRegistryValue(errstream,"common","GS_LIB");
+				if (gsargs) {
+					char * inclDirective = new char[strlen(gsargs) + 3];
+					strcpy(inclDirective,"-I");
+					strcat(inclDirective,gsargs);
+					commandline.addarg(inclDirective);
+					delete [] inclDirective;
+					delete [] gsargs;
 				}
 #endif
-				strcat(commandline,"-dWRITESYSTEMDICT ");
-				if (withdisplay) {
-					strcat(commandline,"-dNOPAUSE ");
-				} else {
-					strcat(commandline,"-dNODISPLAY ");
+				const char * pioptions = defaultPIoptions(errstream,verbose);
+				if (pioptions && (strlen(pioptions) > 0)) {
+					commandline.addarg(pioptions);
 				}
-				strcat(commandline,psArgs);
-				strcat(commandline," ");
-				strcat(commandline,gsin);
-				errstream << "now calling the interpreter via: " << commandline << endl;
+				if (!verbose) commandline.addarg("-q");
+				if (nobindversion) {
+			// NOBIND disables bind in, e.g, gs_init.ps
+			// these files are loaded before pstoedit.pro
+			// so any already bound call to, e.g., show could
+			// not be intercepted by pstoedit's show
+
+					commandline.addarg("-dNOBIND");
+				} { 
+					commandline.addarg("-dDELAYBIND");
+				}
+				commandline.addarg("-dWRITESYSTEMDICT");
+				if (verbose) {
+					commandline.addarg("-dESTACKPRINT");
+				}
+				if (withdisplay) {
+					commandline.addarg("-dNOPAUSE");
+				} else {
+					commandline.addarg("-dNODISPLAY");
+				}
+//				if (psArgs!=0) commandline.addarg(psArgs);
+				for (unsigned int psi = 0; psi < psArgs.argc; psi++) {
+					commandline.addarg(psArgs.argv[psi]);
+				}
+				if (strcmp(drivername,"ps2ai") == 0) {
+					// ps2ai needs special headers
+					commandline.addarg(gsin); // the first time to set the paramters for ps2ai.ps
+					commandline.addarg("ps2ai.ps");
+					commandline.addarg(gsin); // again, but this time it'll run the conversion
+				} else {
+					commandline.addarg(gsin);
+				}
+				if (verbose) errstream << "now calling the interpreter via: " << commandline << endl;
 				// gsresult = system(commandline);
-				gsresult = call_PI(commandline);
+				gsresult = call_PI(commandline.argc,commandline.argv);
 				errstream << "Interpreter finished. Return status " << gsresult << endl;
 				// ghostscript seems to return always 0, so
 				// check whether the normal end was reached by pstoedit.pro
-				remove(gsin); 
-				freeconst(gsin); 
+				remove(gsin);
+				free(gsin);
 				// if really returned !0 don't grep
-				if (!gsresult) gsresult = grep("% normal end reached by pstoedit.pro",gsout,errstream);
+				if (!gsresult) {
+					if (verbose) errstream << "Now checking the temporary output" << endl;
+					gsresult = grep(successstring,gsout,errstream);
+				}
 			}
 			if (gsresult != 0) {
 				errstream << "The interpreter seems to have failed, cannot proceed !" << endl;
 				remove(gsout);
-				freeconst(gsoutName);
+				free(gsoutName);
 				return 1;
 			} else {
-			        if ((currentDriver != debug) && (currentDriver != ps )) {
-					extern FILE * yyin;         // used by lexer
-					if ( backendonly && (nameOfInputFile == stdinFileName) ) {
+				if ( outputdriver != 0 )  {
+
+					if ( backendonly && (strcmp(nameOfInputFile,stdinFileName) == 0) ) {
 						yyin = stdin;
 					} else {
 						yyin = fopen(gsout,"r");
@@ -805,69 +800,158 @@ int pstoedit(int argc,char **argv,ostream& errstream,
 							return 1;
 						}
 					}
-					errstream << "now postprocessing the interpreter output" << endl;
-					if (currentDriver != met && currentDriver != wmf) {  //JW
-						{
-						PSFrontEnd fe(errstream,*outputdriver);
+					if (verbose) errstream << "now postprocessing the interpreter output" << endl;
+					{
+						// local scope to force delete before delete of driver
+						outputdriver->setdefaultFontName(replacementfont);
+						outputdriver->simulateSubPaths = simulateSubPaths;
+						PSFrontEnd fe(outFile,
+								errstream,
+								nameOfInputFile,
+								nameOfOutputFile,
+								magnification,
+								outputPageSize,
+								currentDriverDesc,
+								driveroptions,
+								splitpages, 
+								outputdriver);
 						fe.run(merge);
-						} // local scope to force delete before delete of driver
-						delete outputdriver;
-					}
-// JW WITHWMF addiert
-#if WITHWMF
-					else if (currentDriver == wmf) { // driver is wmf
-
-						errstream << "Processing driver wmf" << endl;
-
-						// Input-Filenamen setzen
-						pDrvWMFsetup->infile = new char[strlen(gsout)+1];
-						strcpy(pDrvWMFsetup->infile, gsout);
-
-						{
-						PSFrontEnd fe(errstream,*outputdriver);
-				    		fe.run(0); // 0: merging wird nicht unterstuetzt
-						}
-
-						delete [] pDrvWMFsetup->infile;
-						delete [] pDrvWMFsetup->pOutFileName;
-						delete [] pDrvWMFsetup->pInFileName;
-						delete outputdriver;
-						delete pDrvWMFsetup;
-
-
-						errstream << "wmf-backend finished." << endl;
-
-#if 0
-						sprintf(tmpstring,"Output written to: '%s'",nameOfOutputFile);
-						MessageBox(NULL,tmpstring,"Conversion finished", MB_OK);
-#endif
-					}
-#endif
-#if WITHMET && defined(__OS2__)
-                			else if (currentDriver == met) {          // driver is met
-   						OS2WIN os2win;
-						os2win.run();
-						delete pDrvMETsetup->pMetaFileName;
-						delete pDrvMETsetup;
-					}
-#endif
-
-					if ( !( backendonly && (nameOfInputFile == stdinFileName) ) ) {
+					} 
+					if (verbose) errstream << "postprocessing the interpreter output finished" << endl;
+// now delete is done in fe.run					delete outputdriver;
+					if ( !( backendonly && (strcmp(nameOfInputFile,stdinFileName) == 0) ) ) {
 						fclose(yyin);
 					}
 				} else {
+					// outputdriver is 0
 					// Debug or PostScript driver
 					ifstream gsoutStream(gsout);
-			                // errstream << "now copying  " << gsout << " to output " << endl;
+					if (verbose) errstream << "now copying  '" << gsout << "' to '" <<
+						(nameOfOutputFile ? nameOfOutputFile:"standard output ") <<"' ";
 					copy_file(gsoutStream,*outputFilePtr);
-					// errstream << " done \n";
+					if (verbose) errstream << " done \n";
 				}
 				if ( !backendonly ) {
 					remove(gsout);
 				}
 			}
-			freeconst(gsoutName);
+			free(gsoutName);
 		}
-	}
+	} // no backend specified
+	delete [] drivername;
+	delete [] nameOfInputFile;
+	delete [] nameOfOutputFile;
 	return 0;
 }
+
+extern int callgs(int argc, const char * const argv[]);
+extern const char * whichPI(ostream & errstream,int verbose);
+
+
+static bool versioncheckOK = false;
+
+extern "C" DLLEXPORT  int  pstoedit_checkversion (unsigned int callersversion )
+{
+	versioncheckOK = (callersversion == pstoeditdllversion);
+	return versioncheckOK;
+}
+
+void ignoreVersionCheck() { versioncheckOK = true; }
+
+extern "C" DLLEXPORT 
+int pstoeditwithghostscript(int argc,
+							const char * const argv[],
+							ostream& errstream,
+							DescriptionRegister* const pushinsPtr)
+{
+	if (!versioncheckOK) {
+		errorMessage("wrong version of pstoedit");
+		return -1;
+	}
+	return pstoedit(argc,argv,errstream,callgs,whichPI,pushinsPtr);
+}
+
+//
+// the following functions provide the interface for gsview
+//
+static const char * givenPI =0;
+static const char * returngivenPI(ostream & errstream,int verbose)
+{
+	unused(&errstream);
+	unused(&verbose);
+	return givenPI;
+}
+
+extern "C" DLLEXPORT 
+int pstoedit_plainC(int argc,
+					const char * const argv[],
+					const char * const psinterpreter)
+{
+	if (!versioncheckOK) {
+		errorMessage("wrong version of pstoedit");
+		return -1;
+	}
+	if (psinterpreter != 0) {
+		givenPI=psinterpreter;
+		return pstoedit(argc,argv,cerr,callgs,returngivenPI,0);
+	} else {
+		return pstoedit(argc,argv,cerr,callgs,whichPI,0);
+	}
+}
+
+extern "C" DLLEXPORT DriverDescription_S *  getPstoeditDriverInfo_plainC() 
+{ 
+	if (!versioncheckOK) {
+		errorMessage("wrong version of pstoedit");
+		return 0;
+	}
+	loadpstoeditplugins("pstoedit",cerr);
+
+	const int dCount = globalRp->nrOfDescriptions();
+	/* use malloc to be compatible with C */
+	DriverDescription_S * result = (DriverDescription_S*) malloc ((dCount+1)* sizeof(DriverDescription_S));
+	DriverDescription_S * curR = result;
+	const DriverDescription * const * dd = globalRp->rp;
+	while(dd && (*dd) ) {
+			const DriverDescription * currentDD = *dd;
+			curR->symbolicname					= (char *) currentDD->symbolicname;
+			curR->explanation					= (char *) currentDD->explanation;
+			curR->suffix						= (char *) currentDD->suffix;
+			curR->additionalInfo				= (char *) currentDD->additionalInfo;
+			curR->backendSupportsSubPathes		= (int) currentDD->backendSupportsSubPathes;
+			curR->backendSupportsCurveto		= (int) currentDD->backendSupportsCurveto;
+			curR->backendSupportsMerging		= (int) currentDD->backendSupportsMerging; 
+			curR->backendSupportsText			= (int) currentDD->backendSupportsText;
+			curR->backendSupportsImages			= (int) currentDD->backendSupportsImages;
+			curR->backendSupportsMultiplePages	= (int) currentDD->backendSupportsMultiplePages;
+			curR++;
+			dd++;
+	}
+	curR++->symbolicname = 0; // indicator for end
+	
+	return result;
+}
+
+#if defined(_WIN32)
+extern void set_gs_write_callback(write_callback_type * new_cb); // defined in dwmain.c
+
+extern "C" DLLEXPORT void setPstoeditOutputFunction(void * cbData,write_callback_type* cbFunction) 
+{ 
+	if (!versioncheckOK) {
+		errorMessage("wrong version of pstoedit");
+		return ;
+	}
+	set_gs_write_callback(cbFunction); // for the gswin.DLL
+	static callbackBuffer cbBuffer(0,0); // default /dev/null 
+	cbBuffer.set_callback(cbData,cbFunction);
+#ifdef HAVESTL
+	cerr.rdbuf(&cbBuffer);
+#else
+	cerr = &cbBuffer;
+#endif
+}
+#endif
+ 
+ 
+ 
+ 

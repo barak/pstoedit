@@ -3,15 +3,15 @@
 
 /* 
    drvrib.h - header for RenderMan RIB polygon driver
-			- written by Glenn M. Lewis (glewis@c2.net) - 6/18/96
-			  http://www.c2.net/~glewis/
+             - written by Glenn M. Lewis <glenn@gmlewis.com> - 6/18/96
+	       http://www.gmlewis.com/>
 			  Based on...
 
    drvsampl.h : This file is part of pstoedit
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@ class drvRIB : public drvbase {
 
 public:
 
-	drvRIB(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
+	derivedConstructor(drvRIB);
+	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvRIB(); // Destructor
 

@@ -1,5 +1,14 @@
+This package was re-debianized using debhelper by J.H.M. Dassen (Ray).
+Previous versions were maintained by joost witteveen, <joostje@debian.org>
+
+Old versions of pstoedit have their home at
+ftp://ftp.x.org/contrib/applications/pstoedit/pstoedit.html ; the current
+homepage is http://www.geocities.com/SiliconValley/Network/1958/pstoedit/ .
+
+Copyright:
+
 PSTOEDIT 
-Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+Copyright (C) 1993-1999 Wolfgang Glunz, wglunz@geocities.com
 
 License: 
 --------
@@ -20,14 +29,8 @@ License:
     Boston, MA 02111-1307, USA.
 
 
-Upstream source location:
-
-ftp://ftp.x.org/contrib/applications/pstoedit/pstoedit.html
-
-Maintained by joost witteveen, <joostje@debian.org>
-
 Although the readme.txt file contains a requests for CD's to
-be sent to the author, he assured me the following:
+be sent to the author, he assured Joost of the following:
 
 From Wolfgang.Glunz@mchp.siemens.de Fri May  2 19:16:12 1997
 Message-Id: <199705021714.TAA20432@weisshorn.mchp.siemens.de>
@@ -57,5 +60,3 @@ your last interpretation is what I had in mind. So feel free
 to include pstoedit in your Linux distribution. No problem !
 
 [...]
-
-

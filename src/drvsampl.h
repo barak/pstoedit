@@ -6,7 +6,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,11 +30,14 @@ class drvSAMPL : public drvbase {
 
 public:
 
-	drvSAMPL(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
+	derivedConstructor(drvSAMPL);
+	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvSAMPL(); // Destructor
 
 #include "drvfuncs.h"
+
+	virtual void    show_image(const Image & imageinfo); 
 
 };
 

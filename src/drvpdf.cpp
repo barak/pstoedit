@@ -2,7 +2,7 @@
    drvPDF.cpp : This file is part of pstoedit
    Backend for PDF(TM) format
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,26 +25,23 @@
 */
 
 #include "drvpdf.h"
-#include <iostream.h>
-#include <iomanip.h>
-#include <fstream.h>
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-  #include "unix:string.h"
-#else
-  #include <string.h>
-#endif
-#include <stdio.h>
-#include <stdlib.h>
+#include I_iostream
+#include I_iomanip
+#include I_fstream
+#include I_fstream
+#include I_stdio
+#include I_stdlib
 
 #include <time.h>
 
 // for sin and cos
 #include <math.h>
 
+USESTD
+
 static float rnd(const float f,const float roundnumber)
 {
-	const float roundup = (f < 0.0) ? -0.5 : 0.5;
+	const float roundup = (f < 0.0f) ? -0.5f : 0.5f;
 	return ((long int) ( (f * roundnumber) + roundup )) / roundnumber;
 	
 }
@@ -134,8 +131,8 @@ static streampos newlinebytes = 1; // how many bytes are a newline (1 or 2)
 static const char * const stdEncoding = "Standard";
 
 const int largeint = 32000;
-drvPDF::drvPDF(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream):
-	drvbase(driveroptions_p,theoutStream,theerrStream,1,1,0),
+drvPDF::derivedConstructor(drvPDF):
+	constructBase,
 	currentobject(0),
 	pagenr(0),
 	inTextMode(false),
@@ -153,8 +150,12 @@ drvPDF::drvPDF(const char * driveroptions_p,ostream & theoutStream,ostream & the
 	}
     	const char * const header = "%PDF-1.1";
     	outf << header << endl;
-    	newlinebytes = outf.tellp() - strlen(header);
-
+#ifdef HAVESTL
+		//to avoid message "3 overloads have similar conversion"
+		newlinebytes = (long)outf.tellp() - (long)strlen(header);
+#else
+    	newlinebytes = (long)outf.tellp() - (long)strlen(header);
+#endif
      	if (verbose) outf << "% Driver options:" << endl;
 	for (unsigned int i = 0; i < d_argc ; i++ ) {
 		if (verbose) outf << "% " << d_argv[i] << endl; 
@@ -183,7 +184,7 @@ drvPDF::~drvPDF()
     outf << "<<" << endl;
     outf << "/Type /Encoding" << endl;
 
-#if basedonwinansi
+#ifdef basedonwinansi
 // For some reasons this does not work.
 // I haven't seen a working example using the /BaseEncoding feature
     outf << "/BaseEncoding /WinAnsiEncoding" << endl;
@@ -426,7 +427,7 @@ outf << "255 /ydieresis" << endl;
 		<< setw(2) << setfill('0') << localt->tm_min
 		<< setw(2) << setfill('0') << localt->tm_sec
 		<< ")" << endl;
-    outf << "/Producer (pstoedit by Wolfgang.Glunz@mchp.siemens.de)" << endl;
+    outf << "/Producer (pstoedit by wglunz@geocities.com)" << endl;
     outf << ">>" << endl;
     endobject();
 
@@ -434,7 +435,7 @@ outf << "255 /ydieresis" << endl;
     outf << "xref" << endl;
     outf << "0 " << currentobject+1 << endl;
     outf << "0000000000 65535 f" ;
-    if (newlinebytes == 1) {
+    if ((long)newlinebytes == 1l) {
     	outf << " ";
     }
     outf << endl;
@@ -443,7 +444,7 @@ outf << "255 /ydieresis" << endl;
     	outf.width(10);
     	outf.fill('0');
     	outf << startPosition[x] << " 00000 n";
-        if (newlinebytes == 1) {
+        if ((long)newlinebytes == 1l) {
        	   outf << " ";
         }
 	outf << endl;
@@ -538,7 +539,7 @@ void drvPDF::close_page()
 }
 
 static int getFontNumber(const char * const fontname) {
-    const unsigned int fntlength = strlen(fontname);
+    const size_t fntlength = strlen(fontname);
     for (unsigned int i=0; i < numberOfFonts; i++) {
     	const unsigned int pdfFntLengh = strlen(PDFFonts[i]);
 	if (fntlength == pdfFntLengh ) { 
@@ -561,7 +562,7 @@ static int getSubStringFontNumber(const char * const fontname) {
 	    if (strncmp(fontname,PDFFonts[i],pdfFntLength) == 0) {
 		if (pdfFntLength > longest) {
 			longest = pdfFntLength;
-			index = i;
+			index = (int) i;
 		}
 	    }
 	}
@@ -577,11 +578,16 @@ void drvPDF::show_text(const TextInfo & textinfo)
     if (PDFFontNum == -1) {
 	PDFFontNum = getSubStringFontNumber(textinfo.currentFontName.value());
     	if (PDFFontNum == -1) {
-		errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using Courier instead" << endl;
-		PDFFontNum = 0; // Courier
-	} else {
-		errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using " << PDFFonts[PDFFontNum] << " instead" << endl;
-	}
+		PDFFontNum = getSubStringFontNumber(defaultFontName);
+    		if (PDFFontNum == -1) {
+				errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using Courier instead" << endl;
+				PDFFontNum = 0; // Courier
+			} else {
+				errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using " << defaultFontName << " instead" << endl;
+			}
+		} else {
+			errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using " << PDFFonts[PDFFontNum] << " instead" << endl;
+		}
     } 
     starttext();
 // define TFALWAYSONE
@@ -622,7 +628,7 @@ void drvPDF::show_text(const TextInfo & textinfo)
     buffer << RND3(textinfo.cx) << ' ' << RND3(textinfo.ax) << ' ';
 #endif
     buffer << "(" ;
-    const char * start_of_text = textinfo.thetext;
+    const char * start_of_text = textinfo.thetext.value();
     while (*start_of_text) {
 	    if ((*start_of_text == '(') || 
 	        (*start_of_text == ')') ||
@@ -690,3 +696,27 @@ void drvPDF::show_rectangle(
     endtext(); // close text if open
  show_path();
 }
+
+static DriverDescriptionT<drvPDF> D_pdf(
+		"pdf","Adobe's Portable Document Format","pdf",
+		true, // if backend supports subpathes, else 0
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to 0 each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		1, // if backend supports curves, else 0
+		false, // if backend supports elements with fill and edges
+		true, // if backend supports text, else 0
+		true, // if backend supports Images
+		DriverDescription::normalopen,
+		true); // if format supports multiple pages in one file
+ 

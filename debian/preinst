@@ -1,0 +1,13 @@
+#! /bin/sh
+set -e
+
+if [ -e /usr/doc/pstoedit -a ! -L /usr/doc/pstoedit ] ; then
+	rm -f /usr/doc/pstoedit/.dhelp
+	rmdir /usr/doc/pstoedit || true
+fi
+
+#DEBHELPER#
+
+exit 0
+
+

@@ -4,7 +4,7 @@
    psfront.h : This file is part of pstoedit
    contains the class responsible for reading the dumped PostScript format
   
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,16 @@
 
 class PSFrontEnd {
 public:
-	PSFrontEnd(ostream & errstream,drvbase & backend_p);
+	PSFrontEnd(ostream & outfile_p, 
+			ostream & errstream,
+			const char * infilename_p,
+			const char * outfilename_p, 
+			const float scalefactor_p,
+			const RSString & pagesize_p,
+			const DriverDescription * driverDesc, 
+			const char * driveroptions_p,
+			const bool splitpages_p, 
+			drvbase * backend_p);
 	~PSFrontEnd();
 
 	void 		run(bool merge);	// do the conversion
@@ -49,14 +58,27 @@ private:
 
 	float           pop(); // pops and returns last value on stack
 
+	float           popUnScaled(); // pops and returns last value on stack
+
+	void		pstack() const; // for debugging
+
 	int 		yylex();    // read the input and call the backend specific
 				    // functions
 	void 		yylexcleanup(); // called from destructor
 
 
 private:
+	ostream &	outFile; 
 	ostream &	errf;           // the error stream
-	drvbase &	backend;
+	const char * infilename;	
+	const char * outfilename;
+	const float scalefactor;
+	const RSString pageSize;
+	const DriverDescription * driverDesc;
+	const char * driveroptions;
+	const bool	splitpages;
+	drvbase *	backend;
+	unsigned int    currentPageNumber;
 	float *         numbers; // The number stack [maxpoints]
 	unsigned int	nextFreeNumber;
 	unsigned int	pathnumber; // number of path (for debugging)
@@ -69,3 +91,5 @@ private:
 
 
 #endif
+ 
+ 

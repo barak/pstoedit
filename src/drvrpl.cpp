@@ -1,13 +1,13 @@
 /* 
    drvrpl.cpp - Driver to output Real3D RPL polygons
-             - written by Glenn M. Lewis (glewis@c2.net) - 6/18/96
-	       http://www.c2.net/~glewis/
+             - written by Glenn M. Lewis <glenn@gmlewis.com> - 6/18/96
+	       http://www.gmlewis.com/>
 	       Based on...
 
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,36 +24,13 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-
-#include <stdio.h>
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-  #include "unix:string.h"
-#else
-  #include <string.h>
-#endif
-#include <stdlib.h>
 #include "drvrpl.h"
+#include I_fstream
+#include I_stdio
+#include I_stdlib
 
-drvRPL::drvRPL(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
-  drvbase(driveroptions_p,theoutStream,theerrStream,
-	  0, // if backend supports subpathes, else 0
-	  // if subpathes are supported, the backend must deal with
-	  // sequences of the following form
-	  // moveto (start of subpath)
-	  // lineto (a line segment)
-	  // lineto 
-	  // moveto (start of a new subpath)
-	  // lineto (a line segment)
-	  // lineto 
-	  //
-	  // If this argument is set to 0 each subpath is drawn 
-	  // individually which might not necessarily represent
-	  // the original drawing.
-
-	  0,  // if backend supports curves, else 0
-	  0  // if backend supports elements with fill and edges
-	  )
+drvRPL::derivedConstructor(drvRPL):
+	  constructBase
 {
   // driver specific initializations
   // and writing of header to output file
@@ -132,3 +109,27 @@ void drvRPL::show_rectangle(const float llx, const float lly, const float urx, c
   unused(&ury);
   show_path();
 }
+
+static DriverDescriptionT<drvRPL> D_rpl(
+		"rpl","Real3D Programming Language Format","rpl",
+		false, // if backend supports subpathes, else 0
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to 0 each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		false, // if backend supports curves, else 0
+		false, // if backend supports elements with fill and edges
+		false, // if backend supports text, else 0
+		false, // if backend supports Images
+		DriverDescription::normalopen,
+		false); // if format supports multiple pages in one file
+ 

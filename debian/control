@@ -2,7 +2,7 @@ Priority: Optional
 Section: graphics
 Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>
-Standards-Version: 2.4.1.1
+Standards-Version: 2.5.0.0
 
 Package: pstoedit
 Architecture: any
@@ -10,5 +10,5 @@ Depends: ${shlibs:Depends}, gs
 Suggests: xfig|ivtools-bin|tgif|transfig
 Description: PostScript and PDF files to editable vector graphics converter.
  pstoedit converts Postscript and PDF files to various editable 
- vector graphic formats including tgif, xfig, Framemaker MIF, PDF graphics,
- idraw and flat PostScript.
+ vector graphic formats including tgif, xfig, PDF graphics, gnuplot format,
+ idraw, MetaPost, GNU Metafile, PIC, Killustrator and flattened PostScript.

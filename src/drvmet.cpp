@@ -5,7 +5,7 @@
    Backend for OS/2 Meta Files.
    Contributed by : Christoph Jaeschke (jaeschke@imbe05.imbe.uni-bremen.de)
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -159,8 +159,9 @@ char* INTFONTMAP::scanEnv(char* envName, char* fileName) {
   }
 }
 
-drvMET::drvMET(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): 
-drvbase(driveroptions_p,theoutStream,theerrStream,1,0,0) {
+drvMET::derivedConstructor(drvMET):
+//(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): 
+constructBase {
 
   long cFonts;
   SIZEL size={0,0};
@@ -444,7 +445,7 @@ void    drvMET::show_text(const TextInfo & textinfo) {
   GpiSetCharSet (hps,FONT_ID);
   ptl.x = transX(textinfo.x);
   ptl.y = transY(textinfo.y);
-  GpiCharStringAt(hps,&ptl,strlen(textinfo.thetext),(PCH)textinfo.thetext);
+  GpiCharStringAt(hps,&ptl,strlen(textinfo.thetext.value()),(PCH)textinfo.thetext.value());
 }
 
 void drvMET::drawPoly(int cntPoints, PPOINTL aptlPoints, PLONG aIsLineTo, int closed) {
@@ -723,4 +724,6 @@ DRVMETSETUP::DRVMETSETUP(char* optstring) {
   }
 }
 
+defineFactory(makedrvmet,drvMET)
+static DriverDescription D_met("met","OS/2 meta files","met",makedrvmet);
 #endif

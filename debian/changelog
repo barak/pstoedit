@@ -1,3 +1,77 @@
+pstoedit (3.15-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Fri, 29 Oct 1999 19:26:41 +0200
+
+pstoedit (3.13-3) unstable; urgency=low
+
+  * Oops. Still had a FSSTND location in the "doc-base" file messing things
+    up; added a preinst to deal with this. (Fixes #45068)
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sat, 25 Sep 1999 11:18:17 +0200
+
+pstoedit (3.13-2) unstable; urgency=low
+
+  * FHS migration. 
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sat, 11 Sep 1999 12:51:22 +0200
+
+pstoedit (3.13-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Thu,  5 Aug 1999 22:04:34 +0200
+
+pstoedit (3.12-3) unstable; urgency=medium
+
+  * Do the default fontmap handling for the MetaPost backend properly (only
+  * when the MetaPost backend is requested, and no other fontmap has been
+    loaded); install the fontmap as /etc/pstoedit/fontmap.mpost. 
+    (Fixes Bug#40610)
+  * Partial FHS migration (manpage).
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sat, 17 Jul 1999 14:40:38 +0200
+
+pstoedit (3.12-2) unstable; urgency=low
+
+  * Install fontmap in /etc/pstoedit with Unix end of line convention, 
+    and make it the default fontmap. Fixed drawing of rectangles by the 
+    MetaPost backend. (Fixes: #40610).
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Wed,  7 Jul 1999 14:41:24 +0200
+
+pstoedit (3.12-1) unstable; urgency=low
+
+  * New upstream release. 
+  * Include fontmap.mpost in the package. (Fixes: #40463)
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Wed, 30 Jun 1999 17:03:37 +0200
+
+pstoedit (3.11-2) unstable; urgency=low
+
+  * Include the upstream changelog. Fixes #37040.
+  * Fixed filenames in doc-base registration.
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Wed,  5 May 1999 13:40:03 +0200
+
+pstoedit (3.11-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added -DBUGGYGPP and -D__STRICT_ANSI_ to get it to compile.
+  * Updated description.
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sun, 11 Apr 1999 14:44:09 +0200
+
+pstoedit (3.03-1) unstable; urgency=low
+
+  * New upstream release. No longer contains a manpage; use the old one,
+    with a warning.
+  * Now built using debhelper.
+  * Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Mon,  1 Feb 1999 20:59:33 +0100
+
 pstoedit (2.60-4) unstable; urgency=low
 
   * Applied patch to make pstoedit work with gs-aladdin 5.50. Thanks to Elad

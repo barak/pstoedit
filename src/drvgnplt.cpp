@@ -3,7 +3,7 @@
    simple backend for GNUplot format.
    Contributed by: Carsten Hammer (chammer@hermes.hrz.uni-bielefeld.de)
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
    (for the skeleton and the rest of pstoedit)
 
     This program is free software; you can redistribute it and/or modify
@@ -22,19 +22,17 @@
 
 */
 
-#include <stdio.h>
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-  #include "unix:string.h"
-#else
-  #include <string.h>
-#endif
-#include <iostream.h>
-
 #include "drvgnplt.h"
 
-drvGNUPLOT::drvGNUPLOT(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream):
-	drvbase(driveroptions_p,theoutStream,theerrStream,0,0,0)
+#include I_stdio
+#include I_string_h
+#include I_iostream
+
+
+
+drvGNUPLOT::derivedConstructor(drvGNUPLOT):
+//(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream):
+	constructBase
 {
 // driver specific initializations
 }
@@ -76,3 +74,27 @@ void drvGNUPLOT::show_rectangle(const float llx, const float lly, const float ur
   	unused(&llx); unused(&lly); unused(&urx); unused(&ury);
 	show_path();
 }
+
+static DriverDescriptionT<drvGNUPLOT> D_gnuplot("gnuplot","gnuplot format","gnuplot",
+								   								 
+		false, // if backend supports subpathes
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to false each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		false, // if backend supports curves
+		false, // if backend supports elements with fill and edges
+		false, // if backend supports text
+		false, // if backend supports Images
+		DriverDescription::normalopen,
+		false); // if format supports multiple pages in one file
+ 

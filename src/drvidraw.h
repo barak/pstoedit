@@ -6,7 +6,7 @@
    Backend for idraw files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,18 +26,20 @@
 
 #include "drvbase.h"
 
-static const float IDRAW_SCALING=0.799705;
+
 enum {IDRAW_NUMCOLORS=12};
 
 class drvIDRAW : public drvbase {
 
 public:
-  drvIDRAW(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
+  derivedConstructor(drvIDRAW);
+  //(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
   ~drvIDRAW(); // Destructor
 
 private:
   static const char *psfont2xlfd(const char *); // Map PS --> XLFD font name
+  float IDRAW_SCALING;
   const char *rgb2name(double, double, double);    // Map RGB --> color name
   void print_header(const char *);    // Output idraw header
   struct {                            // Map of RGB to color name
@@ -46,7 +48,7 @@ private:
   } color[IDRAW_NUMCOLORS];
 
   // Scale a PostScript value to an idraw value
-  static inline const unsigned int iscale(float invalue) {
+  inline const unsigned int iscale(double invalue) const {
     return (unsigned int) (invalue/IDRAW_SCALING + 0.5);
   }
 
@@ -55,3 +57,4 @@ private:
 };
 
 #endif
+ 

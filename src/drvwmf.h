@@ -1,107 +1,119 @@
+#ifndef __drvwmf_h__
+#define __drvwmf_h__
+
 /*
-   drvWMF.h : This file is part of pstoedit
-	 Header-File for drvWMF.cpp
+   drvwmf.h : This file is part of pstoedit
+   Class declaration for the WMF output driver.
+   The implementation can be found in drvwmf.cpp
 
-   Copyright (C) 1996,1997 Jens Weber, rz47b7@PostAG.DE
+   Copyright (C) 1998 Thorsten Behrens and Bjoern Petersen
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
 
-#ifndef __drvwmf_h
-#define __drvwmf_h
+
+#include <windows.h>
+#undef min		// is declared inline in drvbase... (sigh)
+#undef max
+
 #include "drvbase.h"
 
 
-#define VZX 1.0 // JW
-#define VZY -1.0 // JW
-
-
-
-struct DRVWMFSETUP {
-  long exit;
-	long info;
-	long draw_noPath;
-	long draw_noColor;
-//	long draw_digColor;
-	long draw_target;
-	enum targetType {to_META, to_WINDOW};
-	long draw_noFill;
-	long draw_noText;
-	long draw_noGraphic;
-//	long noLogPal;
-	char *pOutFileName;
-	char *pInFileName;
-	char wmf_options[100];
-	char *infile;
-	int enhanced;
-	int height, width;
-	int origin_x, origin_y;
-	int maxstatus, minstatus;
- };
-
 struct WmfPrivate; // forward to the internal data
 
-#ifndef _BYTE_DEFINED
-typedef unsigned char BYTE;
-#endif
-class  TPoint;
 
 class drvWMF : public drvbase {
 
+public:
+
+	derivedConstructor(drvWMF);		// Constructor
+
+	~drvWMF();						// Destructor
+
+#include "drvfuncs.h"
+
+	virtual void show_image(const Image & imageinfo); 
+//	virtual bool driverOK() const;
+
 private:
 
-	void print_coords(TPoint *);
-	void drawPoly(int, TPoint *, int);
+	#define TYPE_LINES			1
+	#define TYPE_FILL			2
+	void	print_coords		(POINT*, int*, int type);
+	void	drawPoly			(int, POINT*, int);
 
-public:
-	drvWMF(ostream &, ostream &,float , char *, DRVWMFSETUP *);
-	~drvWMF();
+	long	searchPalEntry		(float, float, float);
+	void	setColor			(float, float, float);
 
-private:
-	WmfPrivate * pd; // the real private data
+	int		FetchFont			(const TextInfo & textinfo, short int, short int);
 
-	long searchPalEntry(float, float, float);
-	void setColor(float, float, float);
-//	void setGrayLevel(const float grayLevel);
+	inline int transX			(float k) 
+		{
+			return (int)((k + x_offset) + .5);	// rounded int	
+		}
 
-	int FetchFont (const char *pFontName, short int, short int);
+	inline int transY			(float k) 
+		{
+			return (int)((-1.0*k + y_offset) + .5);	// rounded int, mirrored
 
-	inline int transX(float k) {
-		int value=(int)((VZX*k + x_offset)*scale);
-		if(value<0) value=0;
-		return value;		};
+		}
 
-	inline int transY(float k) {
-		int value=(int)((VZY*k + y_offset)*scale);
-//		int value=(int)((800 -k)*scale); // just for test
-//		if(value<0) value=0;
-		return value; }
 
-public:
-	void show_polyline();
-	void show_polygon();
+// This here contains all private data of drvwmf.
 
-  // Abstrakte Funktionen aus drvbase
-	virtual void open_page();
-	virtual void close_page();
-	virtual void show_text(const TextInfo &);
-	virtual void show_rectangle(const float llx, const float lly, const float urx, const float ury);
-	virtual void show_path();
+	HDC				MetaDC;
+	HDC				DesktopDC;
+	RECT			rect;
 
+	LPLOGPALETTE	MyLogPalette;
+	HPALETTE		ThePalette;
+	HPALETTE		OldPalette;
+
+	LOGPEN			PenData;
+	HPEN			ColoredPen;
+	HPEN			OldColoredPen;
+
+	LOGBRUSH		BrushData;
+	HBRUSH			ColoredBrush;
+	HBRUSH			OldColoredBrush;
+
+	LOGFONT			TheFontRec;
+	HFONT			MyFont;
+	HFONT			OldFont;
+
+	long			FontsHeight, FontsWidth;
+
+	long			showFontList;
+	char			lastSelectedFontName[maxFontNamesLength];
+	long			lastSelectedFontHeight;
+	long			lastSelectedFontAngle;
+	WORD			cntPalEntries;
+
+	bool			palette;	
+	long			palStart;
+	long			maxPalEntries;
+
+	long			height, width;
+	long			origin_x, origin_y;
+	long			maxstatus, minstatus;
+
+	bool			enhanced;	
+	char*			tempName;
+	FILE*			outFile;	
 };
 
-
-#endif
+#endif /* #ifndef __drvwmf_h__ */
+ 

@@ -3,7 +3,7 @@
    Backend for idraw files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 #include "drvidraw.h"
+#include I_fstream
+#include I_stdio
+#include I_stdlib
+#include <math.h>
+
 
 // Add a point unless it's the same as the previous point
 // Used by drvIDRAW::print_coords() for convenience
@@ -37,8 +37,10 @@
 } while (0)
 
 
-drvIDRAW::drvIDRAW(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
-        drvbase(driveroptions_p,theoutStream,theerrStream,
+drvIDRAW::derivedConstructor(drvIDRAW):
+//(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
+#if 0
+        drvbase(driveroptions_p,theoutStream,theerrStream,outPath_p,outName_p,
                 0, // if backend supports subpathes, else 0
                    // if subpathes are supported, the backend must deal with
                    // sequences of the following form
@@ -55,8 +57,12 @@ drvIDRAW::drvIDRAW(const char * driveroptions_p,ostream & theoutStream,ostream &
 
                 1,  // if backend supports curves, else 0
                 1   // if backend supports elements with fill and edges
-        )
+			)
+#endif
+			constructBase
+
 {
+  IDRAW_SCALING = 0.799705f * scalefactor_p;
   // Initialize the color table
   color[0].red = 0;
   color[0].green = 0;
@@ -740,7 +746,7 @@ void drvIDRAW::print_coords()
   const Point *firstpoint;    // First and last points in shape
   const Point *lastpoint;
   unsigned int totalpoints;   // Total number of points in shape
-  const Point dummypoint(-123.456,-789.101112);  // Used to help eliminate duplicates
+  const Point dummypoint(-123.456f,-789.101112f);  // Used to help eliminate duplicates
   const Point **pointlist;    // List of points
   unsigned int i,j;
 
@@ -858,7 +864,7 @@ void drvIDRAW::print_coords()
     numpoints = totalpoints==1 ? 1 : totalpoints-1;
     print_header("Poly");               // Output a polygon
     outf << "%I " << numpoints << endl;
-    for (i=0; i<pathelts-1; i++) {
+    for (i=0; i<totalpoints; i++) {
       outf << iscale(pointlist[i]->x_) << ' ';
       outf << iscale(pointlist[i]->y_) << endl;
     }
@@ -964,9 +970,10 @@ void drvIDRAW::show_text(const TextInfo &textinfo)
 
   // Output the next part of the text setup boilerplate
   outf << "%I t" << endl;
-  float angle = (textinfo.currentFontAngle * M_PI) / 180.0;
-  float xoffset = textinfo.currentFontSize * -sin(angle);
-  float yoffset = textinfo.currentFontSize * cos(angle);
+  const float toRadians = 3.14159265359f / 180.0f;
+  const float angle = textinfo.currentFontAngle * toRadians;
+  const float xoffset = textinfo.currentFontSize * (float) -sin(angle);
+  const float yoffset = textinfo.currentFontSize * (float) cos(angle);
   outf << "[ " << cos(angle) << ' ' << sin(angle) << ' ';
   outf << -sin(angle) << ' ' << cos(angle) << ' ';
   outf << (unsigned int) (0.5 + xoffset + textinfo.x/IDRAW_SCALING) << ' ';
@@ -977,7 +984,7 @@ void drvIDRAW::show_text(const TextInfo &textinfo)
 
   // Output the string, escaping parentheses with backslashes
   outf << '(';
-  for (const char *c=textinfo.thetext; *c; c++)
+  for (const char *c=textinfo.thetext.value(); *c; c++)
     switch (*c) {
       case '(':
         outf << "\\(";
@@ -1003,5 +1010,29 @@ void drvIDRAW::show_path()
 // Does this ever get called?
 void drvIDRAW::show_rectangle(const float, const float, const float, const float)
 {
+show_path();
 }
 
+static DriverDescriptionT<drvIDRAW> D_idraw(
+		"idraw","Interviews draw format","idraw",
+		false, // if backend supports subpathes, else 0
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to 0 each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		true, // if backend supports curves, else 0
+		true, // if backend supports elements with fill and edges
+		true, // if backend supports text, else 0
+		false, // if backend supports Images
+		DriverDescription::normalopen,
+		false); // if format supports multiple pages in one file
+ 
