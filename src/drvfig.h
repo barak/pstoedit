@@ -38,6 +38,7 @@ public:
 
 private:
 	int           objectId;
+	int           fig_version;	// 31 or 32
 	TempFile      tempFile;
 	ofstream     &buffer;
 

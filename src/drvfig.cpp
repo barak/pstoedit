@@ -106,13 +106,58 @@ static void dumpnewcolors(ostream & theoutStream)
 
 drvFIG::drvFIG(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream):
 	drvbase(driveroptions_p,theoutStream,theerrStream,0,0,0),
+	fig_version(31),
     	buffer(tempFile.asOutput())
 {
 // driver specific initializations
 
+    float depth_in_inches = 11;
+    bool show_usage_line = false;
+
+    if (d_argc>0) {
+	if (verbose) errf << "% Driver options:" << endl;
+	for (unsigned int i = 0; i < d_argc; i++ ) {
+	    if (verbose) errf << "% " << d_argv[i] << endl; 
+	    if (strcmp(d_argv[i], "-depth") == 0) {
+		i++;
+		if (i >= d_argc) {
+		    errf << "-depth requires a depth in inches" << endl;
+		    show_usage_line = true;
+		} else {
+		    depth_in_inches = atof(d_argv[i]);
+		}
+	    } else if (strcmp(d_argv[i], "-version") == 0) {
+		i++;
+		if (i >= d_argc) {
+		    errf << "-version requires a version number" << endl;
+		    show_usage_line = true;
+		} else if (strcmp(d_argv[i], "31") == 0) {
+		    fig_version = 31;
+		} else if (strcmp(d_argv[i], "32") == 0) {
+		    fig_version = 32;
+		} else {
+		    errf << "Unknown fig version: " << d_argv[i] << endl;
+		    show_usage_line = true;
+		}
+	    } else if (strcmp(d_argv[i], "-help") == 0) {
+		errf << "-help       Show this message" << endl;
+		errf << "-version #  Set the fig version, # must be 31 or 32" << endl;
+		errf << "-depth #    Set the page depth in inches" << endl;
+		show_usage_line = true;
+	    } else {
+		errf << "Unknown fig driver option: " << d_argv[i] << endl;
+		show_usage_line = true;
+	    }
+	}
+    }
+
+    if (show_usage_line) {
+      errf << "Usage '-fig: [-help] [-version #] [-depth #]'" << endl;
+    }
+
     // set FIG specific values
     scale    = 1;		
-    currentDeviceHeight = 13200.0 * scale;
+    currentDeviceHeight = depth_in_inches * 1200.0 * scale;
     // We use objectId as depth value.
     // We need this because editing will reorder objects of equal depth,
     // which has an undesireable effect if objects overlap.
@@ -131,7 +176,13 @@ drvFIG::drvFIG(const char * driveroptions_p,ostream & theoutStream,ostream & the
 				 // only after processing the full input
 
     // print the header part
-    outf << "#FIG 3.1\nPortrait\nFlush Left\nInches\n1200 2\n";
+
+    if (fig_version >= 32) {
+      outf << "#FIG 3.2\nPortrait\nFlush Left\nInches\n" <<
+		"Letter\n100.00\nSingle\n-2\n1200 2\n";
+    } else {
+      outf << "#FIG 3.1\nPortrait\nFlush Left\nInches\n1200 2\n";
+    }
 }
 
 drvFIG::~drvFIG() {

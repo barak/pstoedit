@@ -1,3 +1,17 @@
+pstoedit (2.60-4) unstable; urgency=low
+
+  * Applied patch to make pstoedit work with gs-aladdin 5.50. Thanks to Elad
+    Tsur for proving me with it. (Fixes #27733).
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sun, 18 Oct 1998 21:51:47 +0200
+
+pstoedit (2.60-3) unstable; urgency=low
+
+  * Recompiled to update libstdc++ dependency from libstdc++2.8 to
+    libstdc++2.9.
+
+ -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Fri, 16 Oct 1998 08:51:33 +0200
+
 pstoedit (2.60-2) frozen unstable; urgency=low
 
   * New maintainer.
