@@ -1,0 +1,9 @@
+usr/include/pstoedit/*
+usr/bin/pstoedit-config
+usr/lib/pkgconfig/pstoedit.pc
+usr/lib/lib*.so
+usr/lib/lib*.la
+usr/lib/lib*.a
+usr/lib/pstoedit/*.la
+usr/lib/pstoedit/*.a
+usr/share/aclocal/*.m4

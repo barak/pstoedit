@@ -5,7 +5,7 @@
    $Id: drvmma.cpp,v 1.2 2001/02/27 19:48:27 manfred Exp $
    Based on drvSAMPL.cpp
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net,
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net,
                              Manfred Thole, manfred@thole.org
 
     This program is free software; you can redistribute it and/or modify
@@ -239,16 +239,6 @@ void drvMMA::show_path()
 		outf << "AbsoluteThickness[" << mmaThickness << "],\n";
 	}
 	print_coords();
-};
-
-void drvMMA::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	// just do show_path for a first guess
-	show_path();
 }
 
 void drvMMA::RGBColor(float R, float G, float B)
@@ -277,8 +267,7 @@ static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica Graphics", "m", t
 										   false,	// backend supports curves
 										   true,	// backend supports elements which are filled and have edges
 										   true,	// backend supports text
-										   false,	// backend supports Images
-										   false,	// no support for PNG file images
+										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 										   false, /*clipping */ 
 										   nodriverspecificoptions);

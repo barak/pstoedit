@@ -5,7 +5,7 @@
    drvjava2.h : This file is part of pstoedit
    Class declaration for a Java2 output driver -- test version
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    Copyright (C) 2000 TapirSoft Gisbert & Harald Selke GbR, gisbert@tapirsoft.de
 
     This program is free software; you can redistribute it and/or modify
@@ -36,8 +36,10 @@ public:
 	~drvJAVA2(); // Destructor
 
 #include "drvfuncs.h"
+	void show_text(const TextInfo & textInfo);
+	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
 
-	virtual void    show_image(const Image & imageinfo);
+	virtual void    show_image(const PSImage & imageinfo);
 
 private:
 	void print_coords();

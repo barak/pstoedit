@@ -7,7 +7,7 @@
 
    drvsample.cpp : Backend for TK
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@
 */
 
 #include "drvtk.h"
-#include <iostream.h>
-#include <stdio.h>
-#include <string.h>
+#include I_iostream
+//#include I_stdio	
+#include I_string_h
 
 // for sin and cos
 #include <math.h>
@@ -89,7 +89,7 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 	// in the header
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
-		if (verbose)
+		if (Verbose())
 			outf << "% " << d_argv[i] << endl;
 		if (!strcmp(d_argv[i], "-N")) {
 			tagNames = d_argv[i + 1];
@@ -101,7 +101,7 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 			noImPress = 1;
 		}
 	}
-
+    const RSString pagesize = getPageSize();
 	strcpy(pwidth, "8.5i");
 	strcpy(pheight, "11.0i");
 	if (!strcmp(pagesize.value(), "a0")) {
@@ -1220,16 +1220,8 @@ void drvTK::show_path()
 	if (strcmp(tagNames, "") && !noImPress) {
 		buffer << "set Group($Global(CurrentCanvas),$i) \"" << tagNames << "\"" << endl;
 	}
-};
-
-void drvTK::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
 }
+
 
 static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code", "tk", false,	// backend supports subpathes
 										 // if subpathes are supported, the backend must deal with
@@ -1247,8 +1239,7 @@ static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code"
 										 false,	// backend supports curves
 										 false,	// backend supports elements which are filled and have edges
 										 true,	// backend supports text
-										 false,	// backend supports Images
-										 false,	// no support for PNG file images
+										 DriverDescription::noimage,	// no support for PNG file images
 										 DriverDescription::normalopen, true,	// backend support multiple pages
 										 false, /*clipping */
 										 driveroptions);

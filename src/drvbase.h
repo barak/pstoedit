@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -49,7 +49,10 @@ USESTD
 #ifndef assert
 #include <assert.h>
 #endif
+#include "pstoeditoptions.h"
+#ifndef miscutil_h
 #include "miscutil.h"
+#endif
 
 
 // for compatibility checking
@@ -89,7 +92,11 @@ public:
 		return (p1.x_ == p2.x_) && (p1.y_ == p2.y_); //lint !e777
 	}
 #endif
+#ifdef  BUGGYGPP
+	Point transform(const float * matrix) const;
+#else
 	Point transform(const float matrix[6]) const;
+#endif
 	friend ostream & operator<<(ostream & out,const Point &p) {
 		return out << "x: " << p.x_ << " y: " << p.y_ ;
 	}
@@ -107,7 +114,7 @@ public:
 };
 
 // image needs Point !
-#include "image.h"
+#include "psimage.h"
 
 static const char emptyDashPattern[] =  "[ ] 0.0";
 
@@ -137,7 +144,6 @@ public:
 	enum showtype { stroke, fill, eofill };
 	enum cliptype { clip , eoclip };
 	enum linetype { solid=0, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
-
 	struct DLLEXPORT TextInfo {
 		float 		x;
 		float		y;
@@ -295,11 +301,12 @@ public:
 
 	const DriverDescription * Pdriverdesc; // pointer to the derived class' driverdescription
 	bool simulateSubPaths; // simulate sub paths for backend that don't support it directly
-	Image 		imageInfo;
+	PSImage 		imageInfo;
 
 	static FontMapper& theFontMapper();
-	static bool	verbose;
+
 	static bool Verbose();  // need a wrapper function because static initialized data cannot be DLLEXPORTed
+	static void SetVerbose(bool param);
 	static unsigned int totalNumberOfPages;
 	
 	static BBox	* bboxes() ; // [maxPages]; // array of bboxes - maxpages long
@@ -319,7 +326,7 @@ protected:
 	unsigned int	d_argc;
 	char **			d_argv;
 	float           scale;
-	RSString		outputPageSize; // set via -pagesize option
+	const class PsToEditOptions & globaloptions; 
 	float           currentDeviceHeight; // normally 792 pt; used for flipping y values.
 	float           currentDeviceWidth;  
 	float           x_offset;
@@ -336,7 +343,7 @@ protected:
 
 private:
 	// = PRIVATE DATA
-
+	static bool	verbose; // access via Verbose() 
 	bool    	page_empty;	// indicates whether the current page is empty or not
 	char * 		driveroptions; // string containing options for backend
 	PathInfo 	p1,p2,clippath; // p1 and p2 are filled alternatively (to allow merge), clippath when a clippath is read
@@ -362,7 +369,7 @@ public:
 		const char* nameOfInputFile_p,
 		const char* nameOfOutputFile_p,
 		const float scalefactor,
-		const RSString & pagesize,
+		const PsToEditOptions & globaloptions_p,
 		const DriverDescription * Pdriverdesc_p
 	); // constructor
 	virtual ~drvbase();  		// destructor
@@ -383,6 +390,8 @@ public:
 	//
 
 	void		setdefaultFontName(const char * n) {defaultFontName = n;}
+
+	virtual bool textIsWorthToPrint(const char *thetext) const; // in the default implementation full blank strings are ignored
 
 	void            setCurrentDeviceHeight(const float deviceHeight) 
 			{ currentDeviceHeight = deviceHeight; }
@@ -416,7 +425,9 @@ public:
 		return (-1.0f*y + y_offset) ;	
 	}
 
-	const RSString & getPageSize() const { return outputPageSize; }
+	const RSString & getPageSize() const; // { return globaloptions.outputPageSize; }
+
+	bool close_output_file_and_reopen_in_binary_mode(); //
 
 	bool		fontchanged() const { return ! textInfo_.samefont(lasttextInfo_); }
 	bool		textcolorchanged() const { return ! textInfo_.samecolor(lasttextInfo_); }
@@ -533,7 +544,7 @@ public:
 
 	// The next functions are virtual with a default empty implementation
 
-	virtual void    show_image(const Image & imageinfo) {
+	virtual void    show_image(const PSImage & imageinfo) {
 		cerr << "show_image called, although backend does not support images" << endl;
 		unused(&imageinfo);
 	}
@@ -590,15 +601,17 @@ private:
 	virtual void    open_page() = 0;
 	// writes a page header whenever a new page is needed
 
-	virtual void    show_text(const TextInfo & textinfo) = 0;
-
 	virtual void    show_path() = 0;
+
+	// the next functions are virtual with default implementations
+
+	virtual void    show_text(const TextInfo & textinfo) ;
 
 	virtual void    show_rectangle(
 				       const float llx,
 				       const float lly,
 				       const float urx,
-				       const float ury) = 0;
+				       const float ury); 
 	// writes a rectangle at points (llx,lly) (urx,ury)
 
 
@@ -664,7 +677,8 @@ enum  Dtype {moveto, lineto, closepath, curveto};
 
 //lint -esym(1769,basedrawingelement)
 	// default ctor sufficient since no members anyway
-class basedrawingelement 
+
+class DLLEXPORT basedrawingelement 
 {
 public:
 	// default ctor sufficient since no members anyway
@@ -780,10 +794,10 @@ typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 		   const char* nameOfInputFile_p,	\
 	       const char* nameOfOutputFile_p,	\
 		   const float scalefactor_p,	    \
-		   const RSString & pagesize,		\
+		   const PsToEditOptions & globaloptions_p,		\
 		   const DriverDescription * descptr)	
 
-#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,scalefactor_p,pagesize,descptr)
+#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,scalefactor_p,globaloptions_p,descptr)
 
 
 class DLLEXPORT DescriptionRegister
@@ -850,6 +864,9 @@ struct OptionDescription {
 	const char * const Name;
 	const char * const Parameter;   // e.g. "String" or "numeric", or 0 (implicitly a boolean option then (no argument)
 	const char * const Description; // 
+private:
+//	OptionDescription(const OptionDescription&);
+	const OptionDescription& operator=(const OptionDescription&);
 // no special copy ctor, assignment op or dtor needed since this class is NOT owner of the (static) strings.
 };
 
@@ -863,6 +880,8 @@ const OptionDescription nodriverspecificoptions[] = {OptionDescription("driver h
 class DLLEXPORT DriverDescription {
 public:
 	enum opentype {noopen, normalopen, binaryopen};
+	enum imageformat { noimage, png, bmp, memoryeps }; // format to be used for transfer of raster images
+
 	DriverDescription(const char * const s_name, 
 			const char * const expl, 
 			const char * const suffix_p, 
@@ -870,12 +889,12 @@ public:
 			const bool 	backendSupportsCurveto_p,
 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
 			const bool 	backendSupportsText_p,
-			const bool 	backendSupportsImages_p,  // supports bitmap images
-			const bool  backendSupportsPNGFileImages_p,
+			const imageformat  backendDesiredImageFormat_p,
 			const opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
 			const bool	backendSupportsClipping_p,
 			const OptionDescription* optionDescription_p,
+			const bool	nativedriver_p = true,
 			checkfuncptr checkfunc_p = 0);
 	virtual ~DriverDescription() {
 		//		symbolicname = NIL; // these are const
@@ -890,7 +909,7 @@ public:
 			 const char* const nameOfInputFile,
 		     const char* const nameOfOutputFile,
 			 const float scalefactor,
-			 const RSString & pagesize
+			 const PsToEditOptions & globaloptions_p
 			 ) const = 0;
 	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
 
@@ -903,12 +922,12 @@ public:
 	const bool 	backendSupportsCurveto;
 	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
 	const bool 	backendSupportsText;
-	const bool 	backendSupportsImages;  // supports bitmap images
-	const bool  backendSupportsPNGFileImages;
+	const imageformat  backendDesiredImageFormat;
 	const opentype  backendFileOpenType;
 	const bool	backendSupportsMultiplePages;
 	const bool	backendSupportsClipping;
 	const OptionDescription* optionDescription;
+	const bool	nativedriver;
 	RSString filename; // where this driver is loaded from
 	const checkfuncptr checkfunc;
 
@@ -930,12 +949,12 @@ public:
 			const bool 	backendSupportsCurveto_p,
 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
 			const bool 	backendSupportsText_p,
-			const bool 	backendSupportsImages_p,  // supports bitmap images
-			const bool  backendSupportsPNGFileImages_p, // supports images from a PNG files
+			const imageformat  backendDesiredImageFormat_p, // supports images from a PNG files
 			const DriverDescription::opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
 			const bool	backendSupportsClipping_p,
 			const OptionDescription* optionDescription_p,//= nodriverspecificoptions,
+			const bool  nativedriver_p = true,
 			checkfuncptr checkfunc_p = 0 ):
 	DriverDescription( 
 			s_name, 
@@ -945,12 +964,12 @@ public:
 			backendSupportsCurveto_p,
 			backendSupportsMerging_p, 
 			backendSupportsText_p,
-			backendSupportsImages_p, 
-			backendSupportsPNGFileImages_p,
+			backendDesiredImageFormat_p,
 			backendFileOpenType_p,
 			backendSupportsMultiplePages_p,
 			backendSupportsClipping_p,
 			optionDescription_p,
+			nativedriver_p,
 			checkfunc_p
 			)
 		{}
@@ -961,10 +980,10 @@ public:
 			const char* const nameOfInputFile,
 	       	const char* const nameOfOutputFile,
 			const float scalefactor,
-			const RSString & pagesize
+			const PsToEditOptions & globaloptions_p
 			 ) const
 	{ 
-	  return new T(driveroptions_P, theoutStream, theerrStream,nameOfInputFile,nameOfOutputFile, scalefactor,pagesize,this); 
+	  return new T(driveroptions_P, theoutStream, theerrStream,nameOfInputFile,nameOfOutputFile, scalefactor,globaloptions_p,this); 
 	} 
 //	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
 	virtual unsigned int getdrvbaseVersion() const { return drvbaseVersion; }
@@ -973,8 +992,9 @@ private: typedef DriverDescriptionT<T> SHORTNAME;
 	NOCOPYANDASSIGN(SHORTNAME)
 };
 
-
-#if !( defined (__GNUG__)  && (__GNUC__>=3) && defined (HAVESTL) )
+#if !( (defined (__GNUG__)  && (__GNUC__>=3) && defined (HAVESTL)) || defined (_MSC_VER) && (_MSC_VER >= 1300) )
+// 1300 is MSVC.net (7.0)
+// 1200 is MSVC 6.0
 //G++3.0 comes with a STL lib that includes a definition of min and max
 
 // some systems have a minmax.h which is indirectly included
@@ -1003,6 +1023,7 @@ inline T max(T x, T y)
 
 #endif
 
+
 inline float bezpnt(float t, float z1, float z2, float z3, float z4)
 {
 	// Determine ordinate on Bezier curve at length "t" on curve
@@ -1025,6 +1046,7 @@ inline Point PointOnBezier(float t, const Point & p1, const Point & p2, const Po
 
 
 #endif
+ 
  
  
  

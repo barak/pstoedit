@@ -32,6 +32,7 @@ public:
 	~drvPIC(); // Destructor
 
 #include "drvfuncs.h"
+	void show_text(const TextInfo & textInfo);
 
 private:
 	void print_coords();

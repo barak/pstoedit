@@ -1,3 +1,204 @@
+pstoedit (3.33-15) unstable; urgency=medium
+
+  * [debian/control] Libtiff transition: updated build dependencies.
+  * [numerous .cpp files] Removed ';'s which broke compilation with gcc 3.4.
+  * Relibtoolised sources.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Thu, 29 Jul 2004 20:57:30 +0200
+
+pstoedit (3.33-14) unstable; urgency=medium
+
+  * [debian/control] Updated libmagick++ build and runtime dependencies;
+    rebuild to get installable packages again. Again. (Closes: #245652)
+    Reworked build dependencies; no longer rely on xlibs-dev.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Mon, 26 Apr 2004 13:50:57 +0200
+
+pstoedit (3.33-13) unstable; urgency=medium
+
+  * [debian/control] Bumped libmagick++ build dependency and rebuild to get
+    installable packages again. (Closes: #245156)
+  * [debian/rules] Ensure at build time that the library has no dependencies
+    on undefined; speed up loading.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 21 Apr 2004 21:11:46 +0200
+
+pstoedit (3.33-12) unstable; urgency=medium
+
+  * [debian/control] Added a runtime dependency of libpstoedit-dev on
+    libplot-dev. (Closes: #240382)
+  * [debian/pstoedit-config.sgml] Corrected command name. (Closes: #240400)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat, 27 Mar 2004 09:57:49 +0100
+
+pstoedit (3.33-11) unstable; urgency=high
+
+  * [debian/control] Tightend build dependency on libmagick++ as its
+    soname has reverted.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 24 Dec 2003 08:57:18 +0100
+
+pstoedit (3.33-10) unstable; urgency=high
+
+  * [debian/control] Tightend build dependency on libmagick++ as its
+    soname has changed; bumped Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat, 20 Dec 2003 15:32:07 +0100
+
+pstoedit (3.33-9) unstable; urgency=medium
+
+  * [debian/control] Added an explicit, versioned build dependency on
+    libpng12-dev to benefit from versioned symbols.
+  * [debian/control] Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat, 19 Jul 2003 13:50:36 +0200
+
+pstoedit (3.33-8) unstable; urgency=medium
+
+  * New imagemagick; updated build dependencies accordingly.
+  * Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Fri, 16 May 2003 09:44:34 +0200
+
+pstoedit (3.33-7) unstable; urgency=medium
+
+  * [src/Makefile.am] Added "-ldl" to libpstoedit_la_LIBADD to make prelink
+    users happy. (Closes: #191879)
+  * Re-auto*-ed sources.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun,  4 May 2003 19:47:44 +0200
+
+pstoedit (3.33-6) unstable; urgency=low
+
+  * New imagemagick; updated build dependencies accordingly.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Mon,  3 Mar 2003 19:46:01 +0100
+
+pstoedit (3.33-5) unstable; urgency=low
+
+  * Rebuild against rebuilt imagemagick; updated build dependencies
+    accordingly. (Closes: #180451)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun,  2 Mar 2003 14:14:35 +0100
+
+pstoedit (3.33-4) unstable; urgency=low
+
+  * Reenabled building against libplot now that it has made the gcc 3.2
+    transition; updated build dependencies.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 26 Feb 2003 18:47:22 +0100
+
+pstoedit (3.33-3) unstable; urgency=low
+
+  * New imagemagick; updated build dependencies.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Thu, 13 Feb 2003 08:13:01 +0100
+
+pstoedit (3.33-2) unstable; urgency=low
+
+  * New imagemagick; updated build dependencies.
+  * Added versioned g++ build dependency.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Tue,  4 Feb 2003 07:24:10 +0100
+
+pstoedit (3.33-1) unstable; urgency=low
+
+  * New upstream release.
+  * GCC 3.2 transition:
+    * [debian/control] Updated libmagick++-dev build dependency.
+    * [debian/control] Build-Conflicts: libplot-dev until it has made the 
+      transition.
+    * [debian/control] Dropped libpng3-dev build dependency which was needed
+      for getting the right libplot-dev during the libpng transition.
+  * With this GCC 3.2 built version, the relocation error on an ImageMagick
+    symbol is no longer reproducible. (Closes: #175183)
+  * With the libplot plugin no longer built, the ia64 FTBFS should be gone.
+    (Closes: #175733)
+  * [debian/rules] Sanity check all plugins and don't give a deceptive message
+    about what may be wrong.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 26 Jan 2003 23:28:10 +0100
+
+pstoedit (3.32-9) unstable; urgency=low
+
+  * New imagemagick; updated build dependencies.
+  * Fixed lintian issues:
+    * manpage-has-bad-whatis-entry: manually fixed the manpage - apparently
+      latex2man generates bad NAME sections.
+    * description-synopsis-ends-with-full-stop
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Tue, 31 Dec 2002 12:55:41 +0100
+
+pstoedit (3.32-8) unstable; urgency=low
+
+  * New imagemagick; updated build dependencies.
+  * Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat,  7 Dec 2002 09:12:23 +0100
+
+pstoedit (3.32-7) unstable; urgency=medium
+
+  * Build with CC=c++ so libpstoedit.so has a proper dependency on the
+    standard C++ library. Hopefully this will fix the FTBFS on s390.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat,  2 Nov 2002 23:02:51 +0100
+
+pstoedit (3.32-6) unstable; urgency=medium
+
+  * Corrected build dependencies: take imagemagick epoch into account. This
+    should make things buildable again.
+  * On i386, -5 was installable already. (Closes: #167411)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat,  2 Nov 2002 10:53:30 +0100
+
+pstoedit (3.32-5) unstable; urgency=medium
+
+  * Follow imagemagick library packages renaming; updated build dependencies
+    accordingly.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Fri,  1 Nov 2002 23:06:14 +0100
+
+pstoedit (3.32-4) unstable; urgency=medium
+
+  * Really include '.so' links for the plugins in the library package rather
+    than the -dev package.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Fri, 18 Oct 2002 16:38:25 +0200
+
+pstoedit (3.32-3) unstable; urgency=low
+
+  * Include '.so' links for the plugins in the library package as pstoedit
+    doesn't search for the plugins by their full names. (Closes: #165028)
+  * [debian/control] Build against current libmagick++.
+  * [configure.in] put in AM_MAINTAINER_MODE so the generated Makefiles do 
+    not try to rebuild the configure files by default which caused FTBFS on
+    some archs.
+  * Regenerated auto*.
+  * [debian/rules] clean: clean up autom4te.cache as well.
+  * ps2ai backend appears to be working fine. (Closes: #81899)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Thu, 17 Oct 2002 14:34:51 +0200
+
+pstoedit (3.32-2) unstable; urgency=low
+
+  * libpstoedit-dev depends on libpng3-dev, not libpng2-dev.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Mon, 14 Oct 2002 22:08:37 +0200
+
+pstoedit (3.32-1) unstable; urgency=low
+
+  * New upstream release.
+    * New backend using ImageMagick++.
+  * Redid packaging to deal with changes in the build system and with the 
+    shared libpstoedit.
+  * Redid auto* files using libtool that can deal with dependencies between
+    un-installed shared libraries.
+  * Build-depend on libpng3-dev and on a libplot-dev that uses libpng3.
+    (Closes: #164075)
+  * Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 13 Oct 2002 16:44:16 +0200
+
 pstoedit (3.31-2) unstable; urgency=medium
 
   * pstoedit's SWF support via libming is currently broken. Disabled
@@ -199,7 +400,3 @@ pstoedit (2.3.3-3) unstable; urgency=low
   * Converted to new source format
   * stripped makeedit
  -- joost witteveen <joost@rulcmc.leidenuniv.nl>  Wed, 1 Jan 1997 20:45:28 +0100
-
-Local variables:
-mode: debian-changelog
-End:

@@ -3,7 +3,7 @@
    simple backend for GNUplot format.
    Contributed by: Carsten Hammer (chammer@hermes.hrz.uni-bielefeld.de)
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    (for the skeleton and the rest of pstoedit)
 
     This program is free software; you can redistribute it and/or modify
@@ -52,10 +52,6 @@ void drvGNUPLOT::open_page()
 	outf << "#Neue Seite\n";
 }
 
-void drvGNUPLOT::show_text(const TextInfo & textinfo)
-{
-	unused(&textinfo);
-}
 
 void drvGNUPLOT::show_path()
 {
@@ -64,17 +60,8 @@ void drvGNUPLOT::show_path()
 		const Point & p = pathElement(n).getPoint(0);
 		outf << p.x_ << "	" << p.y_ << "\n";
 	}
-};
-
-void drvGNUPLOT::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// just do show_polyline for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
 }
+
 
 static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "gnuplot", false,	// if backend supports subpathes
 												   // if subpathes are supported, the backend must deal with
@@ -92,8 +79,7 @@ static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", 
 												   false,	// if backend supports curves
 												   false,	// if backend supports elements with fill and edges
 												   false,	// if backend supports text
-												   false,	// if backend supports Images
-												   false,	// no support for PNG file images
+												   DriverDescription::noimage,	// no support for PNG file images
 												   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 												   false /*clipping */ , nodriverspecificoptions);
  

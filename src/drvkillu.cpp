@@ -2,7 +2,7 @@
    drvkillu.cpp : This file is part of pstoedit
    Implementation of Kontour output driver.
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    Copyright (C) 1998,1999 Kai-Uwe Sattler, kus@iti.cs.uni-magdeburg.de
 
    This program is free software; you can redistribute it and/or modify
@@ -205,8 +205,7 @@ static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Konto
 															 false,	// backend supports curves
 															 false,	// backend supports elements which are filled and have edges 
 															 true,	// backend supports text
-															 false,	// backend supports Images
-															 false,	// no support for PNG file images
+															 DriverDescription::noimage,	// no support for PNG file images
 															 DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 															 false
 															 /*clipping */,

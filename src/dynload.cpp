@@ -2,7 +2,7 @@
    dynload.h : This file is part of pstoedit
    declarations for dynamic loading of drivers
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,14 +23,8 @@
 
 
 // we need __linux__ instead of just linux since the latter is not defined when -ansi is used.
-//
-// Try again: __linux isn't defined with -ansi on PowerPC. [Ray]
 
-#if defined(__linux__) && !defined(__linux)
-#define __linux 1
-#endif
-
-#if defined(__sparc) || defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(_WIN32) || defined(__OS2__)
+#if defined(__sparc) || defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(_WIN32) || defined(__OS2__) || (HAVE_DLFCN_H==1)
 #define HAVESHAREDLIBS
 #endif
 
@@ -49,12 +43,13 @@
 
 // for DriverDescription types.
 
-
+typedef void (*initfunctype) ();
 #if defined(__linux) || defined(__linux__) 
 #include <dlfcn.h>
-typedef void (*initfunctype) ();
 //  static const char * const libsuffix = ".so";
 #elif defined(__FreeBSD__)
+#include <dlfcn.h>
+#elif defined(__hpux)
 #include <dlfcn.h>
 #elif defined(__sparc)
 #if defined(__SVR4)
@@ -69,12 +64,11 @@ extern "C" {
 }
 #define RTLD_LAZY       1
 #endif
-typedef void (*initfunctype) ();
-//        static const char * const libsuffix = ".so";   
+// typedef void (*initfunctype) ();
 #elif defined(__OS2__)
 #include <sys/types.h>
 #include <dlfcn.h>
-typedef void (*initfunctype) ();
+// typedef void (*initfunctype) ();
 #elif defined(_WIN32)
 static char dlerror()
 {
@@ -89,14 +83,14 @@ static char dlerror()
 #error "system unsupported so far"
 #endif
 
-DynLoader::DynLoader(const char *libname_P):libname(libname_P), handle(0)
+DynLoader::DynLoader(const char *libname_P, int verbose_p):libname(libname_P), handle(0), verbose(verbose_p)
 {
-//  cout << "dlopening " << libname << endl;
+	if (verbose) cerr << "dlopening " << libname << endl;
 	if (libname)
 		open(libname);
 }
 
-void DynLoader::open(const char *libname_P)
+void DynLoader::open(const char *libname_P )
 {
 	if (handle) {
 		cerr << "error: DynLoader has already opened a library" << endl;
@@ -110,8 +104,11 @@ void DynLoader::open(const char *libname_P)
 	int loadmode = RTLD_LAZY;	// RTLD_NOW
 	handle = dlopen(fulllibname, loadmode);
 #elif defined(__FreeBSD__)
-    int loadmode = RTLD_LAZY;       // RTLD_NOW
-    handle = dlopen(fulllibname, loadmode);
+    	int loadmode = RTLD_LAZY;       // RTLD_NOW
+   	 handle = dlopen(fulllibname, loadmode);
+#elif defined(__hpux)
+	int loadmode = RTLD_LAZY;	// RTLD_NOW
+	handle = dlopen(fulllibname, loadmode);
 #elif defined(__sparc)
 	int loadmode = RTLD_LAZY;	// RTLD_NOW
 	handle = dlopen(fulllibname, loadmode);
@@ -124,17 +121,19 @@ void DynLoader::open(const char *libname_P)
 	system unsupported so far
 #endif
 	if (handle == 0) {
-		cerr << "error during opening " << fulllibname << ":" << dlerror()
+		cerr << "Problem during opening " << fulllibname << ":" << dlerror()
 			<< endl;
 		delete [] fulllibname;
 		return;
 	}
 	{
-//      cerr << "loading dynamic library " << fulllibname << " completed successfully" << endl;
-#if 0
-		initfunctype fptr = (initfunctype) dlsym(handle, "_init");
+	if (verbose) cerr << "loading dynamic library " << fulllibname << " completed successfully" << endl;
+#if defined(__hpux) && defined (__GNUG__)
+	// in HPUX g++ this is called "_GLOBAL__DI" - on other systems it may be something like "_init"
+	// under HP-UX automatic initialization of dlopened shared libs doesn't work - at least not when compiled with g++
+		initfunctype fptr = (initfunctype) dlsym(handle, "_GLOBAL__DI");
 		if (fptr) {
-			cerr << "Found an init function for the library, so execute it " << endl;
+			if (verbose) cerr << "Found an init function for the library, so execute it " << endl;
 			fptr();
 		}
 #endif
@@ -149,6 +148,8 @@ void DynLoader::close()
 		dlclose(handle);
 #elif defined(__FreeBSD__)
         dlclose(handle);
+#elif defined(__hpux)
+		dlclose(handle);
 #elif defined(__sparc)
 		dlclose(handle);
 #elif defined(__OS2__)
@@ -178,6 +179,8 @@ DynLoader::fptr DynLoader::getSymbol(const char *name, int check) const
 	DynLoader::fptr rfptr = (DynLoader::fptr) dlsym(handle, name);	//lint !e611 //: Suspicious cast
 #elif defined(__FreeBSD__)
     DynLoader::fptr rfptr = (DynLoader::fptr) dlsym(handle, name);  //lint !e611 //: Suspicious cast
+#elif defined(__hpux)
+	DynLoader::fptr rfptr = (DynLoader::fptr) dlsym(handle, name);	//lint !e611 //: Suspicious cast
 #elif defined(__sparc)
 	DynLoader::fptr rfptr = (DynLoader::fptr) dlsym(handle, name);	//lint !e611 //: Suspicious cast
 #elif defined(__OS2__)
@@ -225,13 +228,13 @@ public:
 
 static PluginVector LoadedPlugins;
 
-static void loadaPlugin(const char *filename, ostream & errstream)
+static void loadaPlugin(const char *filename, ostream & errstream,bool verbose)
 {
 	DriverDescription::currentfilename = filename;
-	DynLoader *dynloader = new DynLoader(filename);
+	DynLoader *dynloader = new DynLoader(filename,verbose);
 	if (!dynloader->valid()) {
 		delete dynloader;
-		cerr << "Error during opening of plugin: " << filename << endl;
+		errstream << "Problem during opening of pstoedit driver plugin: " << filename << ". This is no problem as long the driver in this library is not needed. Possibly you need to install further libraries and/or extend the LD_LIBRARY_PATH (*nix) or PATH (Windows) environment variables." << endl;
 		return;
 	}
 	LoadedPlugins.add(dynloader);
@@ -262,11 +265,22 @@ static void loadaPlugin(const char *filename, ostream & errstream)
 }
 
 
-#if defined(__linux) || defined(__linux__)  || defined(__FreeBSD__) || defined(__sparc) || defined(__OS2__)
+#if defined(__linux) || defined(__linux__)  || defined(__FreeBSD__) || defined(__sparc) || defined(__hpux) || defined(__OS2__)
 // for directory search
+#if HAVE_DIRENT_H
 #include <dirent.h>
+#elif HAVE_SYS_NDIR_H
+#include <sys/ndir.h>
+#elif HAVE_SYS_DIR_H
+#include <sys/dir.h>
+#elif HAVE_NDIR_H
+#include <ndir.h>
+#else
+// last chance
+#include <direct.h>
+#endif
 
-void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
+void loadPlugInDrivers(const char *pluginDir, ostream & errstream,bool verbose)
 {
 	DIR *dirp;
 	struct dirent *direntp;
@@ -283,20 +297,24 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
 		char *expectedpositionofsuffix = direntp->d_name + flen - 3;
 #endif
 //              if ( local filename starts with drv or plugins and ends with .so)
-		if (((strstr(direntp->d_name, "drv") == direntp->d_name) ||
+		if (((strstr(direntp->d_name, "libp2edrv") == direntp->d_name) ||
 			 (strstr(direntp->d_name, "plugin") == direntp->d_name)
 			) &&
 #ifdef __OS2__
 			(strstr(expectedpositionofsuffix, ".dll") == expectedpositionofsuffix)) {
 #else
+	#ifdef __hpux
+			(strstr(expectedpositionofsuffix, ".sl") == expectedpositionofsuffix)) {
+	#else
 			(strstr(expectedpositionofsuffix, ".so") == expectedpositionofsuffix)) {
+	#endif
 #endif
 			char *fullname = new char[strlen(pluginDir) + flen + 2];
 			strcpy(fullname, pluginDir);
 			strcat(fullname, "/");
 			strcat(fullname, direntp->d_name);
 //          cout <<  direntp->d_name  << " " << fullname << endl;
-			loadaPlugin(fullname, errstream);
+			loadaPlugin(fullname, errstream, verbose);
 			delete[]fullname;
 		}
 
@@ -306,7 +324,7 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
 #elif defined(_WIN32)
 
 
-void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
+void loadPlugInDrivers(const char *pluginDir, ostream & errstream,bool verbose)
 {
 	char szExePath[1000];
 	szExePath[0] = '\0';
@@ -338,7 +356,7 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
 				if ( (stricmp(fullname, szExePath) != 0) && (stricmp(finddata.cFileName, "pstoedit.dll") !=0 ) ) {
 					// avoid loading dll itself again
 					//                 errstream << "loading " << fullname << endl;
-					loadaPlugin(fullname, errstream);
+					loadaPlugin(fullname, errstream, verbose);
 				} else {
 					//                 errstream << "ignoring myself " << finddata.cFileName << endl;
 				}
@@ -366,16 +384,8 @@ using namespace std;
 #else
 class ostream;
 #endif
-void loadPlugInDrivers(const char *pluginDir, ostream & errstream)
+void loadPlugInDrivers(const char *pluginDir, ostream & errstream,bool verbose)
 {
 }								// just a dummy Version
 #endif
-
-
-
-
-
-
-
- 
  

@@ -6,7 +6,7 @@
    simple backend for GNUplot format.
    Contributed by: Carsten Hammer (chammer@hermes.hrz.uni-bielefeld.de)
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

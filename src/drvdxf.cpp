@@ -1,7 +1,7 @@
 /* 
    drvDXF.cpp : This file is part of pstoedit 
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
 	DXF Backend Version 0.9 ( LINEs only, no Text, no color, no linewidth )
 	(see if polyaslines )
@@ -493,6 +493,7 @@ const unsigned short DXFColor::numberOfColors =
 
 static const OptionDescription driveroptions[] = {
 	OptionDescription("-polyaslines","bool","use LINE instead of POLYLINE in DXF"),
+	OptionDescription("-mm","bool","use mm coordinates instead of points in DXF (mm=pt/72*25.4)"),
 	OptionDescription("-splineaspolyline","bool","approximate splines with PolyLines (only for -f dxf_s)"),
 	OptionDescription("-splineasnurb","bool","experimental (only for -f dxf_s)"),
 	OptionDescription("-splineasbspline","bool","experimental (only for -f dxf_s)"),
@@ -516,8 +517,9 @@ p2ed -f dxf:-polyaslines 				curvetest.ps curve_nl.dxf v ok  i   ok
 
 drvDXF::derivedConstructor(drvDXF): 
 	constructBase, 
-	polyaslines(0), 
 	splinemode(asbezier),
+	polyaslines(0), 
+ 	mm(false),
 	formatis14(true),  // !!!! THESE TWO NEED TO BE CONSISTENT
 	splineprecision(5),
 #ifdef withshortheaders	
@@ -537,14 +539,16 @@ drvDXF::derivedConstructor(drvDXF):
 		trailer = dxf9shorttrailer;
 	}
 	if (d_argc > 0) {
-		if (verbose)
+		if (Verbose())
 			errf << "% Driver options:" << endl;
 		for (unsigned int i = 0; i < d_argc; i++) {
 			assert(d_argv && d_argv[i]);
-			if (verbose)
+			if (Verbose())
 				errf << "% " << d_argv[i] << endl;
 			if (strcmp(d_argv[i], "-polyaslines") == 0) {
 				polyaslines = 1;
+			} else if (strcmp(d_argv[i], "-mm") == 0) {
+				mm = true;
 			} else if (strcmp(d_argv[i], "-splineasbezier") == 0) {
 				splinemode = asbezier;
 				formatis14 = true;
@@ -638,8 +642,13 @@ void drvDXF::show_text(const TextInfo & textinfo)
 												  textinfo.currentG, 
 												  textinfo.currentB)
 		<< "\n";
-	outf << " 10\n" << textinfo.x << "\n";
-	outf << " 20\n" << textinfo.y << "\n";
+	if (mm) {
+		outf << " 10\n" << textinfo.x/72*25.4 << "\n";
+		outf << " 20\n" << textinfo.y/72*25.4 << "\n";
+	} else {
+		outf << " 10\n" << textinfo.x << "\n";
+		outf << " 20\n" << textinfo.y << "\n";
+	}
 	outf << " 30\n" << 0.0 << "\n";
 	outf << " 40\n" << textinfo.currentFontSize << "\n";
 	outf << "  1\n" << textinfo.thetext.value() << "\n";
@@ -652,8 +661,13 @@ void drvDXF::show_text(const TextInfo & textinfo)
 
 void drvDXF::printPoint(const Point & p, unsigned short add)
 {
-	outf << " " << add << "\n" << p.x_ << "\n";
-	outf << " " << 10 + add << "\n" << p.y_ << "\n";
+	if (mm) {
+		outf << " " << add << "\n" << p.x_/72*25.4 << "\n";
+		outf << " " << 10 + add << "\n" << p.y_/72*25.4 << "\n";
+	} else {
+		outf << " " << add << "\n" << p.x_ << "\n";
+		outf << " " << 10 + add << "\n" << p.y_ << "\n";
+	}
 	outf << " " << 20 + add << "\n" << "0.0" << "\n";
 }
 
@@ -1111,7 +1125,7 @@ void drvDXF::curvetoAsMultiSpline(const basedrawingelement & elem, const Point &
 	 */
 	const Point & cp1 = elem.getPoint(0);
 	const Point & cp2 = elem.getPoint(1);
-	const Point & ep = elem.getPoint(2);
+	const Point & ep  = elem.getPoint(2);
 
 	for (unsigned int s = 0; s < fitpoints; s++) {
 		const float t = 1.0f * s / (fitpoints - 1);
@@ -1293,15 +1307,6 @@ void drvDXF::show_path()
 	}
 }
 
-void drvDXF::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-// just do show_polyline for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
-}
 
 static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format", "dxf", false,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
@@ -1319,8 +1324,7 @@ static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format", "dxf", 
 										   false,	// if backend supports curves, else 0
 										   false,	// if backend supports elements with fill and edges
 										   true,	// if backend supports text, else 0
-										   false,	// if backend supports Images
-										   false,	// no support for PNG file images
+										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 										   false /*clipping */ ,
 										   driveroptions);
@@ -1341,11 +1345,11 @@ static DriverDescriptionT < drvDXF > D_dxf_s("dxf_s", "CAD exchange format with 
 											 true,	// if backend supports curves, else 0
 											 false,	// if backend supports elements with fill and edges
 											 true,	// if backend supports text, else 0
-											 false,	// if backend supports Images
-											 false,	// no support for PNG file images
+											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 											 false /*clipping */ ,
 											 driveroptions);
+ 
  
  
  

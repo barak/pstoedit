@@ -4,6 +4,7 @@
 # Install pstoedit in $prefix/bin and
 # fontmap files in $prefix/lib
 #
+SHELL=g:/bin/sh.exe
 prefix=g:
 exec_prefix=${prefix}
 bindir=${exec_prefix}/bin
@@ -11,6 +12,10 @@ libdir=${exec_prefix}/lib
 mandir=${prefix}/man
 MANEXT=1
 MANDIR=$(mandir)/man$(MANEXT)
+
+#check this out ...
+#LOCALDEFINES=-DHAVE_LIBMING
+#LOCALLIBS=-lming
 
 AWK=gawk
 INSTALL=g:/bin/install.exe -c
@@ -24,7 +29,7 @@ DEFFILE=pstoeditexe.def
 
 # Choose a compiler + linker
 CCC=gcc.exe -DBUGGYGPP -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes
-LDLIBS=-lm -ldl -lstdcpp
+LDLIBS=$(LOCALLIBS) -lm -ldl -lstdcpp
 #LDLIBS=-lcext -lstdcpp
 MAINLIBS=-lstdcpp
 
@@ -78,13 +83,13 @@ default : $(target)
 
 $(DEFFILE):
 	@echo NAME pstoedit WINDOWCOMPAT > $@
-	@echo DESCRIPTION '"cmd line tool pstoedit.exe, THff 2001, (c) W. Glunz"' >> $@
+	@echo DESCRIPTION '"cmd line tool pstoedit.exe, THff 2002, (c) W. Glunz"' >> $@
 	@echo STACKSIZE  512000 >> $@
 	@echo  >> $@
 
 $(PDEF):
 	@echo LIBRARY pstoedit INITINSTANCE TERMINSTANCE > $@
-	@echo DESCRIPTION '"pstoedit.dll, THff 2001, (c) W. Glunz"' >> $@
+	@echo DESCRIPTION '"pstoedit.dll, THff 2002, (c) W. Glunz"' >> $@
 	@echo  >> $@
 	@echo DATA >> $@
 	@echo   MULTIPLE NONSHARED >> $@
@@ -114,6 +119,7 @@ STANDARDDRIVERS=\
 	drvsk.$(OBJEXT) \
 	drvmpost.$(OBJEXT) \
 	drvmma.$(OBJEXT) \
+	drvswf.$(OBJEXT) \
 	drvlatex2e.$(OBJEXT) \
 	drvpic.$(OBJEXT) \
 	drvhpgl.$(OBJEXT) \
@@ -131,7 +137,7 @@ TESTDRIVER=drvpdf
 libdemo : libusagedemo.$(OBJEXT) drvbase.$(OBJEXT) $(TESTDRIVER).$(OBJEXT)
 	$(LINK) -o libusagedemo libusagedemo.$(OBJEXT) drvbase.$(OBJEXT) $(TESTDRIVER).$(OBJEXT)
 
-$(target) : $(PLIB) $(MAIN).$(OBJEXT)
+$(target) : $(PLIB) $(MAIN).$(OBJEXT) $(DEFFILE)
 	$(LINK) $(OUTPUT) $(MAIN).$(OBJEXT) $(PLIB) $(MAINLIBS) $(DEFFILE) 
 
 $(PLIB) : $(PDLL)

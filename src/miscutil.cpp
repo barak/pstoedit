@@ -2,7 +2,7 @@
    miscutil.cpp : This file is part of pstoedit
    misc utility functions
 
-   Copyright (C) 1998 - 2001  Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2003  Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,7 +35,18 @@ extern "C"  char *getcwd(char *, size_t);
 #endif
 
 #else
+#if HAVE_DIRENT_H
+#include <dirent.h>
+#elif HAVE_SYS_NDIR_H
+#include <sys/ndir.h>
+#elif HAVE_SYS_DIR_H
+#include <sys/dir.h>
+#elif HAVE_NDIR_H
+#include <ndir.h>
+#else
+// last chance
 #include <direct.h>
+#endif
 #endif
 
 #include I_stdlib
@@ -125,14 +136,14 @@ char *tempnam(const char *, const char *pfx)
 #endif
 #if (defined(DJGPP) && defined(BUGGYTEMPNAM)) || (defined(__mips) && defined(__sgi))
 // tempnam under DJGPP behaves different than on all other systems
-// and Irix seems not to have tempnam
+// and Irix doesn't seem to have tempnam
 char *tempnam(const char *, const char *pfx)
 {
 	return strdup(tmpnam(0));
 }
 #endif
 
-char *full_qualified_tempnam(const char *pref)
+RSString full_qualified_tempnam(const char *pref)
 {
 #if defined (__BCPLUSPLUS__) || defined (__TCPLUSPLUS__)
 /* borland has a prototype that expects a char * as second arg */
@@ -145,20 +156,26 @@ char *full_qualified_tempnam(const char *pref)
 
 // rcw2: work round weird RiscOS naming conventions
 #ifdef riscos
-	return filename;
+	const RSString result(filename);
+	free(filename);
+	return result;
 #else
 	convertBackSlashes(filename);
 	if ((strchr(filename, '\\') == 0) && (strchr(filename, '/') == 0)) {	// keine Pfadangaben..
 		char cwd[400];
 		(void) getcwd(cwd, 400);
-		char *result = new char[strlen(filename) + strlen(cwd) + 2];
-		strcpy(result, cwd);
-		strcat(result, "/");
-		strcat(result, filename);
+		char *buffer = new char[strlen(filename) + strlen(cwd) + 2];
+		strcpy(buffer, cwd);
+		strcat(buffer, "/");
+		strcat(buffer, filename);
 		free(filename);
+		const RSString result(buffer);
+		delete [] buffer;
 		return result;
 	} else {
-		return filename;
+		const RSString result(filename);
+		free(filename);
+		return result;
 	}
 #endif
 }
@@ -169,25 +186,6 @@ unsigned short hextoint(const char hexchar)
 	if (h >= 'a' && h <='f') h += 'A' - 'a'; // normalize lowercase to uppercase
 	unsigned short r = ( h <= '9' ) ? (h - '0') : (h + 10 - 'A' ) ; //lint !e732
 	return r;
-}
-
-
-// a strdup which uses new instead of malloc
-char *cppstrdup(const char *src, unsigned int addon)
-{
-	char *ret = new char[strlen(src) + 1 + addon];
-	strcpy(ret, src);
-	return ret;
-}
-char * cppstrndup(const char * src, unsigned int length, unsigned int addon )
-{
-	char *ret = new char[length + 1 + addon];
-	for (unsigned int i = 0 ; i < length+1; i++)
-	{
-			ret[i] = src[i];
-	}
-	return ret;
-
 }
 
 #if defined(_WIN32)
@@ -449,7 +447,7 @@ unsigned long searchinpath(const char *EnvPath, const char *name,
 	// append a separator at the end to make the loop below easier
 	unsigned int pathlen = strlen(path);
 	path[pathlen] = separator;
-	path[pathlen + 1] = separator;	// remember, we reserved one char more
+	path[pathlen + 1] = '\0';	// remember, we reserved one char more
 	char *colon = path;
 	char *lastbegin = path;
 
@@ -495,7 +493,7 @@ unsigned long P_GetPathToMyself(const char *name, char *returnbuffer, unsigned l
 	else
 		return 0;
 #else
-	if (*name == '/') {			// starts with / 
+	if ( (*name == '/')  || (*name == '.') ) {			// starts with / or .
 		strcpy(returnbuffer, name);
 		return strlen(returnbuffer);
 	} else {
@@ -508,7 +506,7 @@ unsigned long P_GetPathToMyself(const char *name, char *returnbuffer, unsigned l
 
 void errorMessage(const char *errortext)
 {
-#if defined(_WIN32)
+#if 0 // defined(_WIN32)
 	MessageBox(NIL, errortext, "pstoedit", MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
 #else
 	cerr << errortext << endl;
@@ -705,6 +703,12 @@ void FontMapper::readMappingTable(ostream & errstream, const char *filename)
 		char *lineptr = line;
 		//skip initial spaces
 		skipws(lineptr);
+//		unsigned int linelength = strlen(line);
+		if ((*lineptr) == '\0' ) {
+			// empty line - ignore
+		//	errstream << "empty line in fontmap - ignored " << endl;
+			continue;
+		}
 		char *original = readword(lineptr);
 		skipws(lineptr);
 		char *replacement = readword(lineptr);
@@ -712,7 +716,7 @@ void FontMapper::readMappingTable(ostream & errstream, const char *filename)
 			// errstream << "\"" << original << "\" \"" << replacement <<"\""<< endl;
 			insert(original, replacement);
 		} else {
-			errstream << "wrongly formatted line(" << linenr <<
+			errstream << "unexpected line (" << linenr <<
 				") found in fontmap: " << save << endl;
 		}
 	}
@@ -739,5 +743,6 @@ const char *FontMapper::mapFont(const RSString & fontname)
 	else
 		return 0;
 }
+ 
  
  

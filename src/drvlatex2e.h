@@ -6,7 +6,7 @@
    Class declaration for a LaTeX2e output driver
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,6 +59,8 @@ public:
   ~drvLATEX2E(); // Destructor
 
 #include "drvfuncs.h"
+  void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+  void show_text(const TextInfo & textInfo);
 
 //not supported yet  virtual void show_image(const Image & imageinfo); 
 

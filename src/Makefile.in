@@ -1,442 +1,586 @@
-# Makefile for pstoedit. 
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
 
-# Install pstoedit in $prefix/bin and
-# fontmap files in $prefix/lib
-#
-# DESTDIR proposed by Karl Eichwalder - SuSE - 
-DESTDIR=
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-bindir=@bindir@
-libdir=@libdir@
-mandir=@mandir@
-datadir=@datadir@/pstoedit
-MANEXT=1
-MANDIR=$(mandir)/man$(MANEXT)
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
 
-AWK=@AWK@
-INSTALL=@INSTALL@
-GS=@GS@
-
-# Choose a compiler + linker
-CXXFLAGS=@CXXFLAGS@
-CCC=@CXX@ @SPECIAL_CXXFLAGS@
-LDLIBS=$(LOCALLIBS) @LDLIBS@ -lm @LDL@
-LINK=@LINK@
-CCFLAGS=-DDEFAULTGS=$(GS) $(CXXFLAGS) -DPSTOEDITDATADIR="\"$(DESTDIR)$(datadir)\""
-
-# uncommment one of the following CCC lines for Un*x like systems
-# For users of GNU g++
-GNUGPPFLAGS=-DBUGGYGPP -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes 
-#CCC=g++ -O2 $(GNUGPPFLAGS)
-# For debugging
-#CCC=g++ -g $(GNUGPPFLAGS)
-
-# For users of DJGPP
-#CCC=gxx -DBUGGYGPP  
-
-# For Sun's SparcCompiler or any C++ Compiler called via CC
-#CCC=CC +w 
-
-# SparcCompiler with source browsing option and debug support
-#CCC=CC-4.2 -xsb +w -g
-
-# For CenterLine (You may need to change clCC to CC)
-#CCC=clCC +w -ptv 
-
-# if you want to test pstoedit using insure (www.parasoft.com)
-#CCC=insure CC -g +w 
-#CCC=insure g++ -g $(GNUGPPFLAGS)
-#LINK=$(CCC)
-
-# rest of flags for Un*x systems
-#LINK=$(CCC) $(LDFLAGS)
-#CCFLAGS=-DDEFAULTGS=$(GS) $(CXXFLAGS) 
-
-# with shared libs LDFLAGS=-lm -ldl (Solaris, Linux, ???)
-# without shared libs use LDFLAGS=-lm 
-#LDLIBS= $(LOCALLIBS) -lm @LDL@
-
-INSTALL_PROGRAM=$(INSTALL) 
-INSTALL_DATA=$(INSTALL) -m 644
-INSTALL_DIR=$(INSTALL) -d -m755     # or: mkdir -p
-OBJEXT=o
-EXEEXT=
-OUTPUT=-o pstoedit
-SPECIFICDRIVERS= @EMFCOMPILEFLAGS@ drvtgif.$(OBJEXT)  drvfig.$(OBJEXT)  drvidraw.$(OBJEXT)  drvgnplt.$(OBJEXT) 
-MAIN=cmdmain
-target=pstoedit
-
-# uncomment the next lines if you have the libplotter (GNU plotutils) 
-#LOCALDEFINES=-DHAVE_LIBPLOTTER -I/path/to/plotter.h
-# add -DOLD_LIBPLOTTER for libplot older than 2.3
-LOCALDEFINES=@PLOTCOMPILEFLAGS@ @MINGCOMPILEFLAGS@ @PNGCOMPILEFLAGS@
-LOCALLIBS=-L/path/to/libplot @LPLOTTER@ @LMING@ @PNGLINKFLAGS@
-#############################################################
-
-## IRIX 5.3
-#CCC=CC -O2 -mips2 -Olimit 2400   
-#LDLIBS=-lm
-## IRIX 6.2
-#CCC=CC -mips3 -n32 -O2 -OPT:fold_arith_limit=2500 -DINTERNALBOOL
-#LDLIBS=-lm
-#############################################################
-
-## For RiscOS users using g++
-#CCC=g++
-#CCFLAGS=-Wall -Dunix -Ilibgpp: -Ilibstdc: -Ilibio:
-#LDLIBS=-rescan libgpp:o.libg++ libstdc:o.libstdc++ libio:o.libiostrea gcc:o.libgcc Unix:o.UnixLib
-#LINK=link
-#############################################################
-
-# For AIX xlC users
-#CCC=xlC
-#CCFLAGS=-D__unix__ -g -+ -I/usr/lpp/xlC/src/nihC/aixinclude          
-#LINK=$(CCC)
-#############################################################
-
-## For DEC OSF/1 with its native cxx
-#
-#> Ferner muss drvbase.cc mit der cxx compiler-option -define_templates
-#> compiliert werden; fuer alle anderen cc-Files kann der Compiler im
-#> makefile mit (wilms@astro.uni-tuebingen.de)
-#>
-#CCC=cxx -w
-#CCFLAGS=-DDEFAULTGS=gs -define_templates
-#LINK=$(CCC)
-#############################################################
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
-# uncomment for Win32 / Borland C++
-#CCC=f:\sw2\bc5\bin\bcc32 /If:\sw2\bc5\include /I../othersrc/gsdllinc /I. 
-#CCC=bcc32 /I../othersrc/gsdllinc /I.  
-## add -v to CCFLAGS for debugging
-#CCFLAGS= -DINTERNALBOOL -P  -DDEFAULTGS=gswin32 -I.;../cd1.3 
-#LDLIBS= owlwf.lib bidsf.lib import32.lib cw32.lib
-#OBJEXT=obj
-#EXEEXT=.exe
-#OUTPUT=-epstoedit
-#SPECIFICDRIVERS=drvwmf.$(OBJEXT)
-#MAIN=cmdmain
-#target=pstoedit.exe
-#############################################################
+SHELL = @SHELL@
 
-# uncomment for DOS / Turbo C++
-#CCC=tcc
-#CCFLAGS=-P -I. -ml -DDEFAULTGS=gs386
-#OBJEXT=obj
-#EXEEXT=.exe
-#OUTPUT=-epstoedit
-#SPECIFICDRIVERS=
-#MAIN=cmdmain
-#target=pstoedit.exe
-#############################################################
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
 
-# uncomment for Win32 / Visual C++
-#
-# This builds a pstoedit.exe with all drivers linked in.
-# So far the Makefile does not support building the 
-# pstoedit.dll and the separate pstoedit which just calls
-# the pstoedit.dll
-# 
-#CCC=cl
-## /Ze is used in version 4.2 to enable language extensions like bool
-## unfortunately this does not work as expected
-## so we have to #define bool,false and true
-#CCFLAGS= /Zi /MLd /W3 /I../othersrc/gsdllinc /I. -Dbool=BOOL -Dfalse=FALSE -Dtrue=TRUE -DDEFAULTGS=gswin32 
-# for version 5.0 and 6.0 (which support bool)
-#CCFLAGS= /I../othersrc/gsdllinc /Zi /MLd /W3 /I. -DINTERNALBOOL -DDEFAULTGS=gswin32 
-#FORCECPPFLAGS=/Tp
-#LDLIBS=  user32.lib gdi32.lib advapi32.lib 
-#OBJEXT=obj
-#EXEEXT=.exe
-#OUTPUT=/Fepstoedit
-#SPECIFICDRIVERS=drvwmf.$(OBJEXT)
-#MAIN=cmdmain
-#target=pstoedit.exe
-#############################################################
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
 
-# uncomment for OS2 using VisualAge C++
-#CCC=icc
-# # Tdp forces C++
-# # Gm+ enables threads
-# # Ti activates debug mode
-#CCFLAGS= -I. /Tdp /Gm+ -DDEFAULTGS=gsos2
-#OBJEXT=obj
-#EXEEXT=.exe
-#OUTPUT=-Fepstoedit
-#DEFFILE=pstoedit.def
-#SPECIFICDRIVERS=drvmet.obj
-#MAIN=cmdmain
-#target=pstoedit.exe
-#############################################################
+DESTDIR =
 
-# uncomment for OS2 using gcc
-#CCC=gcc
-#CCFLAGS=-Zexe -Zmt -D__OS2__='' -DDEFAULTGS=gsos2
-#OBJEXT=o
-#EXEEXT=
-#OUTPUT=-o pstoedit
-#LDLIBS=-Zexe -Zmt -lstdcpp 
-#DEFFILE=pstoedit.def
-#SPECIFICDRIVERS=drvmet.o
-#MAIN=cmdmain
-#target=pstoedit
-#############################################################
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
 
-# For developers only: 
-# Uncomment the following lines (LEXSOURCE= and PSHEADER=) if you  have 
-# pstoedit.pro and makeedit.l and need to make some changes in these files.
-#LEXSOURCE=lexyy.cpp
-# This is some sort ot hack. If LEXSOURCE is not defined, the make rule below
-# only relates to dummy.cpp, which is not used by the main target.
-#PSHEADER=pstoedit.ph
-# same comment applies to PSHEADER variable
-#############################################################
+top_builddir = ..
 
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
 
-default : $(target)
-# No changes should be necessary below this line
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
 
-.SUFFIXES: .cpp .obj .o .chk
-.cpp.o:
-	$(CCC) -c $(LOCALDEFINES) $(CCFLAGS) $(FORCECPPFLAGS) $<
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AR = @AR@
+AS = @AS@
+AWK = @AWK@
+CC = @CC@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+CXX_RUNTIME_LIB = @CXX_RUNTIME_LIB@
+CXX_STD_LIB = @CXX_STD_LIB@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EGREP = @EGREP@
+EXEEXT = @EXEEXT@
+F77 = @F77@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
+GS = @GS@
+HAVE_LIB = @HAVE_LIB@
+LDLIBS = @LDLIBS@
+LIB = @LIB@
+LIBEMF_CFLAGS = @LIBEMF_CFLAGS@
+LIBEMF_LDFLAGS = @LIBEMF_LDFLAGS@
+LIBLD_LDFLAGS = @LIBLD_LDFLAGS@
+LIBMAGICK_CFLAGS = @LIBMAGICK_CFLAGS@
+LIBMAGICK_LDFLAGS = @LIBMAGICK_LDFLAGS@
+LIBMING_CFLAGS = @LIBMING_CFLAGS@
+LIBMING_LDFLAGS = @LIBMING_LDFLAGS@
+LIBPLOTTER_CFLAGS = @LIBPLOTTER_CFLAGS@
+LIBPLOTTER_LDFLAGS = @LIBPLOTTER_LDFLAGS@
+LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
+LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
+LIBTOOL = @LIBTOOL@
+LINK = @LINK@
+LN_S = @LN_S@
+LTLIB = @LTLIB@
+MAGICK_CONFIG = @MAGICK_CONFIG@
+MAINT = @MAINT@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RC = @RC@
+SPECIAL_CXXFLAGS = @SPECIAL_CXXFLAGS@
+STRIP = @STRIP@
+VERSION = @VERSION@
+YACC = @YACC@
 
-.cpp.obj:
-	$(CCC) /c $(LOCALDEFINES) $(CCFLAGS) $(FORCECPPFLAGS) $<
+EXTRA_DIST = pstoedit.ph makefile.txt
 
-#	$(CCC) /c $(LOCALDEFINES) $(CCFLAGS) $&.cpp
+@HAVE_LIBPLOTTER_TRUE@LIBPLOTTER_ENTRY = libp2edrvlplot.la
 
+@HAVE_LIBMING_TRUE@LIBMING_ENTRY = libp2edrvswf.la
 
-# Standard Drivers (for all systems)
-STANDARDDRIVERS=\
-	drvlwo.$(OBJEXT)  \
-	drvrib.$(OBJEXT)  \
-	drvrpl.$(OBJEXT)  \
-	drvdxf.$(OBJEXT)  \
-	drvjava.$(OBJEXT) \
-	drvjava2.$(OBJEXT) \
-	drvlplot.$(OBJEXT) \
-	drvpdf.$(OBJEXT)  \
-	drvkillu.$(OBJEXT) \
-	drvsk.$(OBJEXT) \
-	drvmpost.$(OBJEXT) \
-	drvmma.$(OBJEXT) \
-	drvswf.$(OBJEXT) \
-	drvlatex2e.$(OBJEXT) \
-	drvpic.$(OBJEXT) \
-	drvhpgl.$(OBJEXT) \
-	drvtk.$(OBJEXT)
+@HAVE_LIBMAGICK_TRUE@LIBMAGICK_ENTRY = libp2edrvmagick++.la
+
+@HAVE_LIBEMF_TRUE@LIBEMF_ENTRY = libp2edrvwmf.la
+
+lib_LTLIBRARIES = libpstoedit.la
+bin_PROGRAMS = pstoedit
+pkglib_LTLIBRARIES = libp2edrvstd.la			${LIBPLOTTER_ENTRY}				${LIBMING_ENTRY}				${LIBMAGICK_ENTRY}				${LIBEMF_ENTRY}
 
 
-
-# Comment out the next line if you don't want the sample driver to be included
-SAMPLEDRIVER=drvsampl.$(OBJEXT) 
-
-DRIVERS=$(STANDARDDRIVERS) $(LOCALDRIVERS) $(SAMPLEDRIVER) $(SPECIFICDRIVERS)
-OBJECTS=dynload.$(OBJEXT) callgs.$(OBJEXT) $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) lexyy.$(OBJEXT) miscutil.$(OBJEXT) cbstream.$(OBJEXT) image.$(OBJEXT) drvbase.$(OBJEXT) subpath.$(OBJEXT) $(DRIVERS)
-
-# this does not work with GNU make
-#OBJECTS:sh =ls drv*.c | sed 's/\.c/\.$(OBJEXT)/'
-#OBJECTS += lexyy.$(OBJEXT)
-
-TESTDRIVER=drvpdf
-libdemo : libusagedemo.$(OBJEXT) drvbase.$(OBJEXT) $(TESTDRIVER).$(OBJEXT)
-	$(LINK) -o libusagedemo libusagedemo.$(OBJEXT) drvbase.$(OBJEXT) $(TESTDRIVER).$(OBJEXT)
-
-pstoedit : $(OBJECTS) 
-	$(LINK) $(OUTPUT)  $(OBJECTS) $(LDLIBS) $(DEFFILE) 
-
-#
-# shared lib for Linux / g++
-#
-libpstoedit.so : $(OBJECTS)
-	$(LINK) -fPIC -o libpstoedit.so.3.3x -shared -Wl,-soname,libpstoedit.so.3 $(OBJECTS) $(LDLIBS) $(DEFFILE)
-	-rm libpstoedit.so.3
-	ln -s libpstoedit.so.3.3x libpstoedit.so.3
-	-rm libpstoedit.so
-	ln -s libpstoedit.so.3.3x libpstoedit.so
+sample_drivers_src = drvsampl.cpp drvsampl.h
+specific_drivers_src =  	drvgnplt.cpp drvgnplt.h				drvtgif.cpp drvtgif.h				drvfig.cpp drvfig.h				drvidraw.cpp  drvidraw.h
 
 
-# purified version
-pstoedit.pure : $(OBJECTS) 
-	purify $(LINK) -o pstoedit.pure  $(CCFLAGS) $(OBJECTS) $(LDLIBS) $(DEFFILE) 
+libp2edrvstd_la_SOURCES =  	drvlwo.cpp      drvlwo.h			drvrib.cpp      drvrib.h			drvrpl.cpp      drvrpl.h			drvdxf.cpp      drvdxf.h 			dxfacad.h dxficad.h				drvjava.cpp 	drvjava.h			drvjava2.cpp 	drvjava2.h			drvpdf.cpp 	drvpdf.h			drvkillu.cpp 	drvkillu.h			drvtext.cpp 	drvtext.h			drvsk.cpp 	drvsk.h				drvmpost.cpp 	drvmpost.h			drvmma.cpp 	drvmma.h			drvlatex2e.cpp 	drvlatex2e.h			drvpic.cpp 	drvpic.h			drvhpgl.cpp 	drvhpgl.h			drvtk.cpp	drvtk.h                 	$(specific_drivers_src)                         $(sample_drivers_src)                   
 
-# proofed version (TestCenter from CenterLine)
-pstoedit.proof : $(OBJECTS) 
-	proof $(LINK) -o pstoedit.proof  $(CCFLAGS) $(OBJECTS) $(LDLIBS) $(DEFFILE) 
+libp2edrvstd_la_LIBADD = -L. libpstoedit.la
 
-pstoedit.exe : $(OBJECTS) 
-#	echo pstoedit.$(OBJEXT) lexyy.$(OBJEXT) drvbase.$(OBJEXT) > link.rsp
-# distribute the above objects among the following lines, in case
-# one of the driver variable is empty
-	echo $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) callgs.$(OBJEXT) > link.rsp
-	echo $(STANDARDDRIVERS)  >> link.rsp
-	echo lexyy.$(OBJEXT) $(LOCALDRIVERS)  >> link.rsp
-	echo $(SAMPLEDRIVER)  $(SPECIFICDRIVERS)  >> link.rsp
-	echo miscutil.$(OBJEXT)  dynload.$(OBJEXT) cbstream.$(OBJEXT) drvbase.$(OBJEXT) $(LDLIBS)  >> link.rsp
-	$(CCC) $(OUTPUT)  $(CCFLAGS) @link.rsp
-	-del link.rsp
+libp2edrvlplot_la_SOURCES = drvlplot.cpp drvlplot.h
+libp2edrvlplot_la_LIBADD = $(LIBPLOTTER_LDFLAGS) -L. libpstoedit.la
 
-dummy.cpp $(LEXSOURCE) : makeedit.l
-	flex  -L -8 makeedit.l 
-	-mv lex.yy.c lexyy.cpp
-	-mv lexyy.c lexyy.cpp
+libp2edrvswf_la_SOURCES = drvswf.cpp drvswf.h
+libp2edrvswf_la_LIBADD = $(LIBMING_LDFLAGS) -L. libpstoedit.la
 
-clean:
-	rm -f core pstoedit.pure pstoedit.proof pstoedit$(EXEEXT) *.$(OBJEXT) *.chk
+libp2edrvmagick___la_SOURCES = drvmagick++.cpp drvmagick++.h
+libp2edrvmagick___la_LIBADD = -L. libpstoedit.la
+libp2edrvmagick___la_LDFLAGS = ${LIBMAGICK_LDFLAGS} 
 
-test: pstoedit$(EXEEXT)
-	-cd ../examples;\
-	../src/pstoedit -f tgif illusion.ps illusion.ps.obj;\
-	tgif illusion.ps.obj;\
-	../src/pstoedit -scale 2 -f tgif illusion.ps illusion.ps.obj;\
-	tgif illusion.ps.obj;\
-	../src/pstoedit -dt -f tgif illusion.ps illusion.ps.obj;\
-	tgif illusion.ps.obj;\
-	../src/pstoedit -f tgif eschertr.ps eschertr.ps.obj;\
-	tgif eschertr.ps.obj;\
-	../src/pstoedit -f fig illusion.ps illusion.ps.fig;\
-	xfig illusion.ps.fig;\
-	../src/pstoedit -f fig eschertr.ps eschertr.ps.fig;\
-	xfig eschertr.ps.fig;\
-	../src/pstoedit -f fig spiral.ps spiral.ps.fig;\
-	xfig spiral.ps.fig;\
-	echo "now trying RIB for RenderMan ";\
-	../src/pstoedit -dt -f rib illusion.ps illusion.ps.rib ;\
-	../src/pstoedit -dt -f rib eschertr.ps eschertr.ps.rib ;\
-	echo "now trying LWO for LightWave 3D ";\
-	../src/pstoedit -dt -f lwo illusion.ps illusion.ps.lwo ;\
-	../src/pstoedit -dt -f lwo eschertr.ps eschertr.ps.lwo ;\
-	echo "now trying RPL for Real3D ";\
-	../src/pstoedit -dt -f rpl illusion.ps illusion.ps.rpl ;\
-	../src/pstoedit -dt -f rpl eschertr.ps eschertr.ps.rpl ;\
-	echo "tests done";
+libp2edrvwmf_la_SOURCES = drvwmf.cpp drvwmf.h
+libp2edrvwmf_la_LDFLAGS = ${LIBEMF_LDFLAGS} -L. libpstoedit.la
 
-#	groff -man ../doc/pstoedit.1  > pstoedit.man.ps
-# if you don't have groff, try the following instead
-#	troff -man -Tpsc ../doc/pstoedit.1 | psdit > pstoedit.man.ps
+libpstoedit_la_SOURCES =  	dynload.cpp dynload.h				callgs.cpp					lexyy.cpp					miscutil.cpp 					cbstream.cpp cbstream.h				psimage.cpp					drvbase.cpp					base64writer.cpp				poptions.cpp					subpath.cpp  subpath.h				pstoedit.cpp					psfront.h					version.h
 
 
-# for a really large test use the following
-TESTOPTIONS=-dt -nc -sclip -ssp "-flat 10" -merge "-page 1" -split
-TESTFILES=*.ps
+libpstoedit_la_LIBADD = ${CXX_STD_LIB} ${CXX_RUNTIME_LIB} -ldl
 
-# for a small test use the following
-TESTOPTIONS=-v -dt "-flat 10" -merge
-TESTFILES=eschertr.ps
+pstoedit_SOURCES = cmdmain.cpp
+pstoedit_LDFLAGS = -L. libpstoedit.la ${LIBLD_LDFLAGS}
 
-bigtest: pstoedit$(EXEEXT)
-	-cd ../examples;\
-	echo "set -x " > runalltests; \
-	for format in `../src/pstoedit -help 2>&1 | awk 'BEGIN {p=0;} /^Available/ { p=1; next; } (p==1) { print $$1; }' | grep ":" | sed -e 's/://g' ` ; \
-	do \
-		for infile in $(TESTFILES) ; \
-		do \
-			for option  in $(TESTOPTIONS) ;  \
-			do \
-				echo ../src/pstoedit $${option} -f $${format} $${infile} $${infile}.out.$${format} >> runalltests; \
-			done; \
-		done; \
-	done; \
-	sh runalltests; \
-	echo "big tests done";
+pkginclude_HEADERS =  	pstoedit.h					pstoedll.h					pstoeditoutputlib.h			        pstoeditoptions.h				cppcomp.h					drvbase.h					drvfuncs.h					miscutil.h					base64writer.h					poptions.h					ordlist.h					psimage.h
 
 
-drvmdraw.ph : drvmdraw.pro
-	$(AWK) -f mkmdraw.awk < drvmdraw.pro > drvmdraw.ph
+AM_CPPFLAGS =  	${LIBPLOTTER_CFLAGS}				${LIBMING_CFLAGS}				${LIBMAGICK_CFLAGS}				${LIBEMF_CFLAGS}				${LIBPNG_CFLAGS}			        -DDEFAULTGS=$(GS)				-DPSTOEDITDATADIR="\"$(pkgdatadir)\""		-DPSTOEDITLIBDIR="\"$(pkglibdir)\""	        ${SPECIAL_CXXFLAGS}
 
-dummy.ph $(PSHEADER) : pstoedit.pro
-	$(AWK) -f mkpspro.awk < pstoedit.pro > pstoedit.ph
-
-install: pstoedit ../doc/pstoedit.1
-	if [ ! -d $(DESTDIR)$(bindir) ] ; then \
-		$(INSTALL_DIR) $(DESTDIR)$(bindir); \
-	fi                                    
-	$(INSTALL_PROGRAM) pstoedit $(DESTDIR)$(bindir)
-	if [ ! -d $(DESTDIR)$(datadir) ] ; then \
-		$(INSTALL_DIR) $(DESTDIR)$(datadir); \
-	fi
-	if [ ! -d $(DESTDIR)$(datadir)/swffonts ] ; then \
-		$(INSTALL_DIR) $(DESTDIR)$(datadir)/swffonts ; \
-	fi                                    
-	$(INSTALL_DATA) ../misc/swffonts/default.fdb $(DESTDIR)$(datadir)/swffonts/default.fdb
-	$(INSTALL_DATA) ../misc/mpost.fmp $(DESTDIR)$(datadir)
-	$(INSTALL_DATA) ../misc/latex2e.fmp $(DESTDIR)$(datadir)
-	$(INSTALL_DATA) ../misc/svg.fmp $(DESTDIR)$(datadir)
-	if [ ! -d $(DESTDIR)$(MANDIR) ] ; then \
-		$(INSTALL_DIR) $(DESTDIR)$(MANDIR); \
-	fi
-	$(INSTALL_DATA) ../doc/pstoedit.1  $(DESTDIR)$(MANDIR)/pstoedit.$(MANEXT);
-	$(INSTALL_DATA) ../doc/pstoedit.htm  $(DESTDIR)$(datadir)
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 
 
-#	echo "please copy ../doc/pstoedit.htm to a suitable place"
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+libpstoedit_la_LDFLAGS = 
+libpstoedit_la_DEPENDENCIES = 
+libpstoedit_la_OBJECTS =  dynload.lo callgs.lo lexyy.lo miscutil.lo \
+cbstream.lo psimage.lo drvbase.lo base64writer.lo poptions.lo \
+subpath.lo pstoedit.lo
+libp2edrvstd_la_LDFLAGS = 
+libp2edrvstd_la_DEPENDENCIES =  libpstoedit.la
+libp2edrvstd_la_OBJECTS =  drvlwo.lo drvrib.lo drvrpl.lo drvdxf.lo \
+drvjava.lo drvjava2.lo drvpdf.lo drvkillu.lo drvtext.lo drvsk.lo \
+drvmpost.lo drvmma.lo drvlatex2e.lo drvpic.lo drvhpgl.lo drvtk.lo \
+drvgnplt.lo drvtgif.lo drvfig.lo drvidraw.lo drvsampl.lo
+libp2edrvlplot_la_LDFLAGS = 
+libp2edrvlplot_la_DEPENDENCIES =  libpstoedit.la
+libp2edrvlplot_la_OBJECTS =  drvlplot.lo
+libp2edrvswf_la_LDFLAGS = 
+libp2edrvswf_la_DEPENDENCIES =  libpstoedit.la
+libp2edrvswf_la_OBJECTS =  drvswf.lo
+libp2edrvmagick___la_DEPENDENCIES =  libpstoedit.la
+libp2edrvmagick___la_OBJECTS =  drvmagick++.lo
+libp2edrvwmf_la_LIBADD = 
+libp2edrvwmf_la_OBJECTS =  drvwmf.lo
+bin_PROGRAMS =  pstoedit$(EXEEXT)
+PROGRAMS =  $(bin_PROGRAMS)
+
+pstoedit_OBJECTS =  cmdmain.$(OBJEXT)
+pstoedit_LDADD = $(LDADD)
+pstoedit_DEPENDENCIES = 
+CXXFLAGS = @CXXFLAGS@
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+HEADERS =  $(pkginclude_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
 
 
-# Just for running static check tools
-LINTLIKECHECKER=cppchecker
-LINTLIKECHECKER=flintchecker
-ALLCHKS=\
-drvbase.chk\
-drvwmf.chk\
-drvdxf.chk\
-drvfig.chk\
-drvgnplt.chk\
-drvmet.chk\
-drvpdf.chk\
-drvjava.chk\
-drvsampl.chk\
-drvtgif.chk\
-drvidraw.chk\
-drvlwo.chk\
-drvrib.chk\
-drvrpl.chk\
-drvavf.chk\
-lexyy.chk\
-cmdmain.chk\
-pstoedit.chk\
-cdlib.chk
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-.cpp.chk:
-	$(LINTLIKECHECKER) $< $@ -c $(LOCALDEFINES) $(CCFLAGS) $(FORCECPPFLAGS) 
+TAR = tar
+GZIP_ENV = --best
+DEP_FILES =  .deps/base64writer.P .deps/callgs.P .deps/cbstream.P \
+.deps/cmdmain.P .deps/drvbase.P .deps/drvdxf.P .deps/drvfig.P \
+.deps/drvgnplt.P .deps/drvhpgl.P .deps/drvidraw.P .deps/drvjava.P \
+.deps/drvjava2.P .deps/drvkillu.P .deps/drvlatex2e.P .deps/drvlplot.P \
+.deps/drvlwo.P .deps/drvmagick++.P .deps/drvmma.P .deps/drvmpost.P \
+.deps/drvpdf.P .deps/drvpic.P .deps/drvrib.P .deps/drvrpl.P \
+.deps/drvsampl.P .deps/drvsk.P .deps/drvswf.P .deps/drvtext.P \
+.deps/drvtgif.P .deps/drvtk.P .deps/drvwmf.P .deps/dynload.P \
+.deps/lexyy.P .deps/miscutil.P .deps/poptions.P .deps/psimage.P \
+.deps/pstoedit.P .deps/subpath.P
+SOURCES = $(libpstoedit_la_SOURCES) $(libp2edrvstd_la_SOURCES) $(libp2edrvlplot_la_SOURCES) $(libp2edrvswf_la_SOURCES) $(libp2edrvmagick___la_SOURCES) $(libp2edrvwmf_la_SOURCES) $(pstoedit_SOURCES)
+OBJECTS = $(libpstoedit_la_OBJECTS) $(libp2edrvstd_la_OBJECTS) $(libp2edrvlplot_la_OBJECTS) $(libp2edrvswf_la_OBJECTS) $(libp2edrvmagick___la_OBJECTS) $(libp2edrvwmf_la_OBJECTS) $(pstoedit_OBJECTS)
 
-checknamed: $(ALLCHKS)
-	echo checks done
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .obj .s
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.ac $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
-checkall:
-	for f in *.cpp; do \
-		$(LINTLIKECHECKER) $$f `basename $$f .cpp`.log $(LOCALDEFINES) $(CCFLAGS) $(FORCECPPFLAGS) ;\
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
 	done
 
-#depend: 
-#	makedepend *.cpp
-# DO NOT DELETE
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+mostlyclean-pkglibLTLIBRARIES:
+
+clean-pkglibLTLIBRARIES:
+	-test -z "$(pkglib_LTLIBRARIES)" || rm -f $(pkglib_LTLIBRARIES)
+
+distclean-pkglibLTLIBRARIES:
+
+maintainer-clean-pkglibLTLIBRARIES:
+
+install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkglibdir)
+	@list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(pkglibdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-pkglibLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(pkglibdir)/$$p; \
+	done
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libpstoedit.la: $(libpstoedit_la_OBJECTS) $(libpstoedit_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(libdir) $(libpstoedit_la_LDFLAGS) $(libpstoedit_la_OBJECTS) $(libpstoedit_la_LIBADD) $(LIBS)
+
+libp2edrvstd.la: $(libp2edrvstd_la_OBJECTS) $(libp2edrvstd_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(pkglibdir) $(libp2edrvstd_la_LDFLAGS) $(libp2edrvstd_la_OBJECTS) $(libp2edrvstd_la_LIBADD) $(LIBS)
+
+libp2edrvlplot.la: $(libp2edrvlplot_la_OBJECTS) $(libp2edrvlplot_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(pkglibdir) $(libp2edrvlplot_la_LDFLAGS) $(libp2edrvlplot_la_OBJECTS) $(libp2edrvlplot_la_LIBADD) $(LIBS)
+
+libp2edrvswf.la: $(libp2edrvswf_la_OBJECTS) $(libp2edrvswf_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(pkglibdir) $(libp2edrvswf_la_LDFLAGS) $(libp2edrvswf_la_OBJECTS) $(libp2edrvswf_la_LIBADD) $(LIBS)
+
+libp2edrvmagick++.la: $(libp2edrvmagick___la_OBJECTS) $(libp2edrvmagick___la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(pkglibdir) $(libp2edrvmagick___la_LDFLAGS) $(libp2edrvmagick___la_OBJECTS) $(libp2edrvmagick___la_LIBADD) $(LIBS)
+
+libp2edrvwmf.la: $(libp2edrvwmf_la_OBJECTS) $(libp2edrvwmf_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(pkglibdir) $(libp2edrvwmf_la_LDFLAGS) $(libp2edrvwmf_la_OBJECTS) $(libp2edrvwmf_la_LIBADD) $(LIBS)
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+pstoedit$(EXEEXT): $(pstoedit_OBJECTS) $(pstoedit_DEPENDENCIES)
+	@rm -f pstoedit$(EXEEXT)
+	$(CXXLINK) $(pstoedit_LDFLAGS) $(pstoedit_OBJECTS) $(pstoedit_LDADD) $(LIBS)
+.cpp.o:
+	$(CXXCOMPILE) -c $<
+.cpp.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
+
+install-pkgincludeHEADERS: $(pkginclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgincludedir)
+	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
+uninstall-pkgincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags -o $$here/TAGS $(ETAGS_ARGS) $$tags  $$unique $(LISP))
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
+%.o: %.cpp
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cpp
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES install-pkglibLTLIBRARIES \
+		install-binPROGRAMS
+install-exec: install-exec-am
+
+install-data-am: install-pkgincludeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-pkglibLTLIBRARIES \
+		uninstall-binPROGRAMS uninstall-pkgincludeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(pkglibdir) \
+		$(DESTDIR)$(bindir) $(DESTDIR)$(pkgincludedir)
 
 
-lexyy.$(OBJEXT): lexyy.cpp drvbase.h drvfuncs.h image.h
-drvbase.$(OBJEXT): drvbase.cpp drvbase.h drvfuncs.h image.h
-pstoedit.$(OBJEXT): pstoedit.cpp drvbase.h drvfuncs.h psfront.h pstoedit.h pstoedit.ph version.h 
-$(MAIN).$(OBJEXT): $(MAIN).cpp pstoedit.h
+mostlyclean-generic:
 
-drvtgif.$(OBJEXT): drvtgif.cpp drvtgif.h drvbase.h drvfuncs.h image.h
-drvtk.$(OBJEXT): drvtk.cpp drvtk.h drvbase.h drvfuncs.h image.h
-drvlwo.$(OBJEXT): drvlwo.cpp drvlwo.h drvbase.h drvfuncs.h image.h
-drvrib.$(OBJEXT): drvrib.cpp drvrib.h drvbase.h drvfuncs.h image.h
-drvrpl.$(OBJEXT): drvrpl.cpp drvrpl.h drvbase.h drvfuncs.h image.h
-drvidraw.$(OBJEXT): drvidraw.cpp drvidraw.h drvbase.h drvfuncs.h image.h
-drvfig.$(OBJEXT): drvfig.cpp drvfig.h drvbase.h drvfuncs.h image.h
-drvgnplt.$(OBJEXT): drvgnplt.cpp drvgnplt.h drvbase.h drvfuncs.h image.h
-drvdxf.$(OBJEXT): drvdxf.cpp drvdxf.h drvbase.h drvfuncs.h image.h
-drvmet.$(OBJEXT): drvmet.cpp drvmet.h drvbase.h drvfuncs.h image.h
-drvpdf.$(OBJEXT): drvpdf.cpp drvpdf.h drvbase.h drvfuncs.h image.h
-drvtext.$(OBJEXT): drvtext.cpp drvtext.h drvbase.h drvfuncs.h image.h
-cdlib.$(OBJEXT): cdlib.cpp 
-drvmdraw.$(OBJEXT): drvmdraw.cpp drvbase.h drvmdraw.h drvfuncs.h image.h drvmdraw.ph
-drvsampl.$(OBJEXT): drvsampl.cpp drvbase.h drvsampl.h drvfuncs.h image.h
-drvjava.$(OBJEXT): drvjava.cpp drvbase.h drvjava.h drvfuncs.h image.h
-drvjava2.$(OBJEXT): drvjava2.cpp drvbase.h drvjava2.h drvfuncs.h image.h
-drvwmf.$(OBJEXT): drvwmf.cpp drvbase.h drvwmf.h drvfuncs.h image.h
-pstoedit.ph: # dummy for RiscOS GNU make's screwed dependencies
- 
- 
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES \
+		mostlyclean-pkglibLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-binPROGRAMS \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-pkglibLTLIBRARIES clean-compile \
+		clean-libtool clean-binPROGRAMS clean-tags clean-depend \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-pkglibLTLIBRARIES \
+		distclean-compile distclean-libtool \
+		distclean-binPROGRAMS distclean-tags distclean-depend \
+		distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-pkglibLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-binPROGRAMS maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES \
+mostlyclean-pkglibLTLIBRARIES distclean-pkglibLTLIBRARIES \
+clean-pkglibLTLIBRARIES maintainer-clean-pkglibLTLIBRARIES \
+uninstall-pkglibLTLIBRARIES install-pkglibLTLIBRARIES \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile mostlyclean-libtool distclean-libtool \
+clean-libtool maintainer-clean-libtool mostlyclean-binPROGRAMS \
+distclean-binPROGRAMS clean-binPROGRAMS maintainer-clean-binPROGRAMS \
+uninstall-binPROGRAMS install-binPROGRAMS uninstall-pkgincludeHEADERS \
+install-pkgincludeHEADERS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

@@ -2,7 +2,7 @@
    drvPDF.cpp : This file is part of pstoedit
    Backend for PDF(TM) format
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,7 +37,9 @@
 // for sin and cos
 #include <math.h>
 
-USESTD static float rnd(const float f, const float roundnumber)
+USESTD 
+
+static float rnd(const float f, const float roundnumber)
 {
 	const float roundup = (f < 0.0f) ? -0.5f : 0.5f;
 	return ((long int) ((f * roundnumber) + roundup)) / roundnumber;
@@ -152,11 +154,11 @@ bb_llx(largeint), bb_lly(largeint), bb_urx(-largeint), bb_ury(-largeint)
 #else
 	newlinebytes = (long) outf.tellp() - (long) strlen(header);
 #endif
-	if (verbose)
+	if (Verbose())
 		outf << "% Driver options:" << endl;
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
-		if (verbose)
+		if (Verbose())
 			outf << "% " << d_argv[i] << endl;
 		if (strcmp(d_argv[i], "-e") == 0) {
 			encodingName = d_argv[i + 1];
@@ -677,7 +679,7 @@ void drvPDF::show_path()
 //    buffer.width(0); // to force minimal width
 //    buffer.unsetf(ios::showpoint);
 
-	if (verbose) {
+	if (Verbose()) {
 		buffer << "% path " << currentNr() << endl;
 	}
 	buffer << RND3(currentR()) << " " << RND3(currentG()) << " " <<
@@ -688,17 +690,6 @@ void drvPDF::show_path()
 	buffer << dashPattern() << " d" << endl;
 	print_coords();
 	buffer << drawingop << endl;
-}
-
-void drvPDF::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// just do show_polyline for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	endtext();					// close text if open
-	show_path();
 }
 
 static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document Format", "pdf", true,	// if backend supports subpathes, else 0
@@ -717,8 +708,7 @@ static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document For
 										   1,	// if backend supports curves, else 0
 										   false,	// if backend supports elements with fill and edges
 										   true,	// if backend supports text, else 0
-										   true,	// if backend supports Images
-										   false,	// no support for PNG file images
+										   DriverDescription::memoryeps,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 										   false, /*clipping */
 										   nodriverspecificoptions);

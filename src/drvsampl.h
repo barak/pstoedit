@@ -6,7 +6,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,10 +36,12 @@ public:
 	~drvSAMPL(); // Destructor
 
 #include "drvfuncs.h"
+	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+	void show_text(const TextInfo & textInfo);
 
 public:
 
-	virtual void    show_image(const Image & imageinfo); 
+	virtual void    show_image(const PSImage & imageinfo); 
 
 private:
 	void print_coords();

@@ -2,7 +2,7 @@
    drvTGIF.cpp : This file is part of pstoedit
    Backend for TGIF
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,11 +57,11 @@ constructBase, buffer(tempFile.asOutput()), objectId(1), textAsAttribute(false)
 
 	// cannot write any header part, since we need the total number of pages
 	// in the header
-	if (verbose)
+	if (Verbose())
 		errf << "% Driver options:" << endl;
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
-		if (verbose)
+		if (Verbose())
 			errf << "% " << d_argv[i] << endl;
 		if (strcmp(d_argv[i], "-ta") == 0) {
 			textAsAttribute = true;
@@ -356,7 +356,7 @@ It became visible after printing in tgif to postscript or eps.
 		}
 		buffer << "\",[" << endl << "])." << endl;
 	}
-};
+}
 
 void drvTGIF::show_rectangle(const float llx, const float lly, const float urx, const float ury)
 {
@@ -386,8 +386,7 @@ static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format (for tgif
 											 false,	// if backend supports curves, else 0
 											 true,	// if backend supports elements with fill and edges
 											 true,	// if backend supports text, else 0
-											 false,	// if backend supports Images
-											 false,	// no support for PNG file images
+											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 											 false, /*clipping */ 
 											 driveroptions);

@@ -4,7 +4,7 @@
    Contributed by: Scott Pakin <pakin@uiuc.edu>
    Image Support added by Scott Johnston
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -995,15 +995,10 @@ void drvIDRAW::show_text(const TextInfo & textinfo)
 void drvIDRAW::show_path()
 {
 	print_coords();
-};
-
-// Does this ever get called?
-void drvIDRAW::show_rectangle(const float, const float, const float, const float)
-{
-	show_path();
 }
 
-void drvIDRAW::show_image(const Image & imageinfo)
+
+void drvIDRAW::show_image(const PSImage & imageinfo)
 {
 	if (outDirName == NIL || outBaseName == NIL) {
 		errf << "images cannot be handled via standard output. Use an output file " << endl;
@@ -1029,8 +1024,7 @@ static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format 
 											   true,	// if backend supports curves, else 0
 											   true,	// if backend supports elements with fill and edges
 											   true,	// if backend supports text, else 0
-											   true,	// if backend supports Images
-											   false,	// no support for PNG file images
+											   DriverDescription::memoryeps,	// no support for PNG file images
 											   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 											   false /*clipping */ , nodriverspecificoptions);
  

@@ -36,25 +36,18 @@ public:
     ~drvSK();
 
 #include "drvfuncs.h"
+	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+	void show_text(const TextInfo & textInfo);
 
-    virtual void    show_image(const Image & imageinfo);
+    virtual void    show_image(const PSImage & imageinfo);
 
  protected:
     virtual bool pathsCanBeMerged(const PathInfo &, const PathInfo &) const;
 
  private:
-	 void print_coords();
+	void print_coords();
     int id;
     int getid();
-
-    struct {
-	int leftbits;
-	unsigned int leftchar;
-	int column;
-    } state;
-
-    int write_base64(const unsigned char * buf, int length);
-    void close_base64();
 
 };
 

@@ -4,7 +4,7 @@
    miscutil.h : This file is part of pstoedit
    header declaring misc utility functions
 
-   Copyright (C) 1998 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -64,12 +64,30 @@ const char directoryDelimiter = '/';
 #define NOCOPYANDASSIGN(classname) 
 #endif
 
-DLLEXPORT bool fileExists (const char * filename);
-DLLEXPORT char * full_qualified_tempnam(const char * pref);
-DLLEXPORT void convertBackSlashes(char* string);
 
-DLLEXPORT char * cppstrdup(const char * src, unsigned int addon = 0);
-DLLEXPORT char * cppstrndup(const char * src, unsigned int length, unsigned int addon = 0);
+
+// NOTE: The following two dup functions are made inline to solve the problem
+// of allocation and deallocation in different .dlls. 
+// a strdup which uses new instead of malloc
+inline char *cppstrdup(const char *src, unsigned int addon = 0)
+{
+	char *ret = new char[strlen(src) + 1 + addon];
+	strcpy(ret, src);
+	return ret;
+}
+inline char * cppstrndup(const char * src, unsigned int length, unsigned int addon = 0 )
+{
+	char *ret = new char[length + 1 + addon];
+	for (unsigned int i = 0 ; i < length+1; i++)
+	{
+			ret[i] = src[i];
+	}
+	return ret;
+
+}
+
+// DLLEXPORT char * cppstrdup(const char * src, unsigned int addon = 0);
+// DLLEXPORT char * cppstrndup(const char * src, unsigned int length, unsigned int addon = 0);
 DLLEXPORT unsigned short hextoint(const char hexchar) ;
 
 // A temporary file, that is automatically removed after usage
@@ -105,9 +123,9 @@ public:
 	
 	NOCOPYANDASSIGN(Argv)
 };
-ostream & operator <<(ostream & out, const Argv & a);
+DLLEXPORT ostream & operator <<(ostream & out, const Argv & a);
 
-
+#if 0 
 template <class T> 
 class AutoDeleter {
 public:
@@ -126,6 +144,7 @@ private:
 //	AutoDeleter(const AutoDeleter<T> &); // no copy ctor please
 //	const AutoDeleter<T>& operator =(const AutoDeleter<T> &); // no assignment please
 };
+#endif
 
 // a very very simple resizing string
 // since STL is not yet available on all systems / compilers
@@ -177,6 +196,10 @@ private:
 	unsigned int stringlength; // needed for storing binary strings including \0 
 };
 
+
+DLLEXPORT bool fileExists (const char * filename);
+DLLEXPORT RSString full_qualified_tempnam(const char * pref);
+DLLEXPORT void convertBackSlashes(char* string);
 //#define BUGGYGPP
 
 

@@ -1,7 +1,7 @@
-Second test release of pstoedit 3.30 for OS/2
+Second test release of pstoedit 3.31 for OS/2
 
-This is an update of the test releases for pstoedit 3.21.
-Nothing spectacular new in here.
+This is an update of the test releases for pstoedit 3.21 and
+3.30. Nothing spectacular new in here.
 
 These files are compiled and (somewhat) tested on a single
 machine using a German Warp 4(.5), FP 15.
@@ -29,7 +29,7 @@ led to integration into this graphical tool
 As of this moment, gvpm still contains the pstoedit.dll
 of version 3.21. You can simply copy this new dll over it.
 (Check: when the Mathematica backend is listed, you are using
- v3.30)
+ v3.31)
 
 NEW: pstoedit.exe looks for configuration data into 
 pstoedit.ini, too. You receive a template of this ini with 
@@ -71,7 +71,7 @@ The main differences to the "old" version for OS/2
  the resulting Makefile, i.e. no hand crafted Makefile 
  used (Thanks to H.C.Chu for autoconf).
 
-New in comparison wit v3.21 is the added Mathematica backend.
+New in comparison with v3.21 is the added Mathematica backend.
 
 The directory examples contains the *ps files from the 
 original (source) distribution and output created for the
@@ -86,6 +86,6 @@ Known deficencies are:
 -path handling fails: pathtest.[ps,met]
 
 
-October 2001
+January 2002
 Thomas Hoffmann
 thoffman@zappa.sax.de

@@ -2,7 +2,7 @@
    drvJAVA.cpp : This file is part of pstoedit
    backend to generate a Java(TM) applet
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -231,18 +231,8 @@ void drvJAVA::show_path()
 		break;
 	}
 	// outf << "\tcurrentLineWidth: " <<  currentLineWidth() << endl;
-};
-
-void drvJAVA::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-//  outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ")" << endl;
-// just do show_path for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
 }
+
 
 static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code", "java", false,	// if backend supports subpathes, else 0
 											 // if subpathes are supported, the backend must deal with
@@ -260,8 +250,7 @@ static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code
 											 false,	// if backend supports curves, else 0
 											 false,	// if backend supports elements with fill and edges
 											 true,	// if backend supports text, else 0
-											 false,	// if backend supports Images
-											 false,	// no support for PNG file images
+											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 											 false /*clipping */ , driveroptions);
  
