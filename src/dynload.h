@@ -2,7 +2,7 @@
    dynload.h : This file is part of pstoedit
    declarations for dynamic loading of drivers
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,6 @@ class ostream;
 // lean - just the dlopen/dlclose stuff
 void loadPlugInDrivers(const char * pluginDir,ostream& errstream,bool verbose);
 #endif 
- 
  
  
  

@@ -5,7 +5,7 @@
    drvjava2.h : This file is part of pstoedit
    Class declaration for a Java2 output driver -- test version
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
    Copyright (C) 2000 TapirSoft Gisbert & Harald Selke GbR, gisbert@tapirsoft.de
 
     This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,15 @@ public:
 	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvJAVA2(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+		Option < RSString, RSStringValueExtractor> jClassName;
+		DriverOptions():
+			jClassName(true,"java class name","string",0,"name of java class to generate",0,(const char *)"PSJava")
+		{
+			ADD(jClassName);
+		}
+	}*options;
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -48,10 +57,8 @@ private:
 	unsigned int subPageNumber;
 	unsigned int numberOfElements;
 	unsigned int numberOfImages;
-	const char * jClassName;
 };
 
 #endif
- 
  
  

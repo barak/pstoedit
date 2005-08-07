@@ -1,7 +1,7 @@
 /*
    psimage.cpp : This file is part of pstoedit.
   
-   Copyright (C) 1997- 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1997- 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
    Support for Image::writeIdrawImage by Scott Johnston
 
@@ -21,7 +21,9 @@
 
 */
 #include "drvbase.h"
+ 
 #include "version.h"
+ 
 #include I_iomanip
 
 #if 0
@@ -585,4 +587,3 @@ void PSImage::writeIdrawImage(ostream & outi, float scalefactor) const
 
 	delete[] udata;
 }
- 

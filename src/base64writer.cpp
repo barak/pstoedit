@@ -120,4 +120,3 @@ Base64Writer::~Base64Writer()
 	if (!closed)
 		close_base64();
 }
- 

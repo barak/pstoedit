@@ -11,7 +11,7 @@
    drvsample.h
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,24 @@ public:
 	derivedConstructor(drvTK);
 
 	~drvTK(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+
+		Option < bool, BoolTrueExtractor> swapHW;
+		Option < bool, BoolTrueExtractor> noImPress;
+		Option < RSString, RSStringValueExtractor> tagNames;
+
+		DriverOptions() :
+			swapHW(true,"-R",0,0,"swap HW",0,false),
+			noImPress(true,"-I",0,0,"no impress",0,false),
+			tagNames(true,"-n","string",0,"tagnames",0,"")
+		{
+			ADD(swapHW);
+			ADD(noImPress);
+			ADD(tagNames);
+		};
+
+	} * options;
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -56,6 +74,5 @@ private:
 
 };
 #endif
- 
  
  

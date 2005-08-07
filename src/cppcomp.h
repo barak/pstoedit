@@ -4,7 +4,7 @@
    cppcomp.h : This file is part of pstoedit
    header declaring compiler dependent stuff
 
-   Copyright (C) 1998 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,10 @@
 #define DLLEXPORT
 #endif
 
+#ifdef _AIX
+#define _unix
+#endif
+
 #if defined (_MSC_VER) && (_MSC_VER >= 1100) 
 // MSVC 5 and 6 have ANSI C++ header files, but the compilation
 // is much slower and object files get bigger. 
@@ -42,13 +46,16 @@
 #define HAVETYPENAME
 // now this is again commented out by default, since now all
 // drivers can be compiled without the STL
+#define USE_NEWSTRSTREAM
+
+#define HAVEAUTOPTR
 
 #endif
 
 #if defined (FORCESTLUSAGE)
 // 
 #define HAVESTL
-#define HAVETYPENAME
+//wogl test #define HAVETYPENAME
 #endif
 
 #if defined (__GNUG__)  && (__GNUC__>=3)
@@ -58,6 +65,7 @@
 // so I finally commented this out again and made the code compile also in traditional mode
 #define HAVESTL
 #define HAVETYPENAME
+#define HAVEAUTOPTR
 
 //#if (__GNUC__>=3)
 #define  USE_NEWSTRSTREAM
@@ -71,7 +79,10 @@
 		#if __SUNPRO_CC_COMPAT >= 5
 // SUN's new compiler seems to work with STL (only)
 			#define HAVESTL
-			#define INTERNALBOOL
+			#define HAVEAUTOPTR
+			#ifndef INTERNALBOOL
+				#define INTERNALBOOL
+			#endif
 		#else
 // we compile with -compat=4 
 			#ifdef INTERNALBOOL
@@ -191,7 +202,6 @@ const bool true  = 1;
 
 #endif
 
- 
  
  
  

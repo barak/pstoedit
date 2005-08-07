@@ -2,8 +2,8 @@
    drvJAVA2.cpp : This file is part of pstoedit
    backend to generate a Java(TM) 2 applet -- test version
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
-   Copyright (C) 2000 TapirSoft Gisbert & Harald Selke GbR, gisbert@tapirsoft.de
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
+   Copyright (C) 2000 TapirSoft Gisbert & Harald Selke GbR, gisbert_AT_tapirsoft.de
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -72,24 +72,23 @@ static int getFontNumber(const char *const fontname)
 	return 0;					// return Courier if not found
 }
 
-static const OptionDescription driveroptions[] = {
-		OptionDescription("java class name","string","name of java class to generate"),
-		endofoptions};
 
 drvJAVA2::derivedConstructor(drvJAVA2):
-constructBase, subPageNumber(0), numberOfElements(0), numberOfImages(0), jClassName("PSJava")
+constructBase, subPageNumber(0), numberOfElements(0), numberOfImages(0)
 {
+#if 0
 	if (d_argc > 0) {
 		assert(d_argv && d_argv[0]);
 		jClassName = d_argv[0];
 	}
+#endif
 // driver specific initializations
 // and writing of header to output file
-	outf << "// Source of " << jClassName << " produced by pstoedit, driver for Java 2" << endl;
+	outf << "// Source of " << options->jClassName.value << " produced by pstoedit, driver for Java 2" << endl;
 	outf << "import java.awt.Color;" << endl;
 	outf << "import java.awt.geom.*;" << endl;
 	outf << endl;
-	outf << "public class " << jClassName << " extends PSDrawing {" << endl;
+	outf << "public class " << options->jClassName.value << " extends PSDrawing {" << endl;
 	outf << endl;
 	outf << "  PageDescription currentPage = null;" << endl;
 	outf << "  PSPathObject    currentPath = null;" << endl;
@@ -403,7 +402,7 @@ void drvJAVA2::show_image(const PSImage & imageinfo)
 }
 
 
-static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "java2", true,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "","java2", true,	// if backend supports subpathes, else 0
 											   // if subpathes are supported, the backend must deal with
 											   // sequences of the following form
 											   // moveto (start of subpath)
@@ -421,5 +420,4 @@ static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "j
 											   true,	// backend supports text
 											   DriverDescription::memoryeps,	// no support for PNG file images
 											   DriverDescription::normalopen, true,	// format supports multiple pages in one file
-											   false /*clipping */, driveroptions );
- 
+											   false /*clipping */ );

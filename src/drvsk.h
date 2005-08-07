@@ -34,6 +34,12 @@ public:
     derivedConstructor(drvSK);
 
     ~drvSK();
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
 
 #include "drvfuncs.h"
 	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
@@ -57,5 +63,4 @@ inline int drvSK::getid()
     return id++;
 }
 #endif
- 
  

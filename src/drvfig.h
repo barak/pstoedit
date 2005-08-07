@@ -5,7 +5,7 @@
    drvFIG.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,27 @@ public:
 	//(const char * driveroptions_P, ostream & theoutStream, ostream & theerrStream, const char* outPath_P, const char* outName_P); // Constructor
 
 	~drvFIG(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		Option < int, IntValueExtractor > startdepth ; 
+		Option < bool, BoolTrueExtractor > metric ;
+		Option < bool, BoolTrueExtractor > use_correct_font_size ;
+		Option < int, IntValueExtractor > depth_in_inches ; 
+
+
+		DriverOptions():
+
+			startdepth(true,"-startdepth","number",0,"Set the initial depth (default 999)",0,999),
+			metric(true,"-metric","",0,"Switch to centimeter display (default inches)",0,false),
+			use_correct_font_size(true,"-usecorrectfontsize",0,0,"don't scale fonts for xfig. Use this if you also use this option with xfig",0,false),
+			depth_in_inches(true,"-depth","number",0,"Set the page depth in inches (default 11)",0,11)
+		{
+			ADD(startdepth);
+			ADD(metric);
+			ADD(use_correct_font_size);
+			ADD(depth_in_inches);
+		}
+	}*options;
 
 private:
 	int	      objectId;
@@ -40,8 +61,8 @@ private:
 	ofstream  &buffer;
 	int	      imgcount;
 	int	      format; // either 31 or something else
-	int	      startdepth; // Start depth for objectID (range 0 - 999)
-	bool	  use_correct_font_size; // if xfig is used in -use_correct_font_size mode as well
+//	int	      startdepth; // Start depth for objectID (range 0 - 999)
+//	bool	  use_correct_font_size; // if xfig is used in -use_correct_font_size mode as well
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -66,5 +87,4 @@ public:
 };
 #endif
 
- 
  

@@ -6,7 +6,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,15 @@ public:
 	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvSAMPL(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		Option < int, IntValueExtractor >sampleoption;
+		DriverOptions(): 
+			sampleoption(true,"-sampleoption","integer",0,"just an example",0,99)
+		{
+			ADD(sampleoption);
+		}
+	}*options;
 
 #include "drvfuncs.h"
 	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
@@ -50,6 +59,5 @@ private:
 };
 
 #endif
- 
  
  

@@ -1,9 +1,9 @@
 /* 
    drvGNUPLOT.cpp : This file is part of pstoedit
    simple backend for GNUplot format.
-   Contributed by: Carsten Hammer (chammer@hermes.hrz.uni-bielefeld.de)
+   Contributed by: Carsten Hammer (chammer_AT_hermes.hrz.uni-bielefeld.de)
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
    (for the skeleton and the rest of pstoedit)
 
     This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@ void drvGNUPLOT::show_path()
 }
 
 
-static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "gnuplot", false,	// if backend supports subpathes
+static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "","gnuplot", false,	// if backend supports subpathes
 												   // if subpathes are supported, the backend must deal with
 												   // sequences of the following form
 												   // moveto (start of subpath)
@@ -81,5 +81,4 @@ static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", 
 												   false,	// if backend supports text
 												   DriverDescription::noimage,	// no support for PNG file images
 												   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
-												   false /*clipping */ , nodriverspecificoptions);
- 
+												   false /*clipping */ );

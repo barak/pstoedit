@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -97,9 +97,11 @@ public:
 #else
 	Point transform(const float matrix[6]) const;
 #endif
+
 	friend ostream & operator<<(ostream & out,const Point &p) {
 		return out << "x: " << p.x_ << " y: " << p.y_ ;
 	}
+
 private:
 };
 
@@ -108,9 +110,11 @@ struct DLLEXPORT BBox // holds two points describing a Bounding Box
 public:
 	Point ll;
 	Point ur;
+ 
 	friend ostream & operator<<(ostream & out,const BBox &bb) {
 		return out << "LL: " << bb.ll << " UR: " << bb.ur ;
 	}
+ 
 };
 
 // image needs Point !
@@ -120,6 +124,7 @@ static const char emptyDashPattern[] =  "[ ] 0.0";
 
 class basedrawingelement ; // forward
 class DriverDescription ;  // forward
+
 class       DLLEXPORT    drvbase 
     // = TITLE
     // Base class for backends to pstoedit
@@ -141,7 +146,7 @@ class       DLLEXPORT    drvbase
 public:
 	// = PUBLIC TYPES 
 
-	enum showtype { stroke, fill, eofill };
+	enum showtype { stroke, fill, eofill }; //lint -esym(578,drvbase::fill)
 	enum cliptype { clip , eoclip };
 	enum linetype { solid=0, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
 	struct DLLEXPORT TextInfo {
@@ -219,7 +224,7 @@ protected:
 	struct DLLEXPORT PathInfo {
 		showtype	currentShowType;
 		linetype	currentLineType;
-		unsigned int    currentLineCap;
+		unsigned int    currentLineCap; // Shape of line ends for stroke (0 = butt, 1 = round, 2 = square)
 		unsigned int    currentLineJoin;
 		float			currentMiterLimit;
 		unsigned int    nr;
@@ -300,7 +305,9 @@ public:
 	// = PUBLIC DATA
 
 	const DriverDescription * Pdriverdesc; // pointer to the derived class' driverdescription
-	bool simulateSubPaths; // simulate sub paths for backend that don't support it directly
+
+	ProgramOptions* DOptions_ptr;
+
 	PSImage 		imageInfo;
 
 	static FontMapper& theFontMapper();
@@ -324,8 +331,7 @@ protected:
 	char*         	outDirName; 	// output path with trailing slash or backslash
 	char*         	outBaseName; 	// just the basename (no path, no suffix)
 	unsigned int	d_argc;
-	char **			d_argv;
-	float           scale;
+	const char **			d_argv; // array of driver argument strings
 	const class PsToEditOptions & globaloptions; 
 	float           currentDeviceHeight; // normally 792 pt; used for flipping y values.
 	float           currentDeviceWidth;  
@@ -353,9 +359,10 @@ protected: // for drvrtf
 	PathInfo * 	outputPath;  // for output driver
 private:
 	PathInfo * 	lastPath;    // for merging
-	TextInfo 	textInfo_;
-	TextInfo 	lasttextInfo_; // for saving font settings
-
+	TextInfo 	textInfo_;	 // this is used both by the lexer to fill in text related info 
+							 // but also by the backends for query of info, e.g. via "fontchanged"
+	TextInfo	mergedTextInfo; // for collecting pieces of text when doing text merge
+	TextInfo 	lastTextInfo_; // for saving font settings. This is the last really dumped text
 
 public:
 	// = PUBLIC METHODS
@@ -368,7 +375,6 @@ public:
 		ostream & theerrStream,		
 		const char* nameOfInputFile_p,
 		const char* nameOfOutputFile_p,
-		const float scalefactor,
 		const PsToEditOptions & globaloptions_p,
 		const DriverDescription * Pdriverdesc_p
 	); // constructor
@@ -393,13 +399,15 @@ public:
 
 	virtual bool textIsWorthToPrint(const char *thetext) const; // in the default implementation full blank strings are ignored
 
+	virtual bool textCanBeMerged(const TextInfo & text1, const TextInfo & text2) const; // checked whether two pieces of text can be merged into one.
+
 	void            setCurrentDeviceHeight(const float deviceHeight) 
 			{ currentDeviceHeight = deviceHeight; }
 
 	void            setCurrentDeviceWidth(const float deviceWidth) 
 			{ currentDeviceWidth = deviceWidth; }
 
-	float           getScale() const { return scale; }
+	float           getScale() const { return 1.0f; }
 
 	inline long l_transX			(float x) const	{
 		return (long)((x + x_offset) + .5);	// rounded long	
@@ -429,8 +437,8 @@ public:
 
 	bool close_output_file_and_reopen_in_binary_mode(); //
 
-	bool		fontchanged() const { return ! textInfo_.samefont(lasttextInfo_); }
-	bool		textcolorchanged() const { return ! textInfo_.samecolor(lasttextInfo_); }
+	bool		fontchanged() const { return ! textInfo_.samefont(lastTextInfo_); }
+	bool		textcolorchanged() const { return ! textInfo_.samecolor(lastTextInfo_); }
 
 	void		setRGB(const float R,const float G, const float B)
 			{ 
@@ -458,6 +466,7 @@ public:
 	// = DRAWING RELATED METHODS
 
 	void		addtopath(basedrawingelement * newelement);
+	void		removeFromElementFromPath();
 
 	unsigned int 	&numberOfElementsInPath() { return outputPath->numberOfElementsInPath; }
 	unsigned int 	numberOfElementsInPath() const { return outputPath->numberOfElementsInPath; }
@@ -489,7 +498,11 @@ public:
 	void            setCurrentShowType(const showtype how) 
 			{ currentPath->currentShowType = how; }
 
-	void 		dumpPath();  // shows current path
+	void 		dumpPath(bool doFlushText = true);  // shows current path
+
+	enum		flushmode_t { flushall, flushtext, flushpath };
+
+	void		flushOutStanding( flushmode_t flushmode = flushall);
 
 	void		dumpRearrangedPathes(); // show the current subpathes after calling rearrange
 
@@ -525,15 +538,18 @@ public:
 	const float *	getCurrentFontMatrix() const { return textInfo_.FontMatrix; }
 	void 		setCurrentFontMatrix(const float mat[6]) { for (unsigned short i = 0; i< 6; i++) textInfo_.FontMatrix[i] = mat[i]; }
 
-	void    	dumpText(const char *const thetext,
+	// the push*Text methods set the textinfo_ member and then call the 
+	// showOrMergeText(textinfo_) ;
+	void    	pushText(const char *const thetext,
 					const float x, 
 					const float y);
 
-	void		dumpHEXText(const char *const thetext, 
+	void		pushHEXText(const char *const thetext, 
 					const float x, 
 					const float y);
 
-
+	void		flushTextBuffer(bool useMergeBuffer); // flushes text from the text (merge) buffer 
+	void		showOrMergeText();
 
 	// = BACKEND SPECIFIC FUNCTIONS
 
@@ -793,11 +809,10 @@ typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 	       ostream & theerrStream, 			\
 		   const char* nameOfInputFile_p,	\
 	       const char* nameOfOutputFile_p,	\
-		   const float scalefactor_p,	    \
 		   const PsToEditOptions & globaloptions_p,		\
 		   const DriverDescription * descptr)	
 
-#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,scalefactor_p,globaloptions_p,descptr)
+#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,globaloptions_p,descptr), options((DriverOptions*)DOptions_ptr)
 
 
 class DLLEXPORT DescriptionRegister
@@ -821,7 +836,8 @@ public:
 	void registerDriver(DriverDescription* xp);
 	void mergeRegister(ostream & out,const DescriptionRegister & src,const char * filename);
 	void explainformats(ostream & out,bool withdetails=false) const;
-	const DriverDescription * getdriverdesc(const char * drivername) const;
+	const DriverDescription * getDriverDescForName(const char * drivername) const;
+	const DriverDescription * getDriverDescForSuffix(const char * suffix) const;
 
 	DriverDescription* rp[maxelems];
 
@@ -871,9 +887,9 @@ private:
 };
 
 // An Array of OptionDescription is delimited by an element where Name is 0
-const OptionDescription endofoptions(0,0,0);
+//FIXME const OptionDescription endofoptions(0,0,0);
 
-const OptionDescription nodriverspecificoptions[] = {OptionDescription("driver has no further options",0,0),endofoptions};
+//FIXME const OptionDescription nodriverspecificoptions[] = {OptionDescription("driver has no further options",0,0),endofoptions};
 
 
 //lint -esym(1712,DriverDescription) // no default ctor
@@ -883,7 +899,8 @@ public:
 	enum imageformat { noimage, png, bmp, memoryeps }; // format to be used for transfer of raster images
 
 	DriverDescription(const char * const s_name, 
-			const char * const expl, 
+			const char * const short_expl, 
+			const char * const long_expl,
 			const char * const suffix_p, 
 			const bool 	backendSupportsSubPathes_p,
 			const bool 	backendSupportsCurveto_p,
@@ -893,7 +910,6 @@ public:
 			const opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
 			const bool	backendSupportsClipping_p,
-			const OptionDescription* optionDescription_p,
 			const bool	nativedriver_p = true,
 			checkfuncptr checkfunc_p = 0);
 	virtual ~DriverDescription() {
@@ -908,14 +924,16 @@ public:
 			 ostream & theerrStream,   
 			 const char* const nameOfInputFile,
 		     const char* const nameOfOutputFile,
-			 const float scalefactor,
 			 const PsToEditOptions & globaloptions_p
 			 ) const = 0;
+	virtual ProgramOptions * createDriverOptions() const = 0;
+
 	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
 
  // Data members
 	const char * const symbolicname;
-	const char * const explanation;
+	const char * const short_explanation;
+	const char * const long_explanation;
 	const char * const suffix;
 	const char * const additionalInfo;
 	const bool 	backendSupportsSubPathes;
@@ -926,7 +944,6 @@ public:
 	const opentype  backendFileOpenType;
 	const bool	backendSupportsMultiplePages;
 	const bool	backendSupportsClipping;
-	const OptionDescription* optionDescription;
 	const bool	nativedriver;
 	RSString filename; // where this driver is loaded from
 	const checkfuncptr checkfunc;
@@ -943,7 +960,8 @@ template <class T>
 class DLLEXPORT DriverDescriptionT : public DriverDescription {
 public:
 	DriverDescriptionT(const char * s_name, 
-			const char * expl, 
+			const char * short_expl_p, 
+			const char * long_expl_p, 
 			const char * suffix_p, 
 			const bool 	backendSupportsSubPathes_p,
 			const bool 	backendSupportsCurveto_p,
@@ -953,12 +971,12 @@ public:
 			const DriverDescription::opentype  backendFileOpenType_p,
 			const bool	backendSupportsMultiplePages_p,
 			const bool	backendSupportsClipping_p,
-			const OptionDescription* optionDescription_p,//= nodriverspecificoptions,
 			const bool  nativedriver_p = true,
 			checkfuncptr checkfunc_p = 0 ):
 	DriverDescription( 
 			s_name, 
-			expl, 
+			short_expl_p,
+			long_expl_p, 
 			suffix_p, 
 			backendSupportsSubPathes_p,
 			backendSupportsCurveto_p,
@@ -968,7 +986,6 @@ public:
 			backendFileOpenType_p,
 			backendSupportsMultiplePages_p,
 			backendSupportsClipping_p,
-			optionDescription_p,
 			nativedriver_p,
 			checkfunc_p
 			)
@@ -979,12 +996,20 @@ public:
 		    ostream & theerrStream,   
 			const char* const nameOfInputFile,
 	       	const char* const nameOfOutputFile,
-			const float scalefactor,
 			const PsToEditOptions & globaloptions_p
 			 ) const
 	{ 
-	  return new T(driveroptions_P, theoutStream, theerrStream,nameOfInputFile,nameOfOutputFile, scalefactor,globaloptions_p,this); 
+		drvbase * backend = new T(driveroptions_P, theoutStream, theerrStream,nameOfInputFile,nameOfOutputFile, globaloptions_p,this); 
+		return backend;
 	} 
+
+	ProgramOptions * createDriverOptions() const {
+		// ProgramOptions * p = ;
+		// cerr << "creating driver options" <<  (void*) p << endl; 
+		return new typename T::DriverOptions;
+	}
+
+
 //	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
 	virtual unsigned int getdrvbaseVersion() const { return drvbaseVersion; }
 
@@ -1046,7 +1071,6 @@ inline Point PointOnBezier(float t, const Point & p1, const Point & p2, const Po
 
 
 #endif
- 
  
  
  

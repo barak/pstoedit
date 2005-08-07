@@ -2,8 +2,8 @@
    drvkillu.cpp : This file is part of pstoedit
    Implementation of Kontour output driver.
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
-   Copyright (C) 1998,1999 Kai-Uwe Sattler, kus@iti.cs.uni-magdeburg.de
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
+   Copyright (C) 1998,1999 Kai-Uwe Sattler, kus_AT_iti.cs.uni-magdeburg.de
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -157,9 +157,10 @@ void drvKontour::show_path()
 		outf << "fillstyle=\"" << 1 << "\" " << "fillcolor=\"" << cvtColor(currentR())
 			<< " " << cvtColor(currentG())
 			<< " " << cvtColor(currentB()) << "\" ";
-	} else if (currentShowType() == drvbase::eofill);
-	else
+	} else if (currentShowType() == drvbase::eofill) { 
+	} else {
 		outf << "fillstyle=\"" << 0 << "\" ";
+	}
 	outf << "arrow1=\"0\" " << "arrow2=\"0\">\n";
 	print_coords();
 	if (isPolygon())
@@ -189,7 +190,7 @@ int drvKontour::cvtColor(float c)
 	return int ((c * 255.0) + 0.5);
 }
 
-static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Kontour", "kil", false,	// backend supports subpathes
+static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Kontour", "","kil", false,	// backend supports subpathes
 															 // if subpathes are supported, the backend must deal with
 															 // sequences of the following form
 															 // moveto (start of subpath)
@@ -208,8 +209,5 @@ static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Konto
 															 DriverDescription::noimage,	// no support for PNG file images
 															 DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 															 false
-															 /*clipping */,
-															 nodriverspecificoptions
-
+															 /*clipping */
 	);
- 

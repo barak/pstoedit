@@ -2,7 +2,7 @@
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,11 +24,9 @@
 #include I_stdio
 #include I_stdlib
 
-#include "version.h"
+// #include "version.h"
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-sampleoption","integer","just an example"),
-	endofoptions};
+
 
 drvSAMPL::derivedConstructor(drvSAMPL):
 //(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
@@ -162,7 +160,6 @@ void drvSAMPL::show_path()
 	outf << "\tdashPattern: " << dashPattern() << endl;
 	outf << "\tPath Elements 0 to " << numberOfElementsInPath() - 1 << endl;
 	print_coords();
-
 }
 
 void drvSAMPL::show_rectangle(const float llx, const float lly, const float urx, const float ury)
@@ -259,7 +256,7 @@ void drvSAMPL::show_image(const PSImage & imageinfo)
 	}
 }
 
-static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you don't want to see this, uncomment the corresponding line in makefile and make again", "sam", true,	// backend supports subpathes
+static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you don't want to see this, uncomment the corresponding line in makefile and make again", "this is a long description for the sample driver","sam", true,	// backend supports subpathes
 											   // if subpathes are supported, the backend must deal with
 											   // sequences of the following form
 											   // moveto (start of subpath)
@@ -277,6 +274,5 @@ static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you 
 											   true,	// backend supports text
 											   DriverDescription::png,	// support for PNG file images
 											   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-											   true, /*clipping */ 
-											   driveroptions);
- 
+											   true  /*clipping */ 
+											   );

@@ -1,8 +1,8 @@
 dnl Configure a Makefile for pstoedit
-dnl By Scott Pakin <pakin@uiuc.edu>
+dnl initial version by Scott Pakin <pakin _AT_ uiuc.edu>
 
 dnl Adapting automake
-dnl By Masatake YAMATO<jet@gyve.org>
+dnl By Masatake YAMATO<jet _AT_ gyve.org>
 
 dnl ------------------------------------------------------------------------
 dnl NOTE: I have tested this only on Linux/g++, Solaris/g++, and Solaris/CC,
@@ -10,20 +10,27 @@ dnl       as those are all the systems I have access to.
 dnl ------------------------------------------------------------------------
 
 dnl Initialize Autoconf. 
-AC_INIT(pstoedit,3.33,wglunz@pstoedit.net)
+AC_INIT(pstoedit,3.40,wglunz34_AT_pstoedit.net)
 dnl AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(pstoedit,3.33 )
+AM_INIT_AUTOMAKE(pstoedit,3.40)
 AC_CONFIG_SRCDIR([src/pstoedit.h])
 AC_CONFIG_SUBDIRS(libEMF-1.0)
 
-dnl Makefiles should not try to rebuild the configure files by default
-AM_MAINTAINER_MODE
+dnl We need only C++ and no other language
+dnl seems to be broken : AC_LIBTOOL_TAGS([CXX])
 
 dnl Check for various programs the Makefile needs.
+AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_YACC
 AC_PROG_INSTALL
+dnl there is not need to build the static libs if shared libs are available
+AC_DISABLE_STATIC
+
+dnl yes, we are sure to have clean DLLs under cygwin
+AC_LIBTOOL_WIN32_DLL 
+
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 
@@ -54,6 +61,29 @@ if test -n "${LIBLD_LDFLAGS}"; then
 fi
 AC_SUBST(LIBLD_LDFLAGS)
 
+dnl some optional packages - default is to check automatically
+dnl but the check can be disabled using --without-PACKAGE
+dnl legal PACKAGE names are:
+dnl emf, magick, libplot, swf
+
+
+AC_ARG_WITH(emf,
+[  --with-emf  enable/disable emf interface (default: enabled - use --without-emf to disable)],
+with_emf=$withval, with_emf=yes)
+AC_ARG_WITH(magick,
+[  --with-magick  enable/disable magick++ interface (default: enabled - use --without-magick to disable)],
+with_magick=$withval, with_magick=yes)
+AC_ARG_WITH(libplot,
+[  --with-libplot  enable/disable libplot interface (default: enabled - use --without-libplot to disable)],
+with_libplot=$withval, with_libplot=yes)
+AC_ARG_WITH(swf,
+[  --with-swf  enable/disable swf interface (default: enabled - use --without-swf to disable)],
+with_swf=$withval, with_swf=yes)
+
+
+
+
+if test "${with_libplot}" = "yes" ; then
 dnl
 dnl Driver::libplotter
 dnl
@@ -84,34 +114,53 @@ fi
 AC_SUBST(LIBPLOTTER_LDFLAGS)
 AC_SUBST(LIBPLOTTER_CFLAGS)
 AM_CONDITIONAL(HAVE_LIBPLOTTER, test "$HAVE_LIBPLOTTER" = yes)
+else
+   AC_MSG_WARN([libplot support disabled by configure argument .])
+   AM_CONDITIONAL(HAVE_LIBPLOTTER, false )
+fi
 
+
+
+
+
+
+
+
+if test "${with_swf}" = "yes" ; then
 dnl
 dnl Driver::libming
 dnl
 HAVE_LIBMING=no
-LIBMING_CFLAGS=-UHAVE_LIBMING
 LIBMING_LDFLAGS=
+LIBMING_CFLAGS=
 
-AC_MSG_WARN([** libming driver is disabled as libming's API is not yet stable.])
-
-#dnl If mingpp.h is found, use it.
-#AC_CHECK_LIB(ming,main,
-#	[LIBMING_LDFLAGS=-lming],,-lm)
-#AC_CHECK_HEADER(mingpp.h,
-#	[LIBMING_CFLAGS="-DHAVE_LIBMING"])
-#if test -n "${LIBMING_LDFLAGS}" && test -n "${LIBMING_CFLAGS}"; then
-#   HAVE_LIBMING=yes
-#   AC_CHECK_HEADER(util/png2dbl.c,[LIBMING_CFLAGS="$LIBMING_CFLAGS -DHAVE_LIBMINGUTIL"])
-#else
-#   LIBMING_LDFLAGS=
-#   LIBMING_CFLAGS=
-#   AC_MSG_WARN([** libming driver is disabled.])
-#fi
+dnl If mingpp.h is found, use it.
+AC_CHECK_LIB(ming,main,
+	[LIBMING_LDFLAGS=-lming],,-lm)
+AC_CHECK_HEADER(mingpp.h,
+	[LIBMING_CFLAGS="-DHAVE_LIBMING"])
+if test -n "${LIBMING_LDFLAGS}" && test -n "${LIBMING_CFLAGS}"; then
+   HAVE_LIBMING=yes
+   AC_CHECK_HEADER(util/png2dbl.c,[LIBMING_CFLAGS="$LIBMING_CFLAGS -DHAVE_LIBMINGUTIL"])
+else
+   LIBMING_LDFLAGS=
+   LIBMING_CFLAGS=
+   AC_MSG_WARN([** libming driver is disabled.])
+fi
 AC_SUBST(LIBMING_LDFLAGS)
 AC_SUBST(LIBMING_CFLAGS)
 AM_CONDITIONAL(HAVE_LIBMING, test "$HAVE_LIBMING" = yes)
+else
+   AC_MSG_WARN([swf support disabled by configure argument .])
+   AM_CONDITIONAL(HAVE_LIBMING, false )
+fi
 
 
+
+
+
+
+if test "${with_magick}" = "yes" ; then
 dnl
 dnl Driver::libmagick++
 dnl If magick++.h is found, use it.
@@ -166,7 +215,16 @@ fi
 AC_SUBST(LIBMAGICK_CFLAGS)
 AC_SUBST(LIBMAGICK_LDFLAGS)
 AM_CONDITIONAL(HAVE_LIBMAGICK, test "$HAVE_LIBMAGICK" = yes)
+else
+   AC_MSG_WARN([magick support disabled by configure argument .])
+   AM_CONDITIONAL(HAVE_LIBMAGICK, false )
+fi
 
+
+
+
+
+if test "${with_emf}" = "yes" ; then
 dnl
 dnl Driver::libEMF
 dnl Check for EMF support library
@@ -177,6 +235,22 @@ LIBEMF_LDFLAGS=
 
 OLD_CPPFLAGS=
 OLD_LIBS=
+
+
+AC_ARG_WITH(libemf-src,
+[  --with-libemf-src=DIR           look for libemf src in dir (e.g. /usr/local/lib)],
+libemf_lib_src=$withval, libemf_lib_src=)
+
+if test -n "${libemf_lib_src}"; then
+dnl use libemf source directly
+HAVE_LIBEMF=yes
+AM_CONDITIONAL(USE_EMFBYSOURCE, true )
+AM_CONDITIONAL(HAVE_LIBEMF, true )
+LIBEMF_CFLAGS="-DHAVE_LIBEMF -I${libemf_lib_src}/include -I${libemf_lib_src}/libemf "
+AC_SUBST(LIBEMF_CFLAGS)
+
+else
+AM_CONDITIONAL(USE_EMFBYSOURCE, false )
 
 AC_ARG_WITH(libemf-lib,
 [  --with-libemf-lib=DIR           look for libemf library in dir (e.g. /usr/local/lib)],
@@ -205,6 +279,8 @@ if test -n "${libemf_include_dir}"; then
    CPPFLAGS="-I${libemf_include_dir} ${CPPFLAGS}"
 fi
 AC_CHECK_HEADER(emf.h,
+		[LIBEMF_CFLAGS="-DHAVE_LIBEMF -DOLDLIBEMF"])
+AC_CHECK_HEADER(libEMF/emf.h,
 		[LIBEMF_CFLAGS="-DHAVE_LIBEMF"])
 if test -n "${LIBEMF_CFLAGS}"; then
    if test -n "${libemf_include_dir}"; then
@@ -225,6 +301,16 @@ fi
 AC_SUBST(LIBEMF_LDFLAGS)
 AC_SUBST(LIBEMF_CFLAGS)
 AM_CONDITIONAL(HAVE_LIBEMF, test "$HAVE_LIBEMF" = yes)
+fi
+else
+   AC_MSG_WARN([EMF support disabled by configure argument .])
+   AM_CONDITIONAL(USE_EMFBYSOURCE, false )
+   AM_CONDITIONAL(HAVE_LIBEMF, false )
+fi
+
+
+
+
 
 dnl
 dnl PNG and Zlib
@@ -266,7 +352,7 @@ if test "$GXX" = yes; then
     AC_SUBST(LDLIBS)
   else
     AC_MSG_RESULT([GNU])
-    SPECIAL_CXXFLAGS="-DBUGGYGPP -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes"
+    SPECIAL_CXXFLAGS="-DBUGGYGPP -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith "
   fi
   CXXFLAGS="-g" 
 elif test `echo "$CXX" | egrep -c 'xlC$'` -eq 1; then
@@ -321,5 +407,6 @@ misc/Makefile misc/swffonts/Makefile
 os2/Makefile 
 msdev/Makefile othersrc/Makefile othersrc/gsdllinc/Makefile],
 [chmod a+x config/pstoedit-config])
+
 AC_OUTPUT
  

@@ -11,7 +11,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,9 +36,14 @@ class drvRIB : public drvbase {
 public:
 
 	derivedConstructor(drvRIB);
-	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
-
-	~drvRIB(); // Destructor
+	~drvRIB(); 
+	
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
 
 #include "drvfuncs.h"
 private:
@@ -47,5 +52,4 @@ private:
 };
 
 #endif
- 
  

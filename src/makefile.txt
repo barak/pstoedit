@@ -235,7 +235,7 @@ STANDARDDRIVERS=\
 SAMPLEDRIVER=drvsampl.$(OBJEXT) 
 
 DRIVERS=$(STANDARDDRIVERS) $(LOCALDRIVERS) $(SAMPLEDRIVER) $(SPECIFICDRIVERS)
-OBJECTS=dynload.$(OBJEXT) callgs.$(OBJEXT) $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) lexyy.$(OBJEXT) miscutil.$(OBJEXT) cbstream.$(OBJEXT) image.$(OBJEXT) drvbase.$(OBJEXT) subpath.$(OBJEXT) $(DRIVERS)
+OBJECTS=dynload.$(OBJEXT) callgs.$(OBJEXT) $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) lexyy.$(OBJEXT) miscutil.$(OBJEXT) cbstream.$(OBJEXT) psimage.$(OBJEXT) drvbase.$(OBJEXT) subpath.$(OBJEXT) $(DRIVERS)
 
 # this does not work with GNU make
 #OBJECTS:sh =ls drv*.c | sed 's/\.c/\.$(OBJEXT)/'
@@ -260,11 +260,11 @@ pstoedit.exe : $(OBJECTS)
 #	echo pstoedit.$(OBJEXT) lexyy.$(OBJEXT) drvbase.$(OBJEXT) > link.rsp
 # distribute the above objects among the following lines, in case
 # one of the driver variable is empty
-	echo $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) callgs.$(OBJEXT) > link.rsp
+	echo $(MAIN).$(OBJEXT) poptions.$(OBJEXT) pstoedit.$(OBJEXT) callgs.$(OBJEXT) > link.rsp
 	echo $(STANDARDDRIVERS)  >> link.rsp
 	echo lexyy.$(OBJEXT) $(LOCALDRIVERS)  >> link.rsp
 	echo $(SAMPLEDRIVER)  $(SPECIFICDRIVERS)  >> link.rsp
-	echo miscutil.$(OBJEXT)  dynload.$(OBJEXT) cbstream.$(OBJEXT) drvbase.$(OBJEXT) $(LDLIBS)  >> link.rsp
+	echo miscutil.$(OBJEXT)  dynload.$(OBJEXT) base64writer.$(OBJEXT) cbstream.$(OBJEXT) drvbase.$(OBJEXT) $(LDLIBS)  >> link.rsp
 	$(CCC) $(OUTPUT)  $(CCFLAGS) @link.rsp
 	-del link.rsp
 
@@ -370,29 +370,29 @@ checkall:
 # DO NOT DELETE
 
 
-lexyy.$(OBJEXT): lexyy.cpp drvbase.h drvfuncs.h image.h
-drvbase.$(OBJEXT): drvbase.cpp drvbase.h drvfuncs.h image.h
+lexyy.$(OBJEXT): lexyy.cpp drvbase.h drvfuncs.h psimage.h
+drvbase.$(OBJEXT): drvbase.cpp drvbase.h drvfuncs.h psimage.h
 pstoedit.$(OBJEXT): pstoedit.cpp drvbase.h drvfuncs.h psfront.h pstoedit.h pstoedit.ph version.h 
 $(MAIN).$(OBJEXT): $(MAIN).cpp pstoedit.h
 
-drvtgif.$(OBJEXT): drvtgif.cpp drvtgif.h drvbase.h drvfuncs.h image.h
-drvtk.$(OBJEXT): drvtk.cpp drvtk.h drvbase.h drvfuncs.h image.h
-drvlwo.$(OBJEXT): drvlwo.cpp drvlwo.h drvbase.h drvfuncs.h image.h
-drvrib.$(OBJEXT): drvrib.cpp drvrib.h drvbase.h drvfuncs.h image.h
-drvrpl.$(OBJEXT): drvrpl.cpp drvrpl.h drvbase.h drvfuncs.h image.h
-drvidraw.$(OBJEXT): drvidraw.cpp drvidraw.h drvbase.h drvfuncs.h image.h
-drvfig.$(OBJEXT): drvfig.cpp drvfig.h drvbase.h drvfuncs.h image.h
-drvgnplt.$(OBJEXT): drvgnplt.cpp drvgnplt.h drvbase.h drvfuncs.h image.h
-drvdxf.$(OBJEXT): drvdxf.cpp drvdxf.h drvbase.h drvfuncs.h image.h
-drvmet.$(OBJEXT): drvmet.cpp drvmet.h drvbase.h drvfuncs.h image.h
-drvpdf.$(OBJEXT): drvpdf.cpp drvpdf.h drvbase.h drvfuncs.h image.h
-drvtext.$(OBJEXT): drvtext.cpp drvtext.h drvbase.h drvfuncs.h image.h
+drvtgif.$(OBJEXT): drvtgif.cpp drvtgif.h drvbase.h drvfuncs.h psimage.h
+drvtk.$(OBJEXT): drvtk.cpp drvtk.h drvbase.h drvfuncs.h psimage.h
+drvlwo.$(OBJEXT): drvlwo.cpp drvlwo.h drvbase.h drvfuncs.h psimage.h
+drvrib.$(OBJEXT): drvrib.cpp drvrib.h drvbase.h drvfuncs.h psimage.h
+drvrpl.$(OBJEXT): drvrpl.cpp drvrpl.h drvbase.h drvfuncs.h psimage.h
+drvidraw.$(OBJEXT): drvidraw.cpp drvidraw.h drvbase.h drvfuncs.h psimage.h
+drvfig.$(OBJEXT): drvfig.cpp drvfig.h drvbase.h drvfuncs.h psimage.h
+drvgnplt.$(OBJEXT): drvgnplt.cpp drvgnplt.h drvbase.h drvfuncs.h psimage.h
+drvdxf.$(OBJEXT): drvdxf.cpp drvdxf.h drvbase.h drvfuncs.h psimage.h
+drvmet.$(OBJEXT): drvmet.cpp drvmet.h drvbase.h drvfuncs.h psimage.h
+drvpdf.$(OBJEXT): drvpdf.cpp drvpdf.h drvbase.h drvfuncs.h psimage.h
+drvtext.$(OBJEXT): drvtext.cpp drvtext.h drvbase.h drvfuncs.h psimage.h
 cdlib.$(OBJEXT): cdlib.cpp 
-drvmdraw.$(OBJEXT): drvmdraw.cpp drvbase.h drvmdraw.h drvfuncs.h image.h drvmdraw.ph
-drvsampl.$(OBJEXT): drvsampl.cpp drvbase.h drvsampl.h drvfuncs.h image.h
-drvjava.$(OBJEXT): drvjava.cpp drvbase.h drvjava.h drvfuncs.h image.h
-drvjava2.$(OBJEXT): drvjava2.cpp drvbase.h drvjava2.h drvfuncs.h image.h
-drvwmf.$(OBJEXT): drvwmf.cpp drvbase.h drvwmf.h drvfuncs.h image.h
+drvmdraw.$(OBJEXT): drvmdraw.cpp drvbase.h drvmdraw.h drvfuncs.h psimage.h drvmdraw.ph
+drvsampl.$(OBJEXT): drvsampl.cpp drvbase.h drvsampl.h drvfuncs.h psimage.h
+drvjava.$(OBJEXT): drvjava.cpp drvbase.h drvjava.h drvfuncs.h psimage.h
+drvjava2.$(OBJEXT): drvjava2.cpp drvbase.h drvjava2.h drvfuncs.h psimage.h
+drvwmf.$(OBJEXT): drvwmf.cpp drvbase.h drvwmf.h drvfuncs.h psimage.h
 pstoedit.ph: # dummy for RiscOS GNU make's screwed dependencies
  
  

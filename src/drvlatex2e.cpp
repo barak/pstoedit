@@ -1,10 +1,10 @@
 /*
    drvLATEX2E.cpp : This file is part of pstoedit
    Backend for Latex2E files
-   Contributed by: Scott Pakin <pakin@uiuc.edu>
+   Contributed by: Scott Pakin <pakin_AT_uiuc.edu>
 
-   Copyright (C) 1993 - 2003	Wolfgang Glunz, wglunz@pstoedit.net, 
-							Scott Pakin, pakin@uiuc.edu
+   Copyright (C) 1993 - 2005	Wolfgang Glunz, wglunz34_AT_pstoedit.net, 
+							Scott Pakin, pakin_AT_uiuc.edu
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,12 +30,7 @@
 //#include I_stdio
 //#include I_stdlib
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-integers",0,"round all coordinates to the nearest integer"),
-	endofoptions};
-// If true, round all coordinates to the nearest integer.
-// NOTE: This is a top-level variable, not a member of drvLATEX2E.
-static bool integersonly;
+
 
 
 // Constructor
@@ -45,12 +40,13 @@ drvLATEX2E::derivedConstructor(drvLATEX2E):constructBase, buffer(tempFile.asOutp
    prevfontname(""),
    prevfontsize(0.0f)
 {
-	integersonly = false;
+#if 0
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
 		if (!strcmp(d_argv[i], "-integers"))
 			integersonly = true;
 	}
+#endif
 }
 
 
@@ -59,15 +55,20 @@ drvLATEX2E::~drvLATEX2E()
 {
 }
 
+struct Point2e {
+	Point2e(const Point& p_, bool integersonly_p) : p(p_),integersonly(integersonly_p) {}
+	Point p;
+	bool integersonly;
+};
 
 // Output a point.
 // NOTE: This is a top-level function, not a member of drvLATEX2E.
-static ostream & operator << (ostream & os, Point & pt)
+static ostream & operator << (ostream & os, const Point2e & pt)
 {
-	if (integersonly) {
-		os << '(' << long (pt.x_ + 0.5) << ',' << long (pt.y_ + 0.5) << ')';
+	if (pt.integersonly) {
+		os << '(' << long (pt.p.x_ + 0.5) << ',' << long (pt.p.y_ + 0.5) << ')';
 	} else {
-		os << '(' << pt.x_ << ',' << pt.y_ << ')';
+		os << '(' << pt.p.x_ << ',' << pt.p.y_ << ')';
 	}
 	return os;
 }
@@ -117,25 +118,25 @@ void drvLATEX2E::print_coords()
 			if (pointlist[0].x_ == currentpoint.x_) {	// Vertical line
 				if (pointlist[0].y_ == currentpoint.y_)	// (and not a point)
 					break;
-				float distance = (float) fabs(pointlist[0].y_ - currentpoint.y_);
-				buffer << "  \\put" << currentpoint << "{\\line(0," <<
+				const float p_distance = (float) fabs(pointlist[0].y_ - currentpoint.y_);
+				buffer << "  \\put" << Point2e(currentpoint,options->integersonly) << "{\\line(0," <<
 					(pointlist[0].y_ > currentpoint.y_ ? 1 : -1) << "){";
-				if (integersonly) {
-					buffer << long (distance + 0.5) << "}}";
+				if (options->integersonly) {
+					buffer << long (p_distance + 0.5) << "}}";
 				} else {
-					buffer << distance << "}}";
+					buffer << p_distance << "}}";
 				}
 			} else if (pointlist[0].y_ == currentpoint.y_) {	// Horizontal line
-				float distance = (float) fabs(pointlist[0].x_ - currentpoint.x_);
-				buffer << "  \\put" << currentpoint << "{\\line(" <<
+				const float p_distance = (float) fabs(pointlist[0].x_ - currentpoint.x_);
+				buffer << "  \\put" << Point2e(currentpoint,options->integersonly) << "{\\line(" <<
 					(pointlist[0].x_ > currentpoint.x_ ? 1 : -1) << ",0){";
-				if (integersonly) {
-					buffer << long (distance + 0.5) << "}}";
+				if (options->integersonly) {
+					buffer << long (p_distance + 0.5) << "}}";
 				} else {
-					buffer << distance << "}}";
+					buffer << p_distance << "}}";
 				}
 			} else				// Diagonal line -- use a Bezier
-				buffer << "  \\qbezier" << currentpoint << pointlist[0] << pointlist[0];
+				buffer << "  \\qbezier" << Point2e(currentpoint,options->integersonly) << Point2e(pointlist[0],options->integersonly) << Point2e(pointlist[0],options->integersonly);
 			buffer << endl;
 			currentpoint = pointlist[0];
 			break;
@@ -159,7 +160,7 @@ void drvLATEX2E::print_coords()
 					((3 * pointlist[0].y_ - currentpoint.y_) / 2 +
 					 (3 * pointlist[1].y_ - pointlist[2].y_) / 2) / 2;
 				Point midpoint(midx, midy);
-				buffer << "  \\qbezier" << currentpoint << midpoint << pointlist[2] << endl;
+				buffer << "  \\qbezier" << Point2e(currentpoint,options->integersonly) << Point2e(midpoint,options->integersonly) << Point2e(pointlist[2],options->integersonly) << endl;
 				currentpoint = pointlist[2];
 			}
 			break;
@@ -201,9 +202,9 @@ void drvLATEX2E::close_page()
 {
 	// Specify the picture's width and height and, optionally, the origin.
 	Point boxsize(boundingbox[1].x_ - boundingbox[0].x_, boundingbox[1].y_ - boundingbox[0].y_);
-	outf << "\\begin{picture}" << boxsize;
+	outf << "\\begin{picture}" << Point2e(boxsize,options->integersonly);
 	if (boundingbox[0].x_ || boundingbox[0].y_)
-		outf << boundingbox[0];
+		outf << Point2e(boundingbox[0],options->integersonly);
 	outf << endl;
 
 #if 0 // old
@@ -250,7 +251,7 @@ void drvLATEX2E::show_text(const TextInfo & textinfo)
 	float fontsize = textinfo.currentFontSize * 72.27f / 72.0f;
 	if (fontsize != prevfontsize) {
 		buffer << "  \\fontsize{";
-		if (integersonly) {
+		if (options->integersonly) {
 			long longsize = long (fontsize + 0.5);
 			buffer << longsize << "\\unitlength}{" << longsize;
 		} else
@@ -273,9 +274,9 @@ void drvLATEX2E::show_text(const TextInfo & textinfo)
 
 	// Output the text string, optionally rotated.
 	// NOTE: Rotation requires the "rotation" package.
-	buffer << "  \\put" << textpoint << '{';
+	buffer << "  \\put" << Point2e(textpoint,options->integersonly) << '{';
 	if (textinfo.currentFontAngle)
-		if (integersonly) {
+		if (options->integersonly) {
 			buffer << "\\turnbox{" << long (textinfo.currentFontAngle + 0.5) << "}{";
 		} else {
 			buffer << "\\turnbox{" << textinfo.currentFontAngle << "}{";
@@ -344,7 +345,7 @@ void drvLATEX2E::show_rectangle(const float llx, const float lly, const float ur
 	scalepoint(ur);
 	updatebbox(ur);
 	Point framesize(ur.x_ - ll.x_, ur.y_ - ll.y_);
-	buffer << "  \\put" << ll << "{\\framebox" << framesize << "{}}" << endl;	// old << ends;
+	buffer << "  \\put" << Point2e(ll,options->integersonly) << "{\\framebox" << Point2e(framesize,options->integersonly) << "{}}" << endl;	// old << ends;
 //old  outputQ.push (outputline.str());
 }
 
@@ -356,7 +357,7 @@ void drvLATEX2E::show_image(const Image &  )
 #endif
 
 // Describe the LaTeX2e backend's capabilities.
-static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "LaTeX2e picture format", "tex", true,	// backend supports subpathes
+static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "LaTeX2e picture format", "","tex", true,	// backend supports subpathes
 												   // if subpathes are supported, the backend must deal with
 												   // sequences of the following form
 												   // moveto (start of subpath)
@@ -374,9 +375,8 @@ static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "LaTeX2e picture f
 												   true,	// backend supports text
 												   DriverDescription::noimage,	// no support for PNG file images
 												   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
-												   false,	// no clipping 
-												   driveroptions
+												   false 	// no clipping 
+												   
 	);
 
 //#endif // HAVESTL 
- 

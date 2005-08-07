@@ -1,9 +1,11 @@
 /* 
    drvHPGL.cpp : This file is part of pstoedit
-   HPGL / HPGL2 Device driver
+   HPGL / HPGL2 Device driver supporting text commands
 
-   Copyright (C) 1993 - 2003 Peter Katzmann p.katzmann@thiesen.com
+   Copyright (C) 1993 - 2001 Peter Katzmann p.katzmann_AT_thiesen.com
    Copyright (C) 2000  Katzmann & Glunz (fill stuff)
+   Copyright (C) 2001  Peter Kuhlemann kuhlemannp_AT_genrad.com
+   Copyright (C) 2002 - 2003 Peter Kuhlemann peter.kuhlemann_AT_teradyne.com
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,38 +21,71 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
   
-	Aug 21, 2001: Donald Arseneau (asnd@triumf.ca) adds pen changes when color changes.
+	Aug 21, 2001: Donald Arseneau (asnd_AT_triumf.ca) adds pen changes when color changes.
     Changed sections are delimited by:
     //  Start DA hpgl color addition
     //  End DA hpgl color addition
 
 */
 
+#define USESPRINTF 1
 #include "drvhpgl.h"
+#include <math.h>
 #include I_stdio
-#include I_string_h
-#include I_iostream
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-pen",0,"plotter is pen plotter"),
-	OptionDescription("-pencolors","number","number of pen colors available"),
-	OptionDescription("-fill","string","select fill type e.g. FT 1"),
-	endofoptions};
+
+
+
+
+static const float HPGLScale = 10.0f;
+
+
+
+void drvHPGL::rot(double &x, double &y, int angle)
+{
+	double tmp;
+	switch (angle) {
+	case 90:
+		tmp = x;
+		x = -y;
+		y = tmp;
+		break;
+	case 180:
+		x = -x;
+		y = -y;
+		break;
+	case 270:
+		tmp = x;
+		x = y;
+		y = -tmp;
+		break;
+	default:
+		break;
+	}
+}
 
 drvHPGL::derivedConstructor(drvHPGL):
-constructBase, fillinstruction("FT1"), penplotter(false),
+constructBase, 
 	//  Start DA hpgl color addition
-	prevColor(5555), 
-	maxPen(0), 
-	penColors(0), 
-	maxPenColors(0)
+	prevColor(5555)
+	//, maxPen(0),
+
+	
 	//  End DA hpgl color addition
 {
 	// driver specific initializations
 	// and writing of header to output file
 
-	bool show_usage_line = false;
+// 	bool show_usage_line = false;
 
+//NN	savedtextinfo.thetext = "";
+
+	if (options->rot90) rotation = 90; else 
+	if (options->rot180) rotation = 180; else 
+	if (options->rot270) rotation = 270; else rotation = 0;
+
+//NN	merge = 0;
+#if 0
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);	//lint !e796
 		if (Verbose())
@@ -90,30 +125,37 @@ constructBase, fillinstruction("FT1"), penplotter(false),
 			// FT 3 - parallel lines FT 3[,delta,angle]
 			// FT 4 - cross hatching FT 4[,delta,angle]
 			// FT 10 - shading FT 10,[percentage]
-		} else if (strcmp(d_argv[i], "-help") == 0) {
-			errf << "-help    Show this message" << endl;
-			errf << "-fill fillstring (default FT1)" << endl;
-			errf << "-pencolors number // define a number of colors pens to use" << endl;
-			errf << "-pen (for pen plotters)" << endl;
-			//                   errf << "-depth # Set the page depth in inches" << endl;
-			show_usage_line = true;
+		} else if (strcmp(d_argv[i], "-rot90") == 0) {
+			rotation = 90;
+		} else if (strcmp(d_argv[i], "-rot180") == 0) {
+			rotation = 180;
+		} else if (strcmp(d_argv[i], "-rot270") == 0) {
+			rotation = 270;
+	//NN	} else if (strcmp(d_argv[i], "-merge") == 0) {
+	//NN		merge = 1;
 		} else {
 			errf << "Unknown fig driver option: " << d_argv[i] << endl;
 			show_usage_line = true;
 		}
 	}
-	if (show_usage_line) {
-		errf << "Usage -f 'hpgl: [-help] [-fill fillstring] [-pen] [-pencolors number]'" << endl;
-	}
-//  if (0) {
-//      const char esc = (char) 27;
-//      outf << esc << ".(;";
-//  }
-	outf << "IN;SC;PU;PU;SP1;LT;VS10\n";
-	scale = 10;
 
-	penColors = new unsigned int[maxPenColors + 1 + 1 ];	// 1 offset - 0 is not used // one more for flint ;-)
-	for (unsigned p = 0; p <= maxPenColors + 1; p++) {
+	if (show_usage_line) {
+		errf <<
+			"Usage -f 'HPGL: [-fill fillstring] [-pen] [-pencolors number] [-rot90 | -rot180 | -rot270] '"
+			<< endl;
+	}
+#endif
+//	if (0) {
+//		const char esc = (char) 27;
+//		outf << esc << ".(;";
+//	}
+	errf << "Info: This HPGL driver is not very elaborated - consider using -f plot-hpgl instead."
+		<< endl;
+
+	outf << "IN;SC;PU;PU;SP1;LT;VS" << (int) HPGLScale << "\n";
+
+	penColors = new unsigned int[options->maxPenColors + 1 + 1];	// 1 offset - 0 is not used // one more for flint ;-)
+	for (unsigned int p = 0; p <= (unsigned int) options->maxPenColors + 1; p++) {
 		penColors[p] = 0;
 	}
 	//   float           x_offset;
@@ -125,7 +167,7 @@ drvHPGL::~drvHPGL()
 	// driver specific deallocations
 	// and writing of trailer to output file
 	outf << "PU;PA0,0;SP;EC;PG1;EC1;OE\n";
-	fillinstruction = NIL;
+	// fillinstruction = NIL;
 	delete[]penColors;
 	penColors = NIL;
 }
@@ -140,37 +182,70 @@ void drvHPGL::print_coords()
 			case moveto:
 				{
 					const Point & p = elem.getPoint(0);
-					outf << "PU";
-					outf << p.x_ + x_offset << "," << p.y_ + y_offset << ";";
+					double x = (p.x_ + x_offset) * HPGLScale;
+					double y = (p.y_ + y_offset) * HPGLScale;
+					rot(x, y, rotation);
+#if USESPRINTF
+					char str[256];
+					sprintf(str, "PU%i,%i;", (int) x, (int) y);
+					outf << str;
+#else
+					outf << "PU" << (int) x << "," << (int) y << ";";
+#endif
 				}
 				break;
 			case lineto:
 				{
-					const Point & p = elem.getPoint(0);
-					outf << "PD";
-					outf << p.x_ + x_offset << "," << p.y_ + y_offset << ";";
+					{
+						const Point & p = elem.getPoint(0);
+						double x = (p.x_ + x_offset) * HPGLScale;
+						double y = (p.y_ + y_offset) * HPGLScale;
+						rot(x, y, rotation);
+#if USESPRINTF
+						char str[256];
+						sprintf(str, "PD%i,%i;", (int) x, (int) y);
+						outf << str;
+#else
+						outf << "PD" << (int) x << "," << (int) y << ";";
+#endif
+					}
 					if (isPolygon() && (n == elems)) {
-						outf << "PD";
 						const basedrawingelement & elemnull = pathElement(0);
 						const Point & pnull = elemnull.getPoint(0);
-						outf << pnull.x_ + x_offset << "," << pnull.y_ + y_offset << ";";
+						double x = (pnull.x_ + x_offset) * HPGLScale;
+						double y = (pnull.y_ + y_offset) * HPGLScale;
+						rot(x, y, rotation);
+#if USESPRINTF
+						char str[256];
+						sprintf(str, "PD%i,%i;", (int) x, (int) y);
+						outf << str;
+#else
+						outf << "PD" << (int) x << "," << (int) y << ";";
+#endif
 					}
 				}
 				break;
 			case closepath:
 				{
-					// outf << "\t\tclosepath ";
 					const Point & p = pathElement(0).getPoint(0);
-					outf << "PD";
-					outf << p.x_ + x_offset << "," << p.y_ + y_offset << ";";
+					double x = (p.x_ + x_offset) * HPGLScale;
+					double y = (p.y_ + y_offset) * HPGLScale;
+					rot(x, y, rotation);
+#if USESPRINTF
+					char str[256];
+					sprintf(str, "PD%i,%i;", (int) x, (int) y);
+					outf << str;
+#else
+					outf << "PD" << (int) x << "," << (int) y << ";";
+#endif
 				}
 				break;
 			case curveto:
-				errf << "\t\tFatal: unexpected case curveto in drvhpgl " << endl;
+				errf << "\t\tFatal: unexpected case curveto in drvHPGL " << endl;
 				abort();
 				break;
 			default:
-				errf << "\t\tFatal: unexpected case default in drvhpgl " << endl;
+				errf << "\t\tFatal: unexpected case default in drvHPGL " << endl;
 				abort();
 				break;
 			}
@@ -185,12 +260,77 @@ void drvHPGL::open_page()
 	prevColor = 5555;
 	maxPen = 0;
 	//  End DA hpgl color addition
-	outf << "IN;SC;PU;PU;SP1;LT;VS10\n";
+	outf << "IN;SC;PU;PU;SP1;LT;VS" << (int) HPGLScale << "\n";
 }
 
 void drvHPGL::close_page()
 {
 	outf << "PU;SP;EC;PG1;EC1;OE\n";
+}
+
+
+#if 0
+void drvHPGL::endtext()
+{
+	if (merge) {
+		flush_text(savedtextinfo);
+		savedtextinfo.thetext = "";
+	}
+}
+#endif
+
+void drvHPGL::show_text(const TextInfo & textinfo)
+{
+
+#if 0
+	// this is now handled by drvbase
+	if (merge) {
+		if (savedtextinfo.thetext == "") {
+			savedtextinfo = textinfo;
+		} else if ((textinfo.currentFontAngle == savedtextinfo.currentFontAngle)
+				   && (textinfo.currentFontSize == savedtextinfo.currentFontSize)
+				   && (fabs(textinfo.x - savedtextinfo.x_end) < textinfo.currentFontSize / HPGLScale)
+				   && (fabs(textinfo.y - savedtextinfo.y_end) < textinfo.currentFontSize / HPGLScale)) {
+			savedtextinfo.thetext += textinfo.thetext;
+			savedtextinfo.x_end = textinfo.x_end;
+			savedtextinfo.y_end = textinfo.y_end;
+		} else {
+			flush_text(savedtextinfo);
+			savedtextinfo = textinfo;
+		}
+	} else 
+#endif
+	const double pi = 3.1415926535;
+
+	const double angleofs = rotation * pi / 180;
+	const double dix = 100.0 * cos(textinfo.currentFontAngle * pi / 180.0 + angleofs);
+	const double diy = 100.0 * sin(textinfo.currentFontAngle * pi / 180.0 + angleofs);
+
+	double x = (textinfo.x + x_offset) * HPGLScale;
+	double y = (textinfo.y + y_offset) * HPGLScale;
+	rot(x, y, rotation);
+
+/*
+drvhpgl.cpp:316: warning: ISO C++ does not support the `%lg' printf format
+drvhpgl.cpp:316: warning: ISO C++ does not support the `%lg' printf format
+drvhpgl.cpp:318: warning: ISO C++ does not support the `%lg' printf format
+drvhpgl.cpp:318: warning: ISO C++ does not support the `%lg' printf format
+*/
+
+#if USESPRINTF
+	char str[256];
+	sprintf(str, "DI%g,%g;", dix, diy);
+	outf << str;
+	sprintf(str, "SI%g,%g;", textinfo.currentFontSize / 1000 * HPGLScale, textinfo.currentFontSize / 1000 * HPGLScale);
+	outf << str;
+	sprintf(str, "PU%i,%i;", (int) x, (int) y);
+	outf << str;
+#else
+	outf << "DI" << dix << "," << diy << ";";
+	outf << "SI" << textinfo.currentFontSize / 1000 * HPGLScale << "," << textinfo.currentFontSize / 1000  * HPGLScale << ";";
+	outf << "PU" << (int) x << "," << (int) y << ";";
+#endif
+	outf << "LB" << textinfo.thetext.value() << "\003;" << endl;
 }
 
 void drvHPGL::show_path()
@@ -208,10 +348,9 @@ void drvHPGL::show_path()
 	 *  list when the rgb color is distinctly new.
 	 */
 
-
 	if (numberOfElementsInPath()) {
 
-		if (maxPenColors > 0) {
+		if (options->maxPenColors > 0) {
 			const unsigned int reducedColor = 256 * (unsigned int) (currentR() * 16) +
 				16 * (unsigned int) (currentG() * 16) + (unsigned int) (currentB() * 16);
 
@@ -227,7 +366,7 @@ void drvHPGL::show_path()
 				}
 				// If color is new, add it to list, if room
 				if (npen == 0) {
-					if (maxPen < maxPenColors) {
+					if (maxPen < (unsigned int)options->maxPenColors) {
 						maxPen++;
 					}
 					npen = maxPen;
@@ -249,18 +388,33 @@ void drvHPGL::show_path()
 		case drvbase::fill:
 			{
 				const Point & p = pathElement(0).getPoint(0);
-				outf << "PU";
-				outf << p.x_ + x_offset << "," << p.y_ + y_offset << ";";
-				outf << fillinstruction << ";PM0;";
+				double x = (p.x_ + x_offset) * HPGLScale;
+				double y = (p.y_ + y_offset) * HPGLScale;
+				rot(x, y, rotation);
+#if USESPRINTF
+				char str[256];
+				sprintf(str, "PU%i,%i;", (int) x, (int) y);
+				outf << str;
+#else
+				outf << "PU" << (int) x << "," << (int) y << ";";
+#endif
+				outf << options->fillinstruction.value << ";PM0;";
 			}
 			break;
 		default:				// cannot happen
-			outf << "unexpected ShowType " << (int) currentShowType();
+			errf << "unexpected ShowType " << (int) currentShowType();
 			break;
 		}
-		if (!penplotter) {
-			outf << "PW" << currentLineWidth() / 10 << ";";
+		if (!options->penplotter) {
+#if USESPRINTF
+			char str[256];
+			sprintf(str, "PW%lg;", currentLineWidth());
+			outf << str;
+#else
+			outf << "PW" << currentLineWidth() << ";";
+#endif
 		}
+
 		print_coords();
 
 		switch (currentShowType()) {	// To check which endsequenz we need
@@ -279,24 +433,36 @@ void drvHPGL::show_path()
 	}
 }
 
+#if 0
+// not needed anymore - at least not as long the default is acceptable.
+void drvHPGL::show_rectangle(const float llx, const float lly, const float urx, const float ury)
+{
+	unused(&llx);
+	unused(&lly);
+	unused(&urx);
+	unused(&ury);
 
-static DriverDescriptionT < drvHPGL > D_hpgl("hpgl", "HPGL code", "hpgl", false,	// backend supports subpathes
-											 // if subpathes are supported, the backend must deal with
-											 // sequences of the following form
-											 // moveto (start of subpath)
-											 // lineto (a line segment)
-											 // lineto 
-											 // moveto (start of a new subpath)
-											 // lineto (a line segment)
-											 // lineto 
-											 //
-											 // If this argument is set to false each subpath is drawn 
-											 // individually which might not necessarily represent
-											 // the original drawing.
-											 false,	// backend supports curves
-											 false,	// backend supports elements which are filled and have edges
-											 false,	// backend supports text
-											 DriverDescription::noimage,	// no support for PNG file images
-											 DriverDescription::normalopen, false,	// backend support multiple pages
-											 false /*clipping */, driveroptions );
- 
+	// just do show_path for a first guess
+	show_path();
+}
+#endif
+
+static DriverDescriptionT < drvHPGL > D_HPGL("hpgl", "HPGL code", "","hpgl", false,	// backend supports subpathes
+												 // if subpathes are supported, the backend must deal with
+												 // sequences of the following form
+												 // moveto (start of subpath)
+												 // lineto (a line segment)
+												 // lineto 
+												 // moveto (start of a new subpath)
+												 // lineto (a line segment)
+												 // lineto 
+												 //
+												 // If this argument is set to false each subpath is drawn 
+												 // individually which might not necessarily represent
+												 // the original drawing.
+												 false,	// backend supports curves
+												 false,	// backend supports elements which are filled and have edges
+												 true,	// backend supports text
+												 DriverDescription::noimage,	// no support for PNG file images
+												 DriverDescription::normalopen, false,	// backend support multiple pages
+												 false /*clipping */ );

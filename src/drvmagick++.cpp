@@ -2,7 +2,7 @@
    drvMAGICK.cpp : This file is part of pstoedit
    driver for Magick++ API.
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,24 +29,22 @@
 // Magick++ can only be compiled with STL
 
 #include "drvmagick++.h"
+
 #include I_fstream
 #include I_stdio
 #include I_stdlib
 
 //#include "version.h"
 
-static const OptionDescription driveroptions[] = {
-// 	OptionDescription("-MAGICKoption", "integer", "just an example"),
-	endofoptions
-};
-
-static const bool withdummycontext = false;
+static const bool withdummycontext = false; 
 
 // #define onedrawlist 1
 
 #ifdef onedrawlist
 static std::list < Magick::Drawable > drawList;
 #endif
+
+//test typedef std::list<string> MyStringList;
 
 drvMAGICK::derivedConstructor(drvMAGICK):
 constructBase, imgcount(0), imageptr(NIL)
@@ -57,6 +55,9 @@ constructBase, imgcount(0), imageptr(NIL)
 //  float           scale;
 //  float           x_offset;
 //  float           y_offset;
+
+//test MyStringList xxx("asdasda");
+//test xxx.push_back("asdsda");
 
 	try {
 		InitializeMagick(0);
@@ -113,7 +114,7 @@ drvMAGICK::~drvMAGICK()
 	imageptr = NIL;
 }
 
-void drvMAGICK::create_vpath(std::list < Magick::VPath > &vpath)
+void drvMAGICK::create_vpath(VPathList &vpath)
 {
 	for (unsigned int n = 0; n < numberOfElementsInPath(); n++) {
 		const basedrawingelement & elem = pathElement(n);
@@ -169,14 +170,12 @@ void drvMAGICK::close_page()
 void drvMAGICK::show_text(const TextInfo & textinfo)
 {
 	try {
-		std::list < Magick::Drawable > drawList;
+		DrawableList drawList;
 		drawList.push_back(DrawablePushGraphicContext());
-		drawList.
-			push_back(DrawableFont(textinfo.currentFontName.value(), AnyStyle, 400, AnyStretch));
+		drawList.push_back(DrawableFont(textinfo.currentFontName.value(), AnyStyle, 400, AnyStretch));
 //      drawList.push_back( DrawableText(100,100,"test") );
 		drawList.push_back(DrawablePointSize(textinfo.currentFontSize));
-		drawList.
-			push_back(DrawableFillColor
+		drawList.push_back(DrawableFillColor
 					  (ColorRGB(textinfo.currentR, textinfo.currentG, textinfo.currentB)));
 		drawList.push_back(DrawableStrokeColor(Color()));	// unset color
 #if 1
@@ -228,7 +227,7 @@ void drvMAGICK::show_path()
 	std::list < Magick::Drawable > drawList;
 #endif
 
-	std::list < Magick::VPath > vpath;
+	VPathList vpath;
 	create_vpath(vpath);
 
 
@@ -306,22 +305,25 @@ void drvMAGICK::show_path()
 
 }
 
+#if 0
 void drvMAGICK::show_rectangle(const float llx, const float lly, const float urx, const float ury)
 {
-#if 0
+
 	outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," <<
 		ury << ") equivalent to:" << endl;
 // just do show_path for a first guess
 
-#endif
+
 	show_path();
 }
+#endif
+
 void drvMAGICK::show_image(const PSImage & imageinfo)
 {
 
 	if (imageinfo.isFileImage) {
 		try {
-			std::list < Magick::Drawable > drawList;
+			DrawableList drawList;
 
 			const double sx = imageinfo.normalizedImageCurrentMatrix[0];
 			const double rx = -imageinfo.normalizedImageCurrentMatrix[1];
@@ -369,7 +371,11 @@ void drvMAGICK::show_image(const PSImage & imageinfo)
 	}
 }
 
-static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver", "...", true,	// backend supports subpathes
+static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver", 
+												 "This driver uses the C++ API of ImageMagick or GraphicsMagick to finally produce different output "
+												 "formats. The output format is determined automatically by Image/GraphicsMagick based on the suffix "
+												 "of the output filename. So an output file test.png will force the creation of an image in PNG format.",
+												 "...", true,	// backend supports subpathes
 												 // if subpathes are supported, the backend must deal with
 												 // sequences of the following form
 												 // moveto (start of subpath)
@@ -387,8 +393,8 @@ static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver", "...
 												 true,	// backend supports text
 												 DriverDescription::png,// support for PNG file images
 												 DriverDescription::noopen, false,	// if format supports multiple pages in one file
-												 true,	/*clipping */
-												 driveroptions);
+												 true 	/*clipping */
+												 );
 
 
 #else
@@ -397,5 +403,4 @@ static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver", "...
 #pragma NO_SUPPORT_FOR_MAGIC_WITHOUT_STL_AND_IMAGEMAGICK_HEADERS
 
 #endif
- 
  

@@ -98,7 +98,7 @@ clean:
 		fi; \
 	done
 
-	rm -f doc/pstoedit-config.1
+	rm -f doc/pstoedit-config.1 debian/buildinfo
 	rm -rf autom4te.cache
 	-find -type f -name 'Makefile.in' | sed -e 's/\.in$$//' | xargs rm -f
 
@@ -135,7 +135,7 @@ binary-arch: build install
 	dh_movefiles
 
 	# Ensure there are no leftover files
-	find `pwd`/debian/tmp -type d -depth | xargs rmdir 2>&1
+	find `pwd`/debian/tmp -depth -type d | xargs rmdir 2>&1
 
 #	dh_installdebconf	
 	dh_installdocs
@@ -150,15 +150,16 @@ binary-arch: build install
 	dh_installman
 	dh_installinfo
 #	dh_undocumented
-	dh_installchangelogs changelog.htm
+	dh_installchangelogs doc/changelog.htm
 	dh_link
 	dh_strip
 	dh_compress
+	dh_buildinfo
 	dh_fixperms
-	dh_makeshlibs -plibpstoedit0 -V 'libpstoedit0 (>= $(upstreamversion))'
+	dh_makeshlibs -plibpstoedit0c2 -V 'libpstoedit0c2 (>= $(upstreamversion))'
 	dh_installdeb
 #	dh_perl
-	dh_shlibdeps -Llibpstoedit0 -ldebian/libpstoedit0/usr/lib
+	dh_shlibdeps -Llibpstoedit0c2 -ldebian/libpstoedit0c2/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

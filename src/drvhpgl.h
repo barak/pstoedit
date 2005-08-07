@@ -26,32 +26,63 @@
 
 #include "drvbase.h"
 
-
-class drvHPGL : public drvbase {
+   class drvHPGL : public drvbase {
    
+protected:
+	// = PROTECTED DATA
+
    public:
    
 	derivedConstructor(drvHPGL);
  
    ~drvHPGL(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		Option < bool, BoolTrueExtractor > penplotter ;
+		Option < int, IntValueExtractor > maxPenColors; 
+		Option < RSString, RSStringValueExtractor> fillinstruction;
+	//	Option < bool, BoolTrueExtractor > useRGBcolors ;
+		Option < bool, BoolTrueExtractor > rot90 ;
+		Option < bool, BoolTrueExtractor > rot180 ;
+		Option < bool, BoolTrueExtractor > rot270 ;
+
+			// penColors(0), maxPenColors(0)
+		DriverOptions():
+			penplotter(true,"-pen",0, 0, "plotter is pen plotter", 0,false),
+			maxPenColors(true,"-pencolors", "number", 0, "number of pen colors available" ,0,0),
+			fillinstruction(true,"-filltype", "string", 0, "select fill type e.g. FT 1" ,0,(const char*)"FT1"),
+			rot90 (true,"-rot90" ,0, 0, "rotate hpgl by 90 degrees",0,false),
+			rot180(true,"-rot180",0, 0, "rotate hpgl by 180 degrees",0,false),
+			rot270(true,"-rot270",0, 0, "rotate hpgl by 270 degrees",0,false)
+		{
+			ADD( penplotter );
+			ADD( maxPenColors );
+			ADD( fillinstruction );
+			ADD( rot90 );
+			ADD( rot180 );
+			ADD( rot270 );
+		}
+	}*options;
    
    #include "drvfuncs.h"
 
-   private:
-		void print_coords();
+      // void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+       void show_text(const TextInfo & textInfo);
 
-	   const char * fillinstruction;
-	   bool penplotter;
+   private:
+	   void print_coords();
+
 	   //  Start DA hpgl color addition
        unsigned int prevColor;
        unsigned int maxPen;
-       unsigned int * penColors;	
-	   unsigned int maxPenColors; // = 16;
+	   unsigned int * penColors;	
        //  End DA hpgl color addition
-   
-};
+
+	   int rotation;
+
+   public:
+       static void rot(double & x, double & y, int rotation);
+   };
 
 #endif 
- 
- 
  

@@ -2,29 +2,30 @@ Source: pstoedit
 Section: graphics
 Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@debian.org>
-Build-Depends: debhelper (>> 3.0.0), docbook-to-man,
- liblcms1-dev | liblcms-dev, libtiff4-dev,
+Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
+ liblcms1-dev | liblcms-dev, libtiff4-dev (>= 3.7.3-1),
  libjpeg62-dev | libjpeg-dev, libwmf-dev, libdps-dev, libxext-dev,
  libxt-dev, libsm-dev, libice-dev, libx11-dev, libbz2-dev,
- zlib1g-dev, g++ (>= 3.2.2-0), libmagick++6-dev (>= 5:6.0.0.4-1),
- libplot-dev (>= 2.4.1-9), libpng12-dev (>= 1.2.5.0-4), sysutils, debhelper, gs
-Standards-Version: 3.6.1
+ zlib1g-dev, g++ (>= 4:4.0), libmagick++6-dev (>= 6:6.2.3.3-1),
+ libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), sysutils, debhelper, gs
+Standards-Version: 3.6.2
 
 Package: libpstoedit-dev
 Section: devel
 Architecture: any
-Depends: libpstoedit0 (= ${Source-Version}), libmagick++6-dev (>= 5:6.0.0.4-1), libplot-dev
+Depends: libpstoedit0c2 (= ${Source-Version}), libmagick++6-dev (>= 6:6.2.3.3-1), libplot-dev (>= 2.4.1-14)
 Description: PostScript to editable vector graphics library (development files)
  pstoedit is a framework for converting Postscript and PDF files to various 
  editable vector graphic formats.
  .
  This package contains files to build programs that use libpstoedit.
 
-Package: libpstoedit0
+Package: libpstoedit0c2
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
-Replaces: libpstoedit-dev (<= 3.32-3)
+Conflicts: libpstoedit0
+Replaces: libpstoedit-dev (<= 3.32-3), libpstoedit0
 Description: PostScript to editable vector graphics library (runtime files)
  pstoedit is a framework for converting Postscript and PDF files to various 
  editable vector graphic formats.

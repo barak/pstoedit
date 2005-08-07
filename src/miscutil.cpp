@@ -2,7 +2,7 @@
    miscutil.cpp : This file is part of pstoedit
    misc utility functions
 
-   Copyright (C) 1998 - 2003  Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2005  Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 // #ifdef _MSC_VER
 // for getcwd ( at least for Visual C++)
 
-#if defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) || defined (NetBSD) 
+#if defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) || defined (NetBSD) || defined(__APPLE__) || defined(_AIX)
 #include <unistd.h>
 
 #ifdef __hpux
@@ -74,12 +74,12 @@ void convertBackSlashes(char *string)
 
 // nothing to do on systems with unix style file names ( / for directories)
 #else
-void convertBackSlashes(char *string)
+void convertBackSlashes(char *fileName)
 {
 
-	char *c = string;
+	char *c = fileName;
 
-	while ((c = strchr(string, '\\')) != NIL)
+	while ((c = strchr(fileName, '\\')) != NIL)
 		*c = '/';
 }
 #endif
@@ -362,9 +362,9 @@ void copy_file(const istream & infile, ostream & outfile)
 
 ostream & operator << (ostream & out, const Argv & a)
 {
-	for (unsigned int i = 0; i < (unsigned) a.argc; i++) {
+	for (unsigned int i = 0; i < (unsigned int) a.argc; i++) {
 		out << a.argv[i];
-		out << endl;
+		if (i < (unsigned int) ( a.argc -1 )) out << ' ';// out << endl;
 	}
 	return out;
 }
@@ -743,6 +743,5 @@ const char *FontMapper::mapFont(const RSString & fontname)
 	else
 		return 0;
 }
- 
  
  

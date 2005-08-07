@@ -4,7 +4,7 @@
    pstoedll.h : This file describes the interface to query information about
    the drivers available via pstoedit and to call pstoedit via the dll interface
   
-   Copyright (C) 1998 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,10 +28,10 @@
 */
 
 struct DriverDescription_S {
-	char *	symbolicname;
-	char *	explanation;
-	char *	suffix;
-	char *	additionalInfo;
+	const char *	symbolicname;
+	const char *	explanation;
+	const char *	suffix;
+	const char *	additionalInfo;
 	int		backendSupportsSubPathes;
 	int		backendSupportsCurveto;
 	int 	backendSupportsMerging; 
@@ -56,9 +56,10 @@ typedef void (clearPstoeditDriverInfo_plainC_func)(struct DriverDescription_S * 
 typedef int  (write_callback_func) (void * cb_data, const char* text, unsigned long length);
 typedef void (setPstoeditOutputFunction_func)(void * cbData,write_callback_func* cbFunction);
  
+typedef void (pstoeditDialog_func) (void  *); /* in reality the params is is PstoeditOptions * */
+typedef void (setPstoeditDialog_func) (pstoeditDialog_func*);
 
 #endif
- 
  
  
  

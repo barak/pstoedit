@@ -6,7 +6,7 @@
    Class declaration for a SWF output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,19 @@ public:
 	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvSWF(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+		Option < bool, BoolTrueExtractor > cubic;
+		Option < bool, BoolTrueExtractor > trace;
+		DriverOptions():
+			cubic(true,"-cubic",0,0,"cubic ???",0,false),
+			trace(true,"-trace",0,0,"trace ???",0,false)
+		{
+			ADD(cubic);
+			ADD(trace);
+		}
+	}*options;
+
 	virtual void show_image(const PSImage & imageinfo); 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -54,6 +67,5 @@ private:
 };
 
 #endif
- 
  
  

@@ -2,7 +2,7 @@
    drvSWF.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,13 +28,10 @@
 #include <string.h>
 
 
-static bool trace = false;
-static bool cubic = false;
-
-
+//static bool trace = false;
+//static bool cubic = false;
 
 #include "mingpp.h"
-
 
 #if defined(_WIN32)
 extern "C" {
@@ -46,7 +43,10 @@ extern "C" {
 
 #endif
 
-#ifdef HAVE_LIBMINGUTIL
+// USE_PNG is defined in ming/config.h
+#if defined (HAVE_LIBMINGUTIL) && !( defined(USE_PNG) && USE_PNG )
+
+// only use this if libming doesn't support png2dbl itself (available from version 0.3 on)
 
 #define main MAIN
 // strdup is not visible is -ansi is turned on
@@ -65,15 +65,11 @@ static void png2dbl(const char *pngfile, const char *dblfile)
 
 const bool withcurves = true;	// curves are still quite broken in SWF
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-cubic"),
-	OptionDescription("-trace"),
-	endofoptions
-};
 
 drvSWF::derivedConstructor(drvSWF):
 constructBase, imgcount(0), swfscale(1.0f)
 {
+#if 0
 	if (d_argc > 0) {
 		for (unsigned int i = 0; i < d_argc; i++) {
 			if (strcmp(d_argv[i], "-trace") == 0) {
@@ -86,6 +82,7 @@ constructBase, imgcount(0), swfscale(1.0f)
 			}
 		}
 	}
+#endif
 
 
 	(void) Ming_init();
@@ -95,7 +92,7 @@ constructBase, imgcount(0), swfscale(1.0f)
 	movie->setDimension(swfscale * 700, swfscale * 1700);	// formerly 20
 	movie->setNumberOfFrames(1);
 
-	if (trace) {
+	if (options->trace) {
 		printf("%s", "#include <mingpp.h>\n" "void testit(SWFMovie * movie,int pathlimit) {\n");
 #if 0
 		"(void) Ming_init();\n"
@@ -113,7 +110,7 @@ drvSWF::~drvSWF()
 {
 	const int length = movie->save(outFileName.value());
 	delete movie;
-	if (trace)
+	if (options->trace)
 		printf("}\n");
 	printf("// %i bytes written to %s\n", length, outFileName.value());
 }
@@ -142,14 +139,14 @@ void drvSWF::print_coords()
 		return;
 	}
 #endif
-
+ 
 	if (numberOfElementsInPath() < 2)
 		return;
 
 
 	SWFShape *s = new SWFShape;
 
-	if (trace) {
+	if (options->trace) {
 		static int pathid = 0;
 		printf("if ( %d < pathlimit) {\n" "SWFShape * s = new SWFShape;\n", pathid++);
 		//printf("t->addString( \"path#%d\",NULL);\n", pathid);
@@ -162,10 +159,10 @@ void drvSWF::print_coords()
 		break;
 	case drvbase::fill:
 		{
-			SWFFill *swffill = s->addSolidFill((int) (255 * fillR()), (int) (255 * fillG()),
-											   (int) (255 * fillB()));
+			SWFFill *swffill = s->addSolidFill((byte) (255 * fillR()), (byte) (255 * fillG()),
+											   (byte) (255 * fillB()));
 			s->setRightFill(swffill);
-			if (trace) {
+			if (options->trace) {
 				printf("SWFFill *swffill = s->addSolidFill(%d,%d,%d); \n",
 					   (int) (255 * fillR()), (int) (255 * fillG()), (int) (255 * fillB()));
 				printf("s->setRightFill(swffill);\n");
@@ -174,10 +171,10 @@ void drvSWF::print_coords()
 		}
 	case drvbase::eofill:
 		{
-			SWFFill *swffill = s->addSolidFill((int) (255 * fillR()), (int) (255 * fillG()),
-											   (int) (255 * fillB()));
+			SWFFill *swffill = s->addSolidFill((byte) (255 * fillR()), (byte) (255 * fillG()),
+											   (byte) (255 * fillB()));
 			s->setRightFill(swffill);
-			if (trace) {
+			if (options->trace) {
 				printf("SWFFill *swffill = s->addSolidFill(%d,%d,%d); \n",
 					   (int) (255 * fillR()), (int) (255 * fillG()), (int) (255 * fillB()));
 				printf("s->setRightFill(swffill);\n");
@@ -190,14 +187,22 @@ void drvSWF::print_coords()
 		errf << "unexpected ShowType " << (int) currentShowType();
 		break;
 	}
+ // libming supports only byte wise width 
+	int linewidth = (int) (swfscale * currentLineWidth());
+	if ( linewidth  > 255 ) {
+		errf << "Warning: linewidth greater than 255 is not supported by libming" << endl;
+		linewidth = 255;
+	}
+	s->setLine( (byte) linewidth, 
+				(byte) (255 * edgeR()),
+				(byte) (255 * edgeG()), 
+				(byte) (255 * edgeB())
+				);
 
-	s->setLine((int) (swfscale * currentLineWidth()), (unsigned char) (255 * edgeR()),
-			   (unsigned char) (255 * edgeG()), (unsigned char) (255 * edgeB()));
-
-	if (trace) {
+	if (options->trace) {
 		printf("s->setLine(%d, %d,%d,%d); \n", (int) (swfscale * currentLineWidth()),
-			   (unsigned short) (255 * edgeR()), (unsigned short) (255 * edgeG()),
-			   (unsigned short) (255 * edgeB()));
+			   (byte) (255 * edgeR()), (byte) (255 * edgeG()),
+			   (byte) (255 * edgeB()));
 	}
 
 	Point currentpoint(-9999.0f, -9999.0f);
@@ -214,7 +219,7 @@ void drvSWF::print_coords()
 					firstpoint = p;
 				}
 				s->movePenTo(swfx(p), swfy(p));
-				if (trace) {
+				if (options->trace) {
 					printf("s->movePenTo(%d,%d);\n", (int) swfx(p), (int) swfy(p));
 				}
 				currentpoint = p;
@@ -231,7 +236,7 @@ void drvSWF::print_coords()
 						errf << "ignoring zero length lineto " << endl;
 				} else {
 					s->drawLineTo(swfx(p), swfy(p));
-					if (trace) {
+					if (options->trace) {
 						printf("s->drawLineTo(%d,%d);\n", (int) swfx(p), (int) swfy(p));
 					}
 					currentpoint = p;
@@ -245,7 +250,7 @@ void drvSWF::print_coords()
 					const coordtype x = swfx(firstpoint);
 					const coordtype y = swfy(firstpoint);
 					s->drawLineTo(x, y);
-					if (trace) {
+					if (options->trace) {
 						printf("s->drawLineTo(%d,%d);\n", (int) x, (int) y);
 					}
 					currentpoint = firstpoint;
@@ -278,7 +283,7 @@ void drvSWF::print_coords()
 							errf << "converting strange PS-curveto cp = b to simple curveto" <<
 								endl;
 						s->drawCurveTo(cx, cy, dx, dy);
-						if (trace) {
+						if (options->trace) {
 							printf("s->drawCurveTo(%d,%d,%d,%d);\n", (int) cx, (int) cy,
 								   (int) dx, (int) dy);
 						}
@@ -287,7 +292,7 @@ void drvSWF::print_coords()
 						if (Verbose())
 							errf << "converting strange PS-curveto c = d to simple curveto" << endl;
 						s->drawCurveTo(bx, by, dx, dy);
-						if (trace) {
+						if (options->trace) {
 							printf("s->drawCurveTo(%d,%d,%d,%d);\n", (int) bx, (int) by,
 								   (int) dx, (int) dy);
 						}
@@ -295,19 +300,19 @@ void drvSWF::print_coords()
 						if (Verbose())
 							errf << "converting curve to line (all same y)" << endl;
 						s->drawLineTo(dx, dy);
-						if (trace) {
+						if (options->trace) {
 							printf("s->drawLineTo(%d,%d);\n", (int) dx, (int) dy);
 						}
 					} else if ((cpx == bx) && (bx == cx) && (cx == dx)) {
 						if (Verbose())
 							errf << "converting curve to line (all same x)" << endl;
 						s->drawLineTo(dx, dy);
-						if (trace) {
+						if (options->trace) {
 							printf("s->drawLineTo(%d,%d);\n", (int) dx, (int) dy);
 						}
 					} else {
-						if (cubic) {
-							if (trace) {
+						if (options->cubic) {
+							if (options->trace) {
 								printf("s->drawCubic(%d,%d,%d,%d,%d,%d);\n", (int) bx, (int) by,
 									   (int) cx, (int) cy, (int) dx, (int) dy);
 								fflush(stdout);
@@ -324,22 +329,22 @@ void drvSWF::print_coords()
 									const float t = 1.0f * sf / (fitpoints - 1);
 									const Point & p_at_t =
 										PointOnBezier(t, currentpoint, cp1, cp2, ep);
-									const coordtype dx = swfx(p_at_t);
-									const coordtype dy = swfy(p_at_t);
-									s->drawLineTo(dx, dy);
+									const coordtype dx1 = swfx(p_at_t);
+									const coordtype dy1 = swfy(p_at_t);
+									s->drawLineTo(dx1, dy1);
 								}
 							} else {
 
 								s->drawLineTo(bx, by);
-								if (trace) {
+								if (options->trace) {
 									printf("s->drawLineTo(%d,%d);\n", (int) bx, (int) by);
 								}
 								s->drawLineTo(cx, cy);
-								if (trace) {
+								if (options->trace) {
 									printf("s->drawLineTo(%d,%d);\n", (int) cx, (int) cy);
 								}
 								s->drawLineTo(dx, dy);
-								if (trace) {
+								if (options->trace) {
 									printf("s->drawLineTo(%d,%d);\n", (int) dx, (int) dy);
 								}
 							}
@@ -364,7 +369,7 @@ void drvSWF::print_coords()
 	SWFDisplayItem *d = movie->add(s);
 	d->move(0.0f, 0.0f);
 
-	if (trace)
+	if (options->trace)
 		printf("s->end();\n" "SWFDisplayItem * d = movie->add(s);\n" "d->move(0, 0); }\n");
 
 // delete s;
@@ -488,7 +493,7 @@ void drvSWF::show_path()
 
 }
 
-#ifdef HAVE_LIBMINGUTIL
+#if defined(HAVE_LIBMINGUTIL) || ( defined(USE_PNG) && USE_PNG )
 void drvSWF::show_image(const PSImage & imageinfo)
 {
 
@@ -518,6 +523,10 @@ void drvSWF::show_image(const PSImage & imageinfo)
 
 #endif
 
+#if (defined(USE_PNG) && USE_PNG)
+		// from 0.3 on ming may support png directly
+		SWFBitmap *bm = new SWFBitmap(imageinfo.FileName.value());
+#else
 		unsigned int len = strlen(imageinfo.FileName.value());
 		char *outfile = cppstrdup(imageinfo.FileName.value());
 		outfile[len - 3] = 'd';
@@ -525,6 +534,10 @@ void drvSWF::show_image(const PSImage & imageinfo)
 		outfile[len - 1] = 'l';
 		png2dbl(imageinfo.FileName.value(), outfile);
 		SWFBitmap *bm = new SWFBitmap(outfile);
+		delete [] outfile;
+#endif
+		(void) remove(imageinfo.FileName.value());
+
 		SWFShape *s = new SWFShape;
 		SWFFill *swffill = s->addBitmapFill(bm);
 		s->setRightFill(swffill);
@@ -566,7 +579,7 @@ void drvSWF::show_image(const PSImage & imageinfo)
 		d->scale(ma, -md);
 #endif
 
-		delete[]outfile;
+
 
 	} else {
 
@@ -575,12 +588,18 @@ void drvSWF::show_image(const PSImage & imageinfo)
 
 }
 #else
+
+// 
+// If neither USE_PNG is defined in ming_config.h nor we have access to util/png2dbl.c we cannot support images
+//
 void drvSWF::show_image(const PSImage & imageinfo) {
-	errf << "no support for bitmaps - need to have access to util/png2dbl.c at compile time" << endl;
+	errf << "no support for bitmaps - need to have access to util/png2dbl.c at compile time or at least ming version 0.3 which direct support of png (USE_PNG in ming/config.h)" << endl;
 }
 #endif
+
 static DriverDescriptionT < drvSWF > D_SWF("swf",	//
 										   "SWF driver: ",	//
+										   "",
 										   "swf",	//
 										   false,	// backend supports subpathes
 										   // if subpathes are supported, the backend must deal with
@@ -598,15 +617,14 @@ static DriverDescriptionT < drvSWF > D_SWF("swf",	//
 										   withcurves,	// backend supports curves
 										   true,	// backend supports elements which are filled and have edges
 										   true,	// backend supports text
-#ifdef HAVE_LIBMINGUTIL
+#if defined(HAVE_LIBMINGUTIL) || (defined(USE_PNG) && USE_PNG )
 										   DriverDescription::png,	// backend supports Images
 #else
    										   DriverDescription::noimage,	// no support for Images
 #endif
 										   DriverDescription::noopen,	// we open output file ourselves
 										   true,	// if format supports multiple pages in one file
-										   false,	/*clipping */
-										   driveroptions);
+										   false	/*clipping */
+										   );
 #endif
- 
  

@@ -5,10 +5,10 @@
    drvmma.h : This file is part of pstoedit
    Call declaration for Mathematica Graphics driver
    Contributed by: Manfred Thole <manfred@thole.org>
-   $Id: drvmma.h,v 1.2 2001/02/27 19:47:50 manfred Exp $
+   $Id: drvmma.h,v 1.4 2003/03/15 16:25:47 manfred Exp $
    Based on drvsampl.h
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
                              Manfred Thole, manfred@thole.org
 
     This program is free software; you can redistribute it and/or modify
@@ -37,14 +37,25 @@ public:
 	derivedConstructor(drvMMA);
 
 	~drvMMA(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+		Option < bool, BoolTrueExtractor> eofillFills;
+		DriverOptions() :
+			eofillFills(true,"-eofillfills","",0,"Filling is used for eofill (default is not to fill)",0,false)
+		{
+			ADD(eofillFills);
+		}
+	}*options;
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
 
  private:
-	 void print_coords();
+	void print_coords();
 	void RGBColor(float R, float G, float B);
 	void draw_path(bool close, Point firstpoint, bool fill);
+	// eofill approximation
+
 	// Graphics attributes
 	linetype mmaDashing;
 	float mmaThickness;

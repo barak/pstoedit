@@ -1,13 +1,13 @@
 /* 
    drvtk.cpp - Driver to output Tcl/Tk canvas
-             - written by Christopher Jay Cox (cjcox@acm.org) - 9/22/97
+             - written by Christopher Jay Cox (cjcox_AT_acm.org) - 9/22/97
                last updated: 8/09/00
                http://www.ntlug.org/~ccox/impress/
                Based on... 
 
    drvsample.cpp : Backend for TK
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,9 +34,7 @@
 #include <math.h>
 
 
-static const char *tagNames = "";
-static int swapHW = 0;
-static int noImPress = 0;
+
 
 static const char *colorstring(float r, float g, float b)
 {
@@ -68,11 +66,6 @@ void drvTK::outputEscapedText(const char *string)
 	}
 }
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-n","string","tagnames"),
-	OptionDescription("-R",0,"swap HW"),
-	OptionDescription("-I",0,"no impress"),
-	endofoptions};
 
 drvTK::derivedConstructor(drvTK):
 constructBase, buffer(tempFile.asOutput()), objectId(1)
@@ -80,11 +73,10 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 //  const RSString & l_pagesize = getPageSize();
 
 	// set tk specific values
-	scale = 1.0;				/* tk default internal scale factor */
-
 	x_offset = 0.0;				/* set to fit to tk page      */
 	y_offset = 0.0;				/*          "                 */
 
+#if 0
 	// cannot write any header part, since we need the total number of pages
 	// in the header
 	for (unsigned int i = 0; i < d_argc; i++) {
@@ -101,6 +93,8 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 			noImPress = 1;
 		}
 	}
+#endif
+
     const RSString pagesize = getPageSize();
 	strcpy(pwidth, "8.5i");
 	strcpy(pheight, "11.0i");
@@ -234,7 +228,7 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 		strcpy(pwidth, "30.5c");
 		strcpy(pheight, "48.7c");
 	}
-	if (swapHW) {
+	if (options->swapHW) {
 		char psave[20];
 		strcpy(psave, pwidth);
 		strcpy(pwidth, pheight);
@@ -246,7 +240,7 @@ constructBase, buffer(tempFile.asOutput()), objectId(1)
 
 void drvTK::canvasCreate()
 {
-	if (!noImPress) {
+	if (!options->noImPress) {
 		outf << "#!/bin/sh" << endl
 			<< "# restart trick \\" << endl
 			<< "exec wish \"$0\" \"$@\"" << endl
@@ -1082,7 +1076,7 @@ void drvTK::canvasCreate()
 drvTK::~drvTK()
 {
 	// now we can copy the buffer the output
-	if (!noImPress) {
+	if (!options->noImPress) {
 		buffer << "set Global(CurrentPageId) $Global(LoadPageId)" << endl
 			<< "newCanvas .can c$Global(CurrentPageId)" << endl;
 	}
@@ -1096,8 +1090,8 @@ void drvTK::print_coords()
 	float pc_y;
 	for (unsigned int n = 0; n < numberOfElementsInPath(); n++) {
 		const Point & p = pathElement(n).getPoint(0);
-		pc_x = (p.x_ + x_offset) * scale;
-		pc_y = (currentDeviceHeight - p.y_ + y_offset) * scale;
+		pc_x = (p.x_ + x_offset) ;
+		pc_y = (currentDeviceHeight - p.y_ + y_offset) ;
 		buffer << pc_x;
 		buffer << ' ' << pc_y;
 		if (n != numberOfElementsInPath() - 1) {
@@ -1111,7 +1105,7 @@ void drvTK::print_coords()
 }
 void drvTK::close_page()
 {
-	if (!noImPress) {
+	if (!options->noImPress) {
 		buffer <<
 			"scaleObject all  [expr $Global(PointsInch)/$Global(DocPointsInch) *  1.0] {} {}"
 			<< endl;
@@ -1120,7 +1114,7 @@ void drvTK::close_page()
 
 void drvTK::open_page()
 {
-	if (!noImPress) {
+	if (!options->noImPress) {
 		buffer <<
 			"	set Global(CurrentPageId) [expr $Global(CurrentPageId) + 1]"
 			<< endl << "	set Global(PageHeight) " << pheight << endl <<
@@ -1175,10 +1169,10 @@ void drvTK::show_text(const TextInfo & textinfo)
 	buffer << actualFontSize
 		<< "-72-72-*-*-*-*"
 		<< "}" << " -anchor sw" << " -fill " << colorstring(currentR(), currentG(), currentB())
-		<< " -tags \"" << tagNames << "\" ]" << endl;
+		<< " -tags \"" << options->tagNames << "\" ]" << endl;
 
-	if (strcmp(tagNames, "") && !noImPress) {
-		buffer << "set Group($Global(CurrentCanvas),$i) \"" << tagNames << "\"" << endl;
+	if (strcmp(options->tagNames.value.value(), "") && !(options->noImPress)) {
+		buffer << "set Group($Global(CurrentCanvas),$i) \"" << options->tagNames << "\"" << endl;
 	}
 }
 
@@ -1199,7 +1193,7 @@ void drvTK::show_path()
 		}
 		buffer << " -outline \"" << colorstring(currentR(), currentG(), currentB())
 			<< "\"" << " -width " << (currentLineWidth()? currentLineWidth() : 1)
-			<< "p" << " -tags \"" << tagNames << "\" ]" << endl;
+			<< "p" << " -tags \"" << options->tagNames << "\" ]" << endl;
 	} else {
 		if (fillpat == 1) {
 			buffer << "set i [$Global(CurrentCanvas) create polygon ";
@@ -1208,22 +1202,22 @@ void drvTK::show_path()
 				<< "\"";
 			buffer << " -outline \"" << colorstring(currentR(), currentG(), currentB())
 				<< "\"" << " -width " << (currentLineWidth()? currentLineWidth() : 1)
-				<< "p" << " -tags \"" << tagNames << "\" ]" << endl;
+				<< "p" << " -tags \"" << options->tagNames << "\" ]" << endl;
 		} else {
 			buffer << "set i [$Global(CurrentCanvas) create line ";
 			print_coords();
 			buffer << " -fill \"" << colorstring(currentR(), currentG(), currentB())
 				<< "\"" << " -width " << (currentLineWidth()? currentLineWidth() : 1)
-				<< "p" << " -tags \"" << tagNames << "\" ]" << endl;
+				<< "p" << " -tags \"" << options->tagNames << "\" ]" << endl;
 		}
 	}
-	if (strcmp(tagNames, "") && !noImPress) {
-		buffer << "set Group($Global(CurrentCanvas),$i) \"" << tagNames << "\"" << endl;
+	if (strcmp(options->tagNames.value.value(), "") && !(options->noImPress)) {
+		buffer << "set Group($Global(CurrentCanvas),$i) \"" << options->tagNames << "\"" << endl;
 	}
 }
 
 
-static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code", "tk", false,	// backend supports subpathes
+static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code", "","tk", false,	// backend supports subpathes
 										 // if subpathes are supported, the backend must deal with
 										 // sequences of the following form
 										 // moveto (start of subpath)
@@ -1241,6 +1235,5 @@ static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code"
 										 true,	// backend supports text
 										 DriverDescription::noimage,	// no support for PNG file images
 										 DriverDescription::normalopen, true,	// backend support multiple pages
-										 false, /*clipping */
-										 driveroptions);
- 
+										 false  /*clipping */
+										 );

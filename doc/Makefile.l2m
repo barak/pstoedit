@@ -55,7 +55,8 @@ all : $(BASE).1 $(BASE).htm $(BASE).txt # $(BASE).ps $(BASE).pdf $(BASE).info
 	
 
 clean :
-	rm -f $(BASE).aux $(BASE).log $(BASE).dvi 
+	rm -f $(BASE).aux $(BASE).log 
+#$(BASE).dvi 
 
 realclean : clean
 	$(RM) $(BASE).ps $(BASE).pdf $(BASE).1 $(BASE).htm $(BASE).texi \

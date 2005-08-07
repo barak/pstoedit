@@ -4,7 +4,7 @@
    miscutil.h : This file is part of pstoedit
    header declaring misc utility functions
 
-   Copyright (C) 1998 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1998 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ public:
 	char * argv[maxargs];
 
 	Argv() : argc(0) { for (unsigned int i = 0; i< (unsigned) maxargs; i++)  argv[i] = 0; }
-	~Argv() { for (unsigned int i = 0; i< (unsigned) argc &&  i< (unsigned) maxargs ; i++) delete [] argv[i]; }
+	~Argv() { clear(); }
 
 	void addarg(const char * arg) { 
 		assert(argc<maxargs); //lint !e1776
@@ -121,29 +121,38 @@ public:
 		argc++; 
 	}
 	
+	void clear() {
+		for (unsigned int i = 0; i< (unsigned) argc &&  i< (unsigned) maxargs ; i++) { delete [] argv[i] ; argv[i]= 0; argc = 0;}
+	}
+	
 	NOCOPYANDASSIGN(Argv)
 };
 DLLEXPORT ostream & operator <<(ostream & out, const Argv & a);
 
-#if 0 
+#ifdef HAVEAUTOPTR 
+#include <memory>
+#else
 template <class T> 
-class AutoDeleter {
+class auto_ptr {
 public:
 // something that can be attached to a normal pointer
 // but which deletes the object when the Deleter goes
-// out of scope. Sort of very simple auto_ptr
+// out of scope. Sort of very simple std::auto_ptr
 //
-	AutoDeleter(T*& ptr,bool isArray = false) : m_ptr(ptr), m_isArray(isArray) {}
-	~AutoDeleter() { if (m_isArray) delete [] m_ptr; else delete m_ptr; m_ptr=0;}
+	auto_ptr(T* ptr,bool isArray = false) : m_ptr(ptr), m_isArray(isArray) {}
+	~auto_ptr() { if (m_isArray) delete [] m_ptr; else delete m_ptr; m_ptr=0;}
+	T* operator->() const { return m_ptr; }
 private:
-	T*& m_ptr; //lint !e1725
+	T* m_ptr; //lint !e1725
 	bool m_isArray;
 
-	NOCOPYANDASSIGN(AutoDeleter<T>)
+	NOCOPYANDASSIGN(auto_ptr<T>)
 
-//	AutoDeleter(const AutoDeleter<T> &); // no copy ctor please
-//	const AutoDeleter<T>& operator =(const AutoDeleter<T> &); // no assignment please
+//	auto_ptr(const auto_ptr<T> &); // no copy ctor please
+//	const auto_ptr<T>& operator =(const auto_ptr<T> &); // no assignment please
 };
+
+
 #endif
 
 // a very very simple resizing string
@@ -176,7 +185,7 @@ public:
 	char operator[](int i) const
 	{	return content[i]; }
 	friend ostream & operator<<(ostream & out,const RSString &outstring)
-	{	return out << outstring.content; }
+	{	if (outstring.content) out << outstring.content; return out; }
 
 private:
 	//
@@ -222,14 +231,14 @@ public:
 #ifndef BUGGYGPP
 // define BUGGYGPP if your compiler complains about syntax error here.
 // see above
-	void insert(const T::K_Type & key, const  T::V_Type& value) {
+	void insert(const typename T::K_Type & key, const  typename T::V_Type& value) {
 #else /* BUGGYGPP */
 	void insert(const K_Type & key, const  V_Type & value) {
 #endif /* BUGGYGPP */
 		firstEntry = new T(key,value,firstEntry);
 	}
 #ifndef BUGGYGPP
-	const  T::V_Type* getValue(const  T::K_Type & key) {
+	const  typename T::V_Type* getValue(const  typename T::K_Type & key) {
 #else /* BUGGYGPP */
 	const  V_Type* getValue(const  K_Type & key) {
 #endif /* BUGGYGPP */
@@ -310,7 +319,6 @@ DLLEXPORT void copy_file(const istream& infile,ostream& outfile) ;
 
 
 #endif
- 
  
  
  

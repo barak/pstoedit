@@ -5,7 +5,7 @@
    drvtext.h : This file is part of pstoedit
    Class declaration for a text oriented output driver 
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,22 @@ public:
 	// (const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
 	~drvTEXT(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+		Option < int, IntValueExtractor >pageheight;
+		Option < int, IntValueExtractor >pagewidth;
+		Option < bool, BoolTrueExtractor> dumptextpieces;
+
+		DriverOptions() :
+			pageheight(true,"-height", "number",0, "page height in terms of characters",0,200),
+			pagewidth(true,"-width", "number",0, "page width in terms of characters",0,150),
+			dumptextpieces(true,"-dump", 0, 0,"dump text pieces",0,false)
+		{
+			ADD(pageheight);
+			ADD(pagewidth);
+			ADD(dumptextpieces);
+		}
+	}*options;
 
 	class XSorter {
 	public:
@@ -68,13 +84,14 @@ public:
 	LinePtrList page; 
 
 	char ** charpage; // for text page output
+#if 0
 	bool dumptextpieces;
 	// sizes in terms of lines and characters
 	unsigned int pageheight  ;
 	unsigned int pagewidth  ;
+#endif
 
 };
 
 #endif
- 
  

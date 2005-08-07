@@ -6,7 +6,7 @@
    Backend for MetaPost files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,6 +47,12 @@ public:
 	derivedConstructor(drvMPOST);
 
 	~drvMPOST(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -69,7 +75,6 @@ private:
 };
 
 #endif
- 
  
  
  

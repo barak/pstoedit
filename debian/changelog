@@ -1,3 +1,20 @@
+pstoedit (3.40-1) unstable; urgency=high
+
+  * New upstream release. (Closes: #293045)
+  * [src/Makefile.am, src/Makefile.in] Add "-ldl" to libpstoedit_la_LIBADD so
+    as to generate complete inter-library dependencies.
+  * [src/drvlplot.cpp] Minor changes needed to get things to build.
+  * [debian/control, debian/rules, libpstoedit0c2.files] C++ ABI transition;
+    libpstoedit0 is now libpstoedit0c2. Based on a patch by Henning Makholm
+    <henning@makholm.net>. (Closes: #321632)
+  * [debian/shlibs.local, debian/libpstoedit0.files] Dropped.
+  * [debian/rules, debian/control] Include buildinfo.
+  * [debian/pstoedit.docs] Added.
+  * [debian/pstoedit.preinst] Removed bashism.
+  * [debian/control] Updated Standards-Version.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun,  7 Aug 2005 15:36:36 +0200
+
 pstoedit (3.33-15) unstable; urgency=medium
 
   * [debian/control] Libtiff transition: updated build dependencies.

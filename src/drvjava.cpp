@@ -2,7 +2,7 @@
    drvJAVA.cpp : This file is part of pstoedit
    backend to generate a Java(TM) applet
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,22 +63,21 @@ static int getFontNumber(const char *const fontname)
 	return 0;					// return Courier if not found
 }
 
-static const OptionDescription driveroptions[] = {
-		OptionDescription("java class name","string","name of java class to generate"),
-		endofoptions};
 
 drvJAVA::derivedConstructor(drvJAVA):
-constructBase, jClassName("PSJava")
+constructBase
 {
+#if 0
 	if (d_argc > 0) {
 		assert(d_argv && d_argv[0]);
 		jClassName = d_argv[0];
 	}
+#endif
 // driver specific initializations
 // and writing of header to output file
 	outf << "import java.applet.*;" << endl;
 	outf << "import java.awt.*;" << endl;
-	outf << "public class " << jClassName << " extends PsPages" << endl;
+	outf << "public class " << options->jClassName.value << " extends PsPages" << endl;
 	outf << "{" << endl;
 //  outf << "    public void init()" << endl;
 //  outf << "    {" << endl;
@@ -90,7 +89,7 @@ drvJAVA::~drvJAVA()
 {
 // driver specific deallocations
 // and writing of trailer to output file
-	outf << "    public " << jClassName << "(){" << endl;
+	outf << "    public " << options->jClassName.value << "(){" << endl;
 	outf << "	pages = new PageDescription[" << currentPageNumber << "];" << endl;
 	for (unsigned int i = 0; i < currentPageNumber; i++) {
 		outf << "	setupPage_" << i + 1 << "();" << endl;
@@ -234,7 +233,7 @@ void drvJAVA::show_path()
 }
 
 
-static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code", "java", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code", "","java", false,	// if backend supports subpathes, else 0
 											 // if subpathes are supported, the backend must deal with
 											 // sequences of the following form
 											 // moveto (start of subpath)
@@ -252,5 +251,4 @@ static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code
 											 true,	// if backend supports text, else 0
 											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-											 false /*clipping */ , driveroptions);
- 
+											 false /*clipping */ );

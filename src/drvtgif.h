@@ -5,7 +5,7 @@
    drvTGIF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,15 @@ public:
 	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ,float theMagnification); // Constructor
 
 	~drvTGIF(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+			Option < bool, BoolTrueExtractor> 		textAsAttribute; // show text a HREF attribute
+			DriverOptions() :
+				textAsAttribute(true,"-ta",0,0,"text as attribute",0,false)
+			{
+				ADD(textAsAttribute);
+			}
+	} * options;
 
 #include "drvfuncs.h"
 	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
@@ -42,15 +51,9 @@ private:
 	void print_coords();
 	TempFile      tempFile;
 	ofstream     &buffer;
-	int             objectId;
-	bool		textAsAttribute; // show text a HREF attribute
-//	const float     magnification;	
-
-
-
+	int           objectId;
 
 };
 #endif
 
- 
  

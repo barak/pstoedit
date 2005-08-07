@@ -2,7 +2,7 @@
    callgs.cpp : This file is part of pstoedit
    interface to GhostScript
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
    
    Proposal for a "cleaned up" version: removed (IMHO) dead/old code,
    e.g., WIN32 is "dll only" now, because gs32 comes w/DLL 
@@ -79,7 +79,9 @@ char *createCmdLine(int argc, const char *const argv[])
 #include "dwmainc.c"
 
 #if defined(_WIN32)
-#include "gvwgsver.c"			// ONLY WINDOWS
+
+//old #include "gvwgsver.c"			// ONLY WINDOWS
+#include "wgsver.c"			// ONLY WINDOWS
 #endif
 
 #undef main
@@ -193,7 +195,7 @@ const char *whichPI(ostream & errstream, int verbose)
 			static char buf[256];
 			if (find_gs(buf, sizeof(buf), 550, TRUE)) {
 				if (verbose) {
-					dumpgsvers();
+					(void)dumpgsvers();
 					errstream << "Latest GS DLL is " << buf << endl;
 				}
 				gstocall = buf;
@@ -350,6 +352,8 @@ static const char *getOSspecificOptions(int verbose, ostream & errstream, char *
 		PIOptions = buffer;
 	} else {
 		// 3.
+#if 0
+		// no longer needed with newest find_gs. gs stores the related gs_lib in the registry.
 		static char buf[500];
 		const unsigned int gsver = get_latest_gs_version();
 		if (gsver) {
@@ -359,6 +363,7 @@ static const char *getOSspecificOptions(int verbose, ostream & errstream, char *
 			}
 			PIOptions = buf;
 		}
+#endif
 
 	}
 	return PIOptions;
@@ -492,4 +497,3 @@ const char *whichPINoVerbose(ostream & errstream)
 {
 	return whichPI(errstream, 0);
 }
- 
