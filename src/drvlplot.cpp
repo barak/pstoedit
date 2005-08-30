@@ -349,7 +349,7 @@ private:
 		O_SAVESTATE = 'U',
 		O_SPACE = 's'
 	};
-};
+}
 
 // if we aren't using libplotter, `MetaPlotter' is the same as `Plotter'
 typedef Plotter MetaPlotter;
@@ -963,8 +963,9 @@ drvplot::derivedConstructor(drvplot):constructBase
 			plotter = new TekPlotter(cin, outf, errf);
 		}
 #ifndef NO_LIBPLOTTER_X_SUPPORT
-		else if (options->type.value == "X")
+		else if (options->type.value == "X") {
 			plotter = new XPlotter(cin, outf, errf);
+		}
 #endif
 		else if (options->type.value == "meta") {
 			if (portable_metafile == false)
