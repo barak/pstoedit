@@ -1,3 +1,14 @@
+pstoedit (3.42-1) unstable; urgency=low
+
+  * New upstream release.
+  * [configure.ac, configure] Look for Magick++-config instead of
+    GraphicsMagick++-config; put in AM_MAINTAINER_MODE.
+  * [debian/control] Update dependencies for new imagemagick.
+  * [debian/libpstoedit0.files, debian/rules, debian/control] Dropped "c2"
+    from libpstoedit0c2.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Thu, 29 Sep 2005 21:42:12 +0200
+
 pstoedit (3.41-1) unstable; urgency=low
 
   * New upstream release.
