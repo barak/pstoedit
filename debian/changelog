@@ -1,3 +1,11 @@
+pstoedit (3.42-1.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Really do the C++ transition; the library package is again
+    libpstoedit0c2. (Closes: #332859)
+
+ -- Henning Makholm <henning@makholm.net>  Wed, 26 Oct 2005 22:58:10 +0200
+
 pstoedit (3.42-1) unstable; urgency=low
 
   * New upstream release.

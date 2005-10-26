@@ -156,10 +156,10 @@ binary-arch: build install
 	dh_compress
 	dh_buildinfo
 	dh_fixperms
-	dh_makeshlibs -plibpstoedit0 -V 'libpstoedit0 (>= $(upstreamversion))'
+	dh_makeshlibs -plibpstoedit0c2 -V 'libpstoedit0c2 (>= $(upstreamversion))'
 	dh_installdeb
 #	dh_perl
-	dh_shlibdeps -Llibpstoedit0 -ldebian/libpstoedit0/usr/lib
+	dh_shlibdeps -Llibpstoedit0c2 -ldebian/libpstoedit0c2/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
