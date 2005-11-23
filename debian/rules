@@ -5,8 +5,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# This is the debhelper compatibility version to use.
-export DH_COMPAT=3
+# The debhelper compatibility version to use is now set in debian/compat.
+#export DH_COMPAT=3
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
@@ -156,10 +156,10 @@ binary-arch: build install
 	dh_compress
 	dh_buildinfo
 	dh_fixperms
-	dh_makeshlibs -plibpstoedit0c2 -V 'libpstoedit0c2 (>= $(upstreamversion))'
+	dh_makeshlibs -plibpstoedit0c2a -V 'libpstoedit0c2a (>= $(upstreamversion))'
 	dh_installdeb
 #	dh_perl
-	dh_shlibdeps -Llibpstoedit0c2 -ldebian/libpstoedit0c2/usr/lib
+	dh_shlibdeps -Llibpstoedit0c2a -ldebian/libpstoedit0c2a/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

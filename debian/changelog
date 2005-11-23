@@ -1,3 +1,17 @@
+pstoedit (3.42-2) unstable; urgency=medium
+
+  * libstdc++ allocator transition (Closes: #339252)
+    (http://lists.debian.org/debian-devel-announce/2005/11/msg00010.html):
+    * [debian/control, debian/rules, debian/libpstoedit0c2a.files] Renamed
+      runtime library from libpstoedit0c2 to libpstoedit0c2a.
+    * [debian/control] Versioned the libmagick++9-dev build and runtime
+      dependencies; added Conflicts:, Replaces: libpstoedit0c2.
+  * [debian/compat] New; switched to current compat level.
+    [debian/rules] Dropped compat level setting.
+  * Acknowledge NMU. (Closes: #332859)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 23 Nov 2005 07:40:04 +0100
+
 pstoedit (3.42-1.1) unstable; urgency=low
 
   * Non-maintainer upload
