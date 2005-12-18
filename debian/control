@@ -3,11 +3,9 @@ Section: graphics
 Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@debian.org>
 Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
- liblcms1-dev | liblcms-dev, libtiff4-dev (>= 3.7.3-1),
- libjpeg62-dev | libjpeg-dev, libwmf-dev, libdps-dev, libxext-dev,
- libxt-dev, libsm-dev, libice-dev, libx11-dev, libbz2-dev,
- zlib1g-dev, g++ (>= 4:4.0), libmagick++9-dev (>= 6:6.2.4.5-0.3),
- libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), sysutils, debhelper, gs
+ g++ (>= 4:4.0), libwmf-dev, libmagick++9-dev (>= 6:6.2.4.5-0.3),
+ libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), sysutils, debhelper,
+ gs, pkg-config
 Standards-Version: 3.6.2
 
 Package: libpstoedit-dev

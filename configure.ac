@@ -53,6 +53,8 @@ dnl Strip off // to / that causes troubles.
    GS=`echo $GS | sed -e 's/\/\//\//g'`	
 fi
 
+PKG_PROG_PKG_CONFIG
+
 AC_LANG(C++)
 
 dnl check for directory handling
@@ -198,6 +200,13 @@ if test "x${PSTOEDIT_GCC_OK}" = xno ; then
       AC_MSG_WARN([** gcc version >= 3 is required.]) 
       AC_MSG_WARN([** libMagick++ driver is disabled.])
 else
+      if test -n "$PKG_CONFIG"; then
+        AC_MSG_CHECKING(ImageMagick flags through pkg-config)
+	PKG_CHECK_MODULES(LIBMAGICK, ImageMagick++)
+	HAVE_LIBMAGICK=yes
+        LIBMAGICK_CFLAGS="-DHAVE_MAGIC $LIBMAGICK_CFLAGS"
+	LIBMAGICK_LDFLAGS="$LIBMAGICK_LIBS"
+      else
 	AC_PATH_PROG(MAGICK_CONFIG, Magick++-config)
 	if test -n "${MAGICK_CONFIG}"; then
 	   AC_MSG_CHECKING(for version of "GraphicsMagick++" )   
@@ -205,12 +214,12 @@ else
 	   CPPFLAGS="$CPPFLAGS `Magick++-config --cppflags`"
 	   AC_TRY_COMPILE( [#include <Magick++.h>
 	            #if MagickLibVersion >= 0x000008
-		    int correct;
-		    #else
-		    old version of GraphicsMagick;
-		    #endif ],[ ],
-		    MAGICKCORRECTVERSION="YES";AC_MSG_RESULT(you seem to have a compatible version ),
-		    [AC_MSG_RESULT(you seem to have an older version - need at least version 1.0.6)])
+	 	    int correct;
+	  	    #else
+	  	    old version of GraphicsMagick;
+	  	    #endif ],[ ],
+	  	    MAGICKCORRECTVERSION="YES";AC_MSG_RESULT(you seem to have a compatible version ),
+	  	    [AC_MSG_RESULT(you seem to have an older version - need at least version 1.0.6)])
 	   CPPFLAGS=$OLDCPPFLAGS
 	   if test -n "${MAGICKCORRECTVERSION}"; then
 	      HAVE_LIBMAGICK=yes
@@ -220,8 +229,9 @@ else
 	      AC_MSG_WARN([** libMagick++ driver is disabled because of too old version of GraphicsMagick (need at least 1.0.6).])
 	   fi
 	else
-		AC_MSG_WARN([** libMagick++ driver is disabled.])
+	      AC_MSG_WARN([** libMagick++ driver is disabled.])
 	fi
+      fi
 fi
 AC_SUBST(LIBMAGICK_CFLAGS)
 AC_SUBST(LIBMAGICK_LDFLAGS)

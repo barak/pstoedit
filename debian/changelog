@@ -1,3 +1,13 @@
+pstoedit (3.42-3) unstable; urgency=medium
+
+  * [configure.ac] Use pkg-config for ImageMagick++ information, if
+    available.
+  * [configure] Regenerated.
+  * [debian/control] Added build dependency on pkg-config; removed indirect
+    build dependencies.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 18 Dec 2005 17:01:07 +0100
+
 pstoedit (3.42-2) unstable; urgency=medium
 
   * libstdc++ allocator transition (Closes: #339252)
