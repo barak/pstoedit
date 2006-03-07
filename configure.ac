@@ -10,9 +10,9 @@ dnl       as those are all the systems I have access to.
 dnl ------------------------------------------------------------------------
 
 dnl Initialize Autoconf. 
-AC_INIT(pstoedit,3.42,wglunz34_AT_pstoedit.net)
+AC_INIT(pstoedit,3.43,wglunz34_AT_pstoedit.net)
 dnl AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(pstoedit,3.42)
+AM_INIT_AUTOMAKE(pstoedit,3.43)
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/pstoedit.h])
 AC_CONFIG_SUBDIRS(libEMF-1.0)
@@ -72,6 +72,8 @@ if test -n "${LIBLD_LDFLAGS}"; then
 fi
 AC_SUBST(LIBLD_LDFLAGS)
 
+AC_CHECK_LIB([gd],[gdImageCreateFromPng])
+
 dnl some optional packages - default is to check automatically
 dnl but the check can be disabled using --without-PACKAGE
 dnl legal PACKAGE names are:
@@ -93,6 +95,7 @@ with_swf=$withval, with_swf=yes)
 
 
 
+CPPFLAGS="$CPPFLAGS -DX_DISPLAY_MISSING"
 
 if test "${with_libplot}" = "yes" ; then
 dnl
@@ -112,8 +115,10 @@ if test -n "${LIBPLOTTER_LDFLAGS}" && test -n "${LIBPLOTTER_CFLAGS}"; then
    HAVE_LIBPLOTTER=yes
    AC_MSG_CHECKING(for version of "lib plot" )   
    dnl See if we have a 2.3 or newer lib Plot version
-   AC_TRY_COMPILE( [#include <plotter.h>
-		   typedef int Point; ],[ ],
+   AC_TRY_COMPILE( [
+		#include <plotter.h>
+	     	typedef int Point; 
+		],[ ],
 		    AC_MSG_RESULT(you seem to have a compatible version ),
 		    [LIBPLOTTER_CFLAGS="$LIBPLOTTER_CFLAGS -DOLD_LIBPLOTTER";   
 		    AC_MSG_RESULT(you seem to have an older version - need at least version 2.3)])
@@ -130,10 +135,22 @@ else
    AM_CONDITIONAL(HAVE_LIBPLOTTER, false )
 fi
 
+CPPFLAGS=${OLD_CPPFLAGS}
 
 
 
 
+
+AC_MSG_CHECKING(for mkstemp)
+AC_TRY_COMPILE( [#include <stdlib.h>
+		 char buffer[] = "aaaXXXXXX";
+	 	 int i = mkstemp(buffer); ],[ ],
+               [HAVE_MKSTEMP=yes;
+                MKSTEMP_CFLAGS="-DHAVE_MKSTEMP"; 
+                AC_MSG_RESULT(you seem to have mkstemp )], 
+               [AC_MSG_RESULT(you do not have mkstemp - so will try using tempnam instead)])
+
+AC_SUBST(MKSTEMP_CFLAGS)
 
 
 
@@ -202,10 +219,11 @@ if test "x${PSTOEDIT_GCC_OK}" = xno ; then
 else
       if test -n "$PKG_CONFIG"; then
         AC_MSG_CHECKING(ImageMagick flags through pkg-config)
-	PKG_CHECK_MODULES(LIBMAGICK, ImageMagick++)
-	HAVE_LIBMAGICK=yes
-        LIBMAGICK_CFLAGS="-DHAVE_MAGIC $LIBMAGICK_CFLAGS"
-	LIBMAGICK_LDFLAGS="$LIBMAGICK_LIBS"
+	PKG_CHECK_MODULES(LIBMAGICK, ImageMagick++, 
+		HAVE_LIBMAGICK=yes 
+		LIBMAGICK_CFLAGS="-DHAVE_MAGIC $LIBMAGICK_CFLAGS" 
+		LIBMAGICK_LDFLAGS="$LIBMAGICK_LIBS" , 
+		echo "trying other methods for finding ImageMagick")
       else
 	AC_PATH_PROG(MAGICK_CONFIG, Magick++-config)
 	if test -n "${MAGICK_CONFIG}"; then
@@ -220,7 +238,7 @@ else
 	  	    #endif ],[ ],
 	  	    MAGICKCORRECTVERSION="YES";AC_MSG_RESULT(you seem to have a compatible version ),
 	  	    [AC_MSG_RESULT(you seem to have an older version - need at least version 1.0.6)])
-	   CPPFLAGS=$OLDCPPFLAGS
+	   CPPFLAGS=$OLD_CPPFLAGS
 	   if test -n "${MAGICKCORRECTVERSION}"; then
 	      HAVE_LIBMAGICK=yes
 	      LIBMAGICK_CFLAGS="-DHAVE_MAGIC `Magick++-config --cppflags`"

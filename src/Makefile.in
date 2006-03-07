@@ -76,7 +76,7 @@ am_libp2edrvstd_la_OBJECTS = initlibrary.lo drvlwo.lo drvrib.lo \
 	drvkillu.lo drvtext.lo drvsk.lo drvmpost.lo drvasy.lo \
 	drvmma.lo drvlatex2e.lo drvnoi.lo drvpic.lo drvhpgl.lo \
 	drvpcb1.lo drvpcb2.lo drvpcbfill.lo drvgschem.lo drvtk.lo \
-	$(am__objects_1) $(am__objects_2)
+	drvsvm.lo $(am__objects_1) $(am__objects_2)
 libp2edrvstd_la_OBJECTS = $(am_libp2edrvstd_la_OBJECTS)
 libp2edrvswf_la_DEPENDENCIES = $(am__DEPENDENCIES_1) libpstoedit.la
 am_libp2edrvswf_la_OBJECTS = drvswf.lo initlibrary.lo
@@ -188,6 +188,7 @@ LIBEMF_LDFLAGS = @LIBEMF_LDFLAGS@
 LIBLD_LDFLAGS = @LIBLD_LDFLAGS@
 LIBMAGICK_CFLAGS = @LIBMAGICK_CFLAGS@
 LIBMAGICK_LDFLAGS = @LIBMAGICK_LDFLAGS@
+LIBMAGICK_LIBS = @LIBMAGICK_LIBS@
 LIBMING_CFLAGS = @LIBMING_CFLAGS@
 LIBMING_LDFLAGS = @LIBMING_LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -205,6 +206,7 @@ MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
+MKSTEMP_CFLAGS = @MKSTEMP_CFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -214,6 +216,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -232,6 +235,7 @@ ac_ct_F77 = @ac_ct_F77@
 ac_ct_OBJDUMP = @ac_ct_OBJDUMP@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -315,6 +319,7 @@ libp2edrvstd_la_SOURCES = \
 	drvpcbfill.cpp	drvpcbfill.h                 \
 	drvgschem.cpp	drvgschem.h                 \
 	drvtk.cpp	drvtk.h                 \
+	drvsvm.cpp	drvsvm.h svm_actions.h	\
 	$(specific_drivers_src)                 \
         $(sample_drivers_src)                   
 
@@ -346,6 +351,7 @@ libpstoedit_la_SOURCES = \
 	subpath.cpp  subpath.h			\
 	pstoedit.cpp				\
 	psfront.h				\
+	genericints.h 				\
 	version.h
 
 libpstoedit_la_LIBADD = ${CXX_STD_LIB} ${CXX_RUNTIME_LIB} -ldl
@@ -361,6 +367,7 @@ pkginclude_HEADERS = \
 	drvbase.h				\
 	drvfuncs.h				\
 	miscutil.h				\
+	genericints.h				\
 	base64writer.h				\
 	poptions.h				\
 	ordlist.h				\
@@ -369,6 +376,7 @@ pkginclude_HEADERS = \
 AM_CPPFLAGS = \
 	${LIBPLOTTER_CFLAGS}			\
 	${LIBMING_CFLAGS}			\
+	${MKSTEMP_CFLAGS}			\
 	${LIBMAGICK_CFLAGS}			\
 	${LIBEMF_CFLAGS}			\
 	${LIBPNG_CFLAGS}			\
@@ -545,6 +553,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvrpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvsampl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvsk.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvsvm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvswf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvtext.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drvtgif.Plo@am__quote@

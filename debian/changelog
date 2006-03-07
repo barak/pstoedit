@@ -1,3 +1,12 @@
+pstoedit (3.43-1) unstable; urgency=low
+
+  * New upstream release.
+  * [debian/rules] Install pstoedit-config. This script is now deprecated
+    though; code that still relies on it should be updated to use pkg-config
+    instead.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Tue,  7 Mar 2006 20:49:11 +0100
+
 pstoedit (3.42-3) unstable; urgency=medium
 
   * [configure.ac] Use pkg-config for ImageMagick++ information, if

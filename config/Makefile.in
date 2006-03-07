@@ -14,7 +14,6 @@
 
 @SET_MAKE@
 
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -46,10 +45,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = pstoedit-config pstoedit.pc
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(m4datadir)" \
-	"$(DESTDIR)$(pkgconfigdir)"
-binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
-SCRIPTS = $(bin_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -58,6 +53,7 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(m4datadir)" "$(DESTDIR)$(pkgconfigdir)"
 m4dataDATA_INSTALL = $(INSTALL_DATA)
 pkgconfigDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(m4data_DATA) $(pkgconfig_DATA)
@@ -117,6 +113,7 @@ LIBEMF_LDFLAGS = @LIBEMF_LDFLAGS@
 LIBLD_LDFLAGS = @LIBLD_LDFLAGS@
 LIBMAGICK_CFLAGS = @LIBMAGICK_CFLAGS@
 LIBMAGICK_LDFLAGS = @LIBMAGICK_LDFLAGS@
+LIBMAGICK_LIBS = @LIBMAGICK_LIBS@
 LIBMING_CFLAGS = @LIBMING_CFLAGS@
 LIBMING_LDFLAGS = @LIBMING_LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -134,6 +131,7 @@ MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
+MKSTEMP_CFLAGS = @MKSTEMP_CFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -143,6 +141,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -161,6 +160,7 @@ ac_ct_F77 = @ac_ct_F77@
 ac_ct_OBJDUMP = @ac_ct_OBJDUMP@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -199,15 +199,12 @@ sharedstatedir = @sharedstatedir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = pstoedit.pc.in pstoedit-config.af pstoedit-config.in pstoedit.m4
+EXTRA_DIST = pstoedit.pc.in pstoedit.m4
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pstoedit.pc
-bin_SCRIPTS = pstoedit-config
-BUILT_SOURCES = pstoedit-config
 m4datadir = $(datadir)/aclocal
 m4data_DATA = pstoedit.m4
-all: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) all-am
+all: all-am
 
 .SUFFIXES:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -243,25 +240,6 @@ pstoedit-config: $(top_builddir)/config.status $(srcdir)/pstoedit-config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 pstoedit.pc: $(top_builddir)/config.status $(srcdir)/pstoedit.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-install-binSCRIPTS: $(bin_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
-	@list='$(bin_SCRIPTS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f $$d$$p; then \
-	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	    echo " $(binSCRIPT_INSTALL) '$$d$$p' '$(DESTDIR)$(bindir)/$$f'"; \
-	    $(binSCRIPT_INSTALL) "$$d$$p" "$(DESTDIR)$(bindir)/$$f"; \
-	  else :; fi; \
-	done
-
-uninstall-binSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_SCRIPTS)'; for p in $$list; do \
-	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	  echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(bindir)/$$f"; \
-	done
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -341,15 +319,13 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(SCRIPTS) $(DATA)
+check: check-am
+all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(m4datadir)" "$(DESTDIR)$(pkgconfigdir)"; do \
+	for dir in "$(DESTDIR)$(m4datadir)" "$(DESTDIR)$(pkgconfigdir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) install-am
+install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -373,7 +349,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool mostlyclean-am
@@ -394,7 +369,7 @@ info-am:
 
 install-data-am: install-m4dataDATA install-pkgconfigDATA
 
-install-exec-am: install-binSCRIPTS
+install-exec-am:
 
 install-info: install-info-am
 
@@ -418,25 +393,20 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binSCRIPTS uninstall-info-am \
-	uninstall-m4dataDATA uninstall-pkgconfigDATA
+uninstall-am: uninstall-info-am uninstall-m4dataDATA \
+	uninstall-pkgconfigDATA
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-binSCRIPTS install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am \
-	install-m4dataDATA install-man install-pkgconfigDATA \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	uninstall uninstall-am uninstall-binSCRIPTS uninstall-info-am \
-	uninstall-m4dataDATA uninstall-pkgconfigDATA
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-m4dataDATA install-man \
+	install-pkgconfigDATA install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-info-am uninstall-m4dataDATA uninstall-pkgconfigDATA
 
-pstoedit-config: pstoedit-config.in
-
-pstoedit-config.in: pstoedit-config.af
-	autofig $<
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
