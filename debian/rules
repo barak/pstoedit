@@ -61,6 +61,7 @@ source-updates:
 	aclocal
 	autoconf
 	automake --gnu --add-missing --copy
+	rm -rf autom4te.cache
 
 config.status: configure
 	dh_testdir
