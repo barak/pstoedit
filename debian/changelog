@@ -1,3 +1,15 @@
+pstoedit (3.44-1) unstable; urgency=low
+
+  * New upstream release.
+  * pstoedit-config has been dropped; code relying on it needs to change to
+    using pkg-config instead.
+    [debian/libpstoedit-dev.files, debian/pstoedit-config.sgml] Removed.
+    [debian/libpstoedit-dev.files, debian/rules] Changed accordingly.
+  * [debian/rules] Configure --disable-maintainer-mode.
+  * Addressed in 3.43: usability improvements. (Closes: #347732)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sat, 11 Mar 2006 10:40:55 +0100
+
 pstoedit (3.43-2) unstable; urgency=low
 
   * [configure.ac, src/cppcomp.h] Use autoconf to determine endianness.

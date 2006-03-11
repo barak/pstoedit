@@ -23,7 +23,8 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-confflags =	--prefix=/usr \
+confflags =	--disable-maintainer-mode \
+		--prefix=/usr \
 		--mandir=\$${prefix}/share/man \
 		--infodir=\$${prefix}/share/info \
 		-v
@@ -75,8 +76,6 @@ build-stamp:  config.status
 	# Add here commands to compile the package.
 	$(MAKE)
 
-	docbook-to-man debian/pstoedit-config.sgml > doc/pstoedit-config.1
-
 	touch build-stamp
 
 clean:
@@ -99,7 +98,7 @@ clean:
 		fi; \
 	done
 
-	rm -f doc/pstoedit-config.1 debian/buildinfo
+	rm -f debian/buildinfo
 	rm -rf autom4te.cache
 	-find -type f -name 'Makefile.in' | sed -e 's/\.in$$//' | xargs rm -f
 
@@ -113,8 +112,6 @@ install: build
 
 	# Add here commands to install the package into debian/tmp
 	$(MAKE) install prefix=$(CURDIR)/debian/tmp/usr
-
-	install -m 755 -o root -g root -p config/pstoedit-config $(CURDIR)/debian/tmp/usr/bin/
 
 	@for plugin in libp2edrvstd libp2edrvmagick++ ; do \
 		if ! test -r $(CURDIR)/debian/tmp/usr/lib/pstoedit/$$plugin.la ; then \

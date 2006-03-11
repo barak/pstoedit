@@ -38,13 +38,13 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = config
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/pstoedit-config.in $(srcdir)/pstoedit.pc.in
+	$(srcdir)/pstoedit.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_CLEAN_FILES = pstoedit-config pstoedit.pc
+CONFIG_CLEAN_FILES = pstoedit.pc
 SOURCES =
 DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -127,9 +127,6 @@ LINK = @LINK@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAGICK_CONFIG = @MAGICK_CONFIG@
-MAINT = @MAINT@
-MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
-MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 MKSTEMP_CFLAGS = @MKSTEMP_CFLAGS@
 OBJDUMP = @OBJDUMP@
@@ -207,7 +204,7 @@ m4data_DATA = pstoedit.m4
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -232,12 +229,10 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-pstoedit-config: $(top_builddir)/config.status $(srcdir)/pstoedit-config.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 pstoedit.pc: $(top_builddir)/config.status $(srcdir)/pstoedit.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
