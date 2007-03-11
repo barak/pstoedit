@@ -1,3 +1,14 @@
+pstoedit (3.44-2) unstable; urgency=low
+
+  * [debian/control] Removed sysutils from build dependencies; it was no
+    longer needed and interfered with building on GNU/kFreeBSD. 
+    (Closes: #374847)
+  * [debian/control] Updated Standards-Version.
+  * [doc/pstoedit.tex, doc/pstoedit.1, doc/pstoedit.htm]
+    s/standalong/standalone/ (Closes: #370047)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 11 Mar 2007 20:33:39 +0100
+
 pstoedit (3.44-1) unstable; urgency=low
 
   * New upstream release.

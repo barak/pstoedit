@@ -4,9 +4,8 @@ Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@debian.org>
 Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++9-dev (>= 6:6.2.4.5-0.3),
- libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), sysutils, debhelper,
- gs, pkg-config
-Standards-Version: 3.6.2
+ libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), gs, pkg-config
+Standards-Version: 3.7.2
 
 Package: libpstoedit-dev
 Section: devel
