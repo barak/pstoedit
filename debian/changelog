@@ -1,3 +1,11 @@
+pstoedit (3.45-1) unstable; urgency=low
+
+  * New upstream release. Changes include:
+    * Fixed a problem which caused newer versions of GhostScript to go into
+      an endless loop. (Closes: #433540)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 14 Nov 2007 19:25:32 +0100
+
 pstoedit (3.44-2) unstable; urgency=low
 
   * [debian/control] Removed sysutils from build dependencies; it was no

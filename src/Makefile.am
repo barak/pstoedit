@@ -121,6 +121,7 @@ pkginclude_HEADERS =				\
 	genericints.h				\
 	base64writer.h				\
 	poptions.h				\
+	papersizes.h				\
 	ordlist.h				\
 	psimage.h
 
