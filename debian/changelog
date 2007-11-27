@@ -1,3 +1,9 @@
+pstoedit (3.45-2) unstable; urgency=low
+
+  * [debian/rules] Use -Wl,--as-needed to drop indirect dependencies.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Tue, 27 Nov 2007 21:22:35 +0100
+
 pstoedit (3.45-1) unstable; urgency=low
 
   * New upstream release. Changes include:

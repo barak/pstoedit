@@ -67,7 +67,7 @@ source-updates:
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
-	env CC=c++ ./configure $(confflags)
+	env CXX="c++ -Wl,--as-needed -Wl,-O1" ./configure $(confflags)
 
 build: build-stamp
 build-stamp:  config.status
