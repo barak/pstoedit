@@ -8,7 +8,7 @@ Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
 Standards-Version: 3.7.2
 
 Package: libpstoedit-dev
-Section: devel
+Section: libdevel
 Architecture: any
 Depends: libpstoedit0c2a (= ${Source-Version}), libmagick++9-dev (>= 6:6.2.4.5-0.3), libplot-dev (>= 2.4.1-14)
 Description: PostScript to editable vector graphics library (development files)

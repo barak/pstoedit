@@ -223,6 +223,8 @@ const bool true  = 1;
 #else
 
 #include I_iostream
+#include I_string_h	// for strlen
+#include I_stdlib	// for exit
 USESTD
 
 // approach for emulation:

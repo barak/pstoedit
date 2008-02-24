@@ -1,3 +1,12 @@
+pstoedit (3.45-3) unstable; urgency=medium
+
+  * [src/cppcomp.h] Added missing includes for strlen and exit. Fixes FTBFS
+    with gcc 4.3. (Closes: #455434)
+  * [debian/control] Tag libpstoedit-dev as section: libdevel rather than
+    devel.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 24 Feb 2008 20:53:40 +0100
+
 pstoedit (3.45-2) unstable; urgency=low
 
   * [debian/rules] Use -Wl,--as-needed to drop indirect dependencies.
