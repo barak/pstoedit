@@ -4,8 +4,9 @@ Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@debian.org>
 Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++9-dev (>= 6:6.2.4.5-0.3),
- libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), gs, pkg-config
-Standards-Version: 3.7.2
+ libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), ghostscript, pkg-config
+Homepage: http://www.pstoedit.net/
+Standards-Version: 3.8.0
 
 Package: libpstoedit-dev
 Section: libdevel
@@ -29,7 +30,7 @@ Description: PostScript to editable vector graphics library (runtime files)
 
 Package: pstoedit
 Architecture: any
-Depends: ${shlibs:Depends}, gs
+Depends: ${shlibs:Depends}, ghostscript
 Suggests: xfig|ivtools-bin|tgif|transfig
 Description: PostScript and PDF files to editable vector graphics converter
  pstoedit converts Postscript and PDF files to various editable 
