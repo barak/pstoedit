@@ -1,3 +1,12 @@
+pstoedit (3.45-5) experimental; urgency=low
+
+  * [debian/control] Follow ImageMagick library renaming: libmagick++9-dev 
+    -> libmagick++-dev.
+  * [configure.ac] Removed use of "-pedantic". Regenerated auto* generated
+    files accordingly. 
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 15 Jun 2008 14:19:29 +0200
+
 pstoedit (3.45-4) unstable; urgency=low
 
   * [debian/control]

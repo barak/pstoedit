@@ -394,7 +394,7 @@ if test "$GXX" = yes; then
     AC_SUBST(LDLIBS)
   else
     AC_MSG_RESULT([GNU])
-    SPECIAL_CXXFLAGS="-DBUGGYGPP -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith "
+    SPECIAL_CXXFLAGS="-DBUGGYGPP -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith "
   fi
   CXXFLAGS="-g" 
 elif test `echo "$CXX" | egrep -c 'xlC$'` -eq 1; then
