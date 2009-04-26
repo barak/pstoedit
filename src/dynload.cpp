@@ -138,7 +138,7 @@ void DynLoader::close()
 		dlclose(handle);
 #elif defined(_WIN32)
 		(void) WINFREELIB((HINSTANCE) handle);
-#elif
+#else
 #error "system unsupported so far"
 #endif
 		handle = 0;

@@ -6,12 +6,12 @@ Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++-dev
  libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), ghostscript, pkg-config
 Homepage: http://www.pstoedit.net/
-Standards-Version: 3.8.0
+Standards-Version: 3.8.1
 
 Package: libpstoedit-dev
 Section: libdevel
 Architecture: any
-Depends: libpstoedit0c2a (= ${Source-Version}), libmagick++-dev, libplot-dev (>= 2.4.1-14)
+Depends: libpstoedit0c2a (= ${binary:Version}), libmagick++-dev, libplot-dev (>= 2.4.1-14)
 Description: PostScript to editable vector graphics library (development files)
  pstoedit is a framework for converting Postscript and PDF files to various 
  editable vector graphic formats.
