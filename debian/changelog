@@ -1,3 +1,15 @@
+pstoedit (3.45-7) unstable; urgency=high
+
+  * Patch courtesy of Thomas Viehmann <tv@beamnet.de>:
+    Disable unloading of plugins (comment out dlclose in dynload.cpp).
+    This did lead to segmentation faults, apparently because something
+    got deinitialized twice by plugins that were unloaded.
+    However, libpstoedit does not support any way of unloading them
+    except automatically calling the destructor at program termination,
+    so we might just get by without unloading the libraries. (Closes: #527329)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Thu, 14 May 2009 19:35:16 +0200
+
 pstoedit (3.45-6) unstable; urgency=medium
 
   * [debian/control]

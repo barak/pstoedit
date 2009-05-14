@@ -135,7 +135,8 @@ void DynLoader::close()
 {
 	if (handle) {
 #if defined(__linux) || defined(__linux__) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__hpux) || defined(__sparc) || defined(__OS2__) || defined(_AIX) || (defined (HAVE_DLFCN_H) && (HAVE_DLFCN_H==1 ) )
-		dlclose(handle);
+	        /* disabled because deinitializing plugins seem to cause segfaults at program termination */
+		/* dlclose(handle); */
 #elif defined(_WIN32)
 		(void) WINFREELIB((HINSTANCE) handle);
 #else
