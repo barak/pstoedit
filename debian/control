@@ -3,7 +3,7 @@ Section: graphics
 Priority: optional
 Maintainer: J.H.M. Dassen (Ray) <jdassen@debian.org>
 Build-Depends: debhelper (>> 3.0.0), dh-buildinfo, docbook-to-man,
- g++ (>= 4:4.0), libwmf-dev, libmagick++-dev
+ g++ (>= 4:4.0), libwmf-dev, libmagick++-dev,
  libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), ghostscript, pkg-config
 Homepage: http://www.pstoedit.net/
 Standards-Version: 3.8.1

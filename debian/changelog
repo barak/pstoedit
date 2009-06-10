@@ -1,3 +1,11 @@
+pstoedit (3.45-8) unstable; urgency=high
+
+  * [debian/control] Fixed typo that caused features to be disabled due to
+    build dependencies being missed. Thanks Antonio Ospite
+    <ospite@studenti.unina.it>. (Closes: #531406)
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 10 Jun 2009 20:38:31 +0200
+
 pstoedit (3.45-7) unstable; urgency=high
 
   * Patch courtesy of Thomas Viehmann <tv@beamnet.de>:
