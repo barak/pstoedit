@@ -1,3 +1,4 @@
 configure-no-pedantic.patch
 dynload-no-dlclose.patch
 errors-to-stderr.patch
+doc-remove-nonfree-options.patch

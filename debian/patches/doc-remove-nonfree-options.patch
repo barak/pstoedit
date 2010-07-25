@@ -1,0 +1,164 @@
+Description: Remove documentation of nonfree options
+ This patch removes the documentation of some nonfree options that confused
+ users (plot-svg vs. svg). NOTE: When using this patch, make sure to regenerate
+ the man page and HTML documentation from the tex file also, e.g. with
+ latex2man.
+Author: Roland Stigge <stigge@antcom.de>
+Bug-Debian: http://bugs.debian.org/554518
+
+--- pstoedit-3.50.orig/doc/pstoedit.tex
++++ pstoedit-3.50/doc/pstoedit.tex
+@@ -545,54 +545,6 @@ trace ???
+ 
+ \end{description}
+ %%// end of options 
+-\subsubsection{svg - scalable vector graphics}
+-\begin{description}
+-\item[\oOpt{-localdtd}] 
+-use local DTD
+-
+-
+-\item[\oOpt{-standalone}] 
+-create stand-alone type svg
+-
+-
+-\item[\oOpt{-withdtd}] 
+-write DTD
+-
+-
+-\item[\oOpt{-withgrouping}] 
+-write also ordinary save/restores as SVG group
+-
+-
+-\item[\oOpt{-nogroupedpath}] 
+-do not write a group around pathes
+-
+-
+-\item[\oOpt{-noviewbox}] 
+-don't write a view box
+-
+-
+-\item[\oOpt{-texmode}] 
+-TeX Mode
+-
+-
+-\item[\oOpt{-imagetofile}] 
+-write raster images to separate files instead of embedding them
+-
+-
+-\item[\oOpt{-notextrendering}] 
+-do not write textrendering attribute
+-
+-
+-\item[\oOptArg{-border}{~number}] 
+-additional border to draw around bare bounding box (in percent of width and height)
+-
+-
+-\item[\oOptArg{-title}{~string}] 
+-text to use as title for the generated document
+-
+-
+-\end{description}
+-%%// end of options 
+ \subsubsection{xaml - eXtensible Application Markup Language}
+ \begin{description}
+ \item[\oOpt{-localdtd}] 
+@@ -640,98 +592,6 @@ text to use as title for the generated d
+ 
+ 
+ \end{description}
+-%%// end of options 
+-\subsubsection{cgmb1 - CGM binary Format (V1)}
+-No driver specific options
+-%%// end of options 
+-\subsubsection{cgmb - CGM binary Format (V3)}
+-No driver specific options
+-%%// end of options 
+-\subsubsection{cgmt - CGM textual Format}
+-No driver specific options
+-%%// end of options 
+-\subsubsection{mif - (Frame)Maker Intermediate Format}
+-\begin{description}
+-\item[\oOpt{-nopage}] 
+-do not add a separate Page entry
+-
+-
+-\end{description}
+-%%// end of options 
+-\subsubsection{rtf - RTF Format}
+-No driver specific options
+-%%// end of options 
+-\subsubsection{wemf - Wogls version of EMF }
+-\begin{description}
+-\item[\oOpt{-df}] 
+-write info about font processing
+-
+-
+-\item[\oOpt{-dumpfontmap}] 
+-write info about font mapping
+-
+-
+-\item[\oOpt{-size:psbbox}] 
+-use the bounding box as calculated by the PostScript frontent as size
+-
+-
+-\item[\oOpt{-size:fullpage}] 
+-set the size to the size of a full page
+-
+-
+-\item[\oOpt{-size:automatic}] 
+-let windows calculate the bounding box (default)
+-
+-
+-\item[\oOpt{-keepimages}] 
+-debug option - keep the embedded bitmaps as external files 
+-
+-
+-\item[\oOpt{-useoldpolydraw}] 
+-do not use Windows PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
+-
+-
+-\item[\oOpt{-OO}] 
+-generate OpenOffice compatible EMF file
+-
+-
+-\end{description}
+-%%// end of options 
+-\subsubsection{wemfc - Wogls version of EMF with experimental clip support}
+-\begin{description}
+-\item[\oOpt{-df}] 
+-write info about font processing
+-
+-
+-\item[\oOpt{-dumpfontmap}] 
+-write info about font mapping
+-
+-
+-\item[\oOpt{-size:psbbox}] 
+-use the bounding box as calculated by the PostScript frontent as size
+-
+-
+-\item[\oOpt{-size:fullpage}] 
+-set the size to the size of a full page
+-
+-
+-\item[\oOpt{-size:automatic}] 
+-let windows calculate the bounding box (default)
+-
+-
+-\item[\oOpt{-keepimages}] 
+-debug option - keep the embedded bitmaps as external files 
+-
+-
+-\item[\oOpt{-useoldpolydraw}] 
+-do not use Windows PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
+-
+-
+-\item[\oOpt{-OO}] 
+-generate OpenOffice compatible EMF file
+-
+-
+-\end{description}
+ %%// end of options 
+ \subsubsection{wemfnss - Wogls version of EMF - no subpathes }
+ \begin{description}

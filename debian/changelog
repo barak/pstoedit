@@ -1,3 +1,11 @@
+pstoedit (3.50-3) unstable; urgency=low
+
+  * Remove documentation of "shareware" options (not available in the free
+    software version) and regenerate manpage and HTML dcumentation with
+    latex2man on build time (Closes: #554518)
+
+ -- Roland Stigge <stigge@antcom.de>  Mon, 26 Jul 2010 00:26:34 +0200
+
 pstoedit (3.50-2) unstable; urgency=low
 
   * Added watch file

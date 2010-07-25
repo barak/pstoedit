@@ -63,6 +63,8 @@ build: build-stamp
 build-stamp:  config.status
 	dh_testdir
 
+	cd doc && latex2man -M -t pstoedit.trans pstoedit.tex pstoedit.1
+	cd doc && latex2man -H -t pstoedit.trans pstoedit.tex pstoedit.htm
 	$(MAKE)
 
 	touch build-stamp
@@ -80,6 +82,7 @@ clean:
 	rm -f mkinstalldirs install-sh missing src/pstoedit_config.h.in
 	-find -type f -name 'Makefile.in' | xargs rm -f
 	-find -type f -name 'Makefile.in' | sed -e 's/\.in$$//' | xargs rm -f
+	rm -f doc/pstoedit.1 doc/pstoedit.htm
 
 	dh_clean
 
