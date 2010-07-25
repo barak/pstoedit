@@ -1,3 +1,9 @@
+pstoedit (3.50-2) unstable; urgency=low
+
+  * Added watch file
+
+ -- Roland Stigge <stigge@antcom.de>  Sun, 25 Jul 2010 17:26:12 +0200
+
 pstoedit (3.50-1) unstable; urgency=low
 
   * New upstream release (Closes: #559540)
