@@ -1,3 +1,18 @@
+pstoedit (3.50-1) unstable; urgency=low
+
+  * New upstream release (Closes: #559540)
+    - Includes -q option (Closes: #506308)
+    - Fixes std garbage output (Closes: #223472)
+    - Fixes unescaped gs call via shell (Closes: #582471)
+  * New maintainer (Closes: #585060)
+  * debian/control:
+    - Standards-Version: 3.9.0
+    - Build-Depends: autoconf, automake (now autoreconf at package build time)
+  * Moved to new package source format 3.0 (quilt)
+  * Added patch to redirect error messages to stderr (Closes: #551125)
+
+ -- Roland Stigge <stigge@antcom.de>  Sun, 25 Jul 2010 16:49:10 +0200
+
 pstoedit (3.45-8) unstable; urgency=high
 
   * [debian/control] Fixed typo that caused features to be disabled due to

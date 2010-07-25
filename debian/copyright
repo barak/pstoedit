@@ -1,3 +1,4 @@
+The Debian package is currently maintained by Roland Stigge <stigge@antcom.de>
 This package was re-debianized using debhelper by J.H.M. Dassen (Ray).
 Previous versions were maintained by joost witteveen, <joostje@debian.org>
 
@@ -6,7 +7,7 @@ pstoedit sources can be found at http://www.pstoedit.net/pstoedit .
 Copyright:
 
 PSTOEDIT 
-Copyright (C) 1993 - 2002 Wolfgang Glunz, wglunz@pstoedit.net
+Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz@pstoedit.net
 
 License: 
 --------
