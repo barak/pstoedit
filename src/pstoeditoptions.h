@@ -5,7 +5,7 @@
    pstoeditoptions.h : This file is part of pstoedit
    definition of program options 
 
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -153,6 +153,7 @@ public:
 	Option < double, DoubleValueExtractor > xshift;
 	Option < double, DoubleValueExtractor > yshift;
 	Option < bool, BoolTrueExtractor > centered ;
+	Option < double, DoubleValueExtractor > minlinewidth;
 
 
 	Option < bool, BoolTrueExtractor > splitpages ;//= false;
@@ -196,6 +197,7 @@ public:
 	// previous call with -f debug
 
 	Option < Argv, ArgvExtractor > psArgs;				// Pass through arguments to PostScript interpreter
+	Option < int, IntValueExtractor > psLanguageLevel; 
 	Option < RSString, RSStringValueExtractor> drivername ;//= 0; // cannot be const char * because it is changed in pstoedit.cpp
 	Option < RSString, RSStringValueExtractor > gsregbase;
 	
@@ -329,6 +331,10 @@ public:
 	centered		(true,"-centered","number",g_t,"center image before scaling or shifting",
 		UseDefaultDoku,
 		false),
+
+	minlinewidth		(true, "-minlinewidth","number",g_t,"minimal line width. All lines thinner than this will be drawn in this line width - especially zero-width lines", 
+		UseDefaultDoku,
+		0.0f),
 
 	splitpages			(true, "-split",noArgument,g_t,"split multipage documents into single pages" ,
 		"Create a new file for each page of the input. For this the "
@@ -522,17 +528,23 @@ public:
 		"300x300 dpi. (With older versions of GhostScript, changing the resolution "
 		"this way has an effect only if the \\Opt{-dis} option is given.) "
 		" "
-		" "
-		"You can switch Ghostscript into PostScript Level 1 only mode by  "
-		"\\Opt{-psarg \"level1.ps\"}. This can be useful for example if the PostScript file to be "
-		"converted uses some Level 2 specific custom color models that are not supported " 
-		"by pstoedit. However, this requires that the PostScript program checks for the "
-		"PostScript level supported by the interpreter and \"acts\" accordingly. "
-
 		"If you want to pass multiple options to Ghostscript you can use multiple  "
 		"-psarg options \\Opt{-psarg opt1} \\Opt{-psarg opt2} \\Opt{-psarg opt2}. "
 		"See the GhostScript manual for other possible options. "
 		),
+
+	psLanguageLevel		(true, "-pslanguagelevel","PostScript Language Level to be used 1,2, or 3", g_t, 
+		"PostScript Language Level to be used 1,2, or 3"
+		" "
+		"You can switch Ghostscript into PostScript Level 1 only mode by  "
+		"\\Opt{-pslanguagelevel 1}. This can be useful for example if the PostScript file to be "
+		"converted uses some Level 2 specific custom color models that are not supported " 
+		"by pstoedit. However, this requires that the PostScript program checks for the "
+		"PostScript level supported by the interpreter and \"acts\" accordingly. "
+		"The default language level is 3.",
+		UseDefaultDoku,
+		3),
+
 	drivername			(false,"-f","\"format[:options]\"",g_t,"target format identifier" , 
 		"target output format recognized by "
 		"\\Prog{pstoedit}.  Since other format drivers can be loaded dynamically, "
@@ -585,6 +597,7 @@ public:
 	ADD(xshift);
 	ADD(yshift);
 	ADD(centered);
+	ADD(minlinewidth);
 
 	ADD(splitpages);
 	ADD(verbose );
@@ -622,6 +635,7 @@ public:
 	ADD(dumphelp ); 
 	ADD(backendonly);	
 	ADD(psArgs);	
+	ADD(psLanguageLevel);
 
 	ADD(drivername);
 	ADD(gsregbase);

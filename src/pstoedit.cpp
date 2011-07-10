@@ -2,7 +2,7 @@
    pstoedit.cpp : This file is part of pstoedit
    main control procedure 
 
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -346,7 +346,12 @@ extern "C" DLLEXPORT
 	#ifdef _MSC_VER
 		#define XNUMTOSTRING(x) NUMTOSTRING(x)
 		#define NUMTOSTRING(x) #x
-		const char compversion [] = "MS VC++ " XNUMTOSTRING(_MSC_VER);
+		#ifdef _WIN64
+			#define COMPILEDFORWHICHARCH "64-bit"
+		#else
+			#define COMPILEDFORWHICHARCH "32-bit"
+		#endif
+		const char compversion [] = "MS VC++ " XNUMTOSTRING(_MSC_VER) " - " COMPILEDFORWHICHARCH;
 	#elif defined(__SUNPRO_CC)
 		#define XNUMTOSTRING(x) NUMTOSTRING(x)
 		#define NUMTOSTRING(x) #x
@@ -363,8 +368,8 @@ extern "C" DLLEXPORT
 
 	if (!options.quiet) {
 		errstream << "pstoedit: version " << version << " / DLL interface " <<
-		drvbaseVersion << " (build " << __DATE__ << " - " << buildtype << " - " << compversion << ")" 
-		" : Copyright (C) 1993 - 2009 Wolfgang Glunz\n";
+		drvbaseVersion << " (built: " << __DATE__ << " - " << buildtype << " - " << compversion << ")" 
+		" : Copyright (C) 1993 - 2010 Wolfgang Glunz\n";
 	}
 
 	//  handling of derived parameters
@@ -397,7 +402,7 @@ extern "C" DLLEXPORT
 	// setPstoeditDialogFunction(rundialog);
 	
 	if (options.showdialog) {
-		static initdone = false;
+		static bool initdone = false;
 		// the next code is needed for a full stand-alone pstoedit.exe.
 		if (!initdone) {
 			if ( !AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
@@ -863,6 +868,9 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 				if (options.nomaptoisolatin1) {
 					inFileStream << "/maptoisolatin1 false def" << endl;
 				}
+				if (options.psLanguageLevel != 3 ) {
+					inFileStream << "/.setlanguagelevel where { pop " << options.psLanguageLevel << " .setlanguagelevel } if" << endl;
+				}
 				if (options.usePlainStrings) {
 					inFileStream << "/pstoedit.ashexstring false def" << endl;
 				}
@@ -1221,12 +1229,12 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 									  currentDriverDesc, driveroptions, options.splitpages, outputdriver);
 						if (options.verbose)
 							errstream << "now reading BoundingBoxes from file " << bbfilename << endl;
-						/* outputdriver-> */ drvbase::totalNumberOfPages =
+						/* outputdriver-> */ drvbase::totalNumberOfPages() =
 						fe.readBBoxes( /* outputdriver-> */ drvbase::bboxes());
 						fclose(yyin);
 						if (options.verbose) {
-							errstream << " got " <<	drvbase::totalNumberOfPages << " page(s)" << endl;
-							for (unsigned int i = 0;  i < drvbase::totalNumberOfPages; i++) {
+							errstream << " got " <<	drvbase::totalNumberOfPages() << " page(s)" << endl;
+							for (unsigned int i = 0;  i < drvbase::totalNumberOfPages(); i++) {
 								errstream <<  drvbase::bboxes()[i].ll << " " <<  drvbase::bboxes()[i].ur << endl;
 							}
 						}

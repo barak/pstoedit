@@ -2,7 +2,7 @@
    dynload.h : This file is part of pstoedit
    declarations for dynamic loading of drivers
 
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -79,12 +79,15 @@ static char dlerror()
 #error "system unsupported so far"
 #endif
 
-DynLoader::DynLoader(const char *libname_P, int verbose_p):libname(libname_P), handle(0),
+DynLoader::DynLoader(const char *libname_P, int verbose_p):libname(0), handle(0),
 verbose(verbose_p)
 {
-	if (libname) {
+	if (libname_P) {
+		const unsigned int size = strlen(libname_P) + 1; 
+		libname = new char[size];
+		strcpy_s(libname, size, libname_P);
 		if (verbose)
-			cerr << "dlopening " << libname << endl;
+			cerr << "creating Dynloader for " << libname << endl;
 		open(libname);
 	}
 }
@@ -134,9 +137,30 @@ void DynLoader::open(const char *libname_P)
 void DynLoader::close()
 {
 	if (handle) {
+		if (libname && verbose)
+				cerr << "closing dynamic library " << libname << endl;
 #if defined(__linux) || defined(__linux__) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__hpux) || defined(__sparc) || defined(__OS2__) || defined(_AIX) || (defined (HAVE_DLFCN_H) && (HAVE_DLFCN_H==1 ) )
+
+
+#if defined(__linux) || defined(__linux__)
+		// normally we should call dlclose here. But there is a very strange problem in Linux
+		// whenever a plugin.so indirectly loads libpthread (e.g. libdrvmagick++ does it because libMagick++ does it
+		// the call to dlclose crashes with a seg fault 
+		// Also gdb cannot debug anymore if libpthread is not loaded already by main program.
+		// another workaround would be to link -lpthread also to pstoedit main program but that is also not nice
+		// so simpler solution is to avoid the dlclose under Linux
+		if (libname && verbose)
+				cerr << "not really closing dynamic library because of pthread problem under Linux - contact author for details or check dynload.cpp from pstoedit source code " << libname << endl;
+		// dlclose(handle);
+#else
+		if (libname && verbose)
+				cerr << "closing dynamic library " << libname << endl;
 		dlclose(handle);
+#endif
+
 #elif defined(_WIN32)
+		if (libname && verbose)
+				cerr << "closing dynamic library " << libname << endl;
 		(void) WINFREELIB((HINSTANCE) handle);
 #else
 #error "system unsupported so far"
@@ -148,6 +172,9 @@ void DynLoader::close()
 DynLoader::~DynLoader()
 {
 	close();
+	if (libname && verbose)
+		cerr << "destroying Dynloader for " << libname << endl;
+	delete[]libname;
 	libname=0;
 }
 
@@ -374,14 +401,11 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream, bool verbose)
 		} else {
 			BOOL more = true;
 			while (more) {
-#ifdef xx
-#define stricmp _stricmp
-#endif
 				// check for suffix beeing really .dll because FindFirstFile also matches
 				// files such as e.g. .dllx
 				const unsigned int len = strlen(finddata.cFileName);
 				// -4 means go back the length of ".dll"
-				if (stricmp(&finddata.cFileName[len - 4], ".dll") == 0) {
+				if (STRICMP(&finddata.cFileName[len - 4], ".dll") == 0) {
 					// cout << &finddata.cFileName[len -4 ] << endl;
 					const unsigned int size_2 = strlen(pluginDir) + len + 3; 
 					char *fullname = new char[size_2];
@@ -390,8 +414,8 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream, bool verbose)
 					strcat_s(fullname, size_2, finddata.cFileName);
 //              errstream << "szExePath " << szExePath << endl;
 
-					if ((stricmp(fullname, szExePath) != 0)
-						&& (stricmp(finddata.cFileName, "pstoedit.dll") != 0)) {
+					if ((STRICMP(fullname, szExePath) != 0)
+						&& (STRICMP(finddata.cFileName, "pstoedit.dll") != 0)) {
 						// avoid loading dll itself again
 						//                 errstream << "loading " << fullname << endl;
 						loadaPlugin(fullname, errstream, verbose);

@@ -2,7 +2,7 @@
    miscutil.cpp : This file is part of pstoedit
    misc utility functions
 
-   Copyright (C) 1998 - 2009  Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1998 - 2010  Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -187,9 +187,9 @@ RSString full_qualified_tempnam(const char *pref)
 #else 
 #if defined (__BCPLUSPLUS__) || defined (__TCPLUSPLUS__)
 /* borland has a prototype that expects a char * as second arg */
-	char *filename = tempnam(0, (char *) pref);
+	char *filename = TEMPNAM(0, (char *) pref);
 #else
-	char *filename = tempnam(0, pref);
+	char *filename = TEMPNAM(0, pref);
 #endif
 	// W95: Fkt. tempnam() erzeugt Filename+Pfad
 	// W3.1: es wird nur der Name zurueckgegeben
@@ -204,7 +204,7 @@ RSString full_qualified_tempnam(const char *pref)
 	convertBackSlashes(filename);
 	if ((strchr(filename, '\\') == 0) && (strchr(filename, '/') == 0)) {	// keine Pfadangaben..
 		char cwd[400];
-		(void) getcwd(cwd, 400);
+		(void) GETCWD(cwd, 400);
 		RSString result = cwd;
 		result += "/";
 		result += filename;
@@ -330,11 +330,11 @@ RSString getRegistryValue(ostream & errstream, const char *typekey, const char *
 
 	char pathbuffer[255];
 	// First look in HOME for .pstoedit.reg. If not found there, then look in PATH anywhere
-	unsigned int result = searchinpath(getenv("HOME"), ".pstoedit.reg", pathbuffer,
+	unsigned int searchresult = searchinpath(getenv("HOME"), ".pstoedit.reg", pathbuffer,
 									   sizeof(pathbuffer));
-	if (!result)
-		result = searchinpath(getenv("PATH"), ".pstoedit.reg", pathbuffer, sizeof(pathbuffer));
-	if (!result)
+	if (!searchresult)
+		searchresult = searchinpath(getenv("PATH"), ".pstoedit.reg", pathbuffer, sizeof(pathbuffer));
+	if (!searchresult)
 		return RSString((char*) 0);
 
 #if 0
@@ -422,7 +422,7 @@ ostream & operator << (ostream & out, const Argv & a)
 
 TempFile::TempFile()
 {
-	tempFileName = tempnam(0, "pstmp");
+	tempFileName = TEMPNAM(0, "pstmp");
 	// cout << "constructed " << tempFileName << endl; 
 }
 

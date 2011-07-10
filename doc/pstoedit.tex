@@ -15,8 +15,8 @@
 }}
 
 \setVersionWord{Version}  %%% that's the default, no need to set it.
-\setVersion{3.50}
-\setDate{August 2009}    
+\setVersion{3.51}
+\setDate{January 2011}    
 
 \setlength{\emergencystretch}{1.5em}
 
@@ -62,6 +62,7 @@
 \oOptArg{-xshift}{~number} 
 \oOptArg{-yshift}{~number} 
 \oOpt{-centered} 
+\oOptArg{-minlinewidth}{~number} 
 \oOpt{-split} 
 \oOpt{-v} 
 \oOpt{-usebbfrominput} 
@@ -88,6 +89,7 @@
 \oOptArg{-gs}{~path to the ghostscript executable/DLL } 
 \oOpt{-bo} 
 \oOptArg{-psarg}{~argument string} 
+\oOptArg{-pslanguagelevel}{~PostScript Language Level to be used 1,2, or 3} 
 \OptArg{-f}{~"format\Lbr:options\Rbr"} 
 \oOptArg{-gsregbase}{~GhostScript base registry path} 
 [ inputfile [outputfile] ] 
@@ -184,6 +186,10 @@ shift image in y-direction
 center image before scaling or shifting
 
 
+\item[\oOptArg{-minlinewidth}{~number}] 
+minimal line width. All lines thinner than this will be drawn in this line width - especially zero-width lines
+
+
 \item[\oOpt{-split}] 
 Create a new file for each page of the input. For this the output filename must contain a \%d which is replaced with the current page number. This option is automatically switched on for output formats that don't support multiple pages within one file, e.g. fig or gnuplot. 
 
@@ -230,7 +236,11 @@ You can run backend processing only (without the PostScript interpreter frontend
 
 
 \item[\oOptArg{-psarg}{~argument string}] 
-The string given with this option is passed directly to Ghostscript when Ghostscript is called to process the PostScript file for \Prog{pstoedit}. For example:      \textbf{-psarg}\textbf{~"}\textbf{-r300x300}\textbf{"}. This causes the resolution to be changed to 300x300 dpi. (With older versions of GhostScript, changing the resolution this way has an effect only if the \Opt{-dis} option is given.)   You can switch Ghostscript into PostScript Level 1 only mode by  \Opt{-psarg "level1.ps"}. This can be useful for example if the PostScript file to be converted uses some Level 2 specific custom color models that are not supported by pstoedit. However, this requires that the PostScript program checks for the PostScript level supported by the interpreter and "acts" accordingly. If you want to pass multiple options to Ghostscript you can use multiple  -psarg options \Opt{-psarg opt1} \Opt{-psarg opt2} \Opt{-psarg opt2}. See the GhostScript manual for other possible options. 
+The string given with this option is passed directly to Ghostscript when Ghostscript is called to process the PostScript file for \Prog{pstoedit}. For example:      \textbf{-psarg}\textbf{~"}\textbf{-r300x300}\textbf{"}. This causes the resolution to be changed to 300x300 dpi. (With older versions of GhostScript, changing the resolution this way has an effect only if the \Opt{-dis} option is given.)  If you want to pass multiple options to Ghostscript you can use multiple  -psarg options \Opt{-psarg opt1} \Opt{-psarg opt2} \Opt{-psarg opt2}. See the GhostScript manual for other possible options. 
+
+
+\item[\oOptArg{-pslanguagelevel}{~PostScript Language Level to be used 1,2, or 3}] 
+PostScript Language Level to be used 1,2, or 3 You can switch Ghostscript into PostScript Level 1 only mode by  \Opt{-pslanguagelevel 1}. This can be useful for example if the PostScript file to be converted uses some Level 2 specific custom color models that are not supported by pstoedit. However, this requires that the PostScript program checks for the PostScript level supported by the interpreter and "acts" accordingly. The default language level is 3.
 
 
 \item[\OptArg{-f}{~"format\Lbr:options\Rbr"}] 
@@ -828,6 +838,29 @@ enable debug output
 \subsubsection{asy - Asymptote Format}
 No driver specific options
 %%// end of options 
+\subsubsection{cairo - cairo driver}
+generates compilable c code for rendering with cairo
+
+\begin{description}
+\item[\oOpt{-pango}] 
+use pango for font rendering
+
+
+\item[\oOptArg{-funcname}{~string}] 
+sets the base name for the generated functions and variables.  e.g. myfig
+
+
+\item[\oOptArg{-header}{~string}] 
+sets the output file name for the generated C header file.  e.g. myfig.h
+
+
+\end{description}
+%%// end of options 
+\subsubsection{cfdg - Context Free Design Grammar}
+Context Free Design Grammar, usable by Context Free Art (http://www.contextfreeart.org/)
+
+No driver specific options
+%%// end of options 
 \subsubsection{dxf - CAD exchange format}
 \begin{description}
 \item[\oOpt{-polyaslines}] 
@@ -996,6 +1029,33 @@ Set the page depth in inches (default 11)
 
 
 \end{description}
+%%// end of options 
+\subsubsection{tfig - .fig format for xfig}
+Test only
+
+\begin{description}
+\item[\oOptArg{-startdepth}{~number}] 
+Set the initial depth (default 999)
+
+
+\item[\oOpt{-metric}] 
+Switch to centimeter display (default inches)
+
+
+\item[\oOpt{-usecorrectfontsize}] 
+don't scale fonts for xfig. Use this if you also use this option with xfig
+
+
+\item[\oOptArg{-depth}{~number}] 
+Set the page depth in inches (default 11)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{gcode - emc2 gcode format}
+See also:  \URL{http://linuxcnc.org/} 
+
+No driver specific options
 %%// end of options 
 \subsubsection{gnuplot - gnuplot format}
 No driver specific options
@@ -1183,6 +1243,16 @@ tagnames
 
 \end{description}
 %%// end of options 
+\subsubsection{vtk - VTK driver: if you don't want to see this, uncomment the corresponding line in makefile and make again}
+this is a long description for the VTKe driver
+
+\begin{description}
+\item[\oOptArg{-VTKeoption}{~integer}] 
+just an example
+
+
+\end{description}
+%%// end of options 
 \subsubsection{wmf - Windows metafile}
 \begin{description}
 \item[\oOpt{-m}] 
@@ -1286,6 +1356,15 @@ generate OpenOffice compatible EMF file
     For more on MetaPost see: 
     
     \URL{http://cm.bell-labs.com/who/hobby/MetaPost.html}
+
+  \subsection{Context Free - CFDG} 
+	The driver for the CFDG format (drvcfdg) defines
+	one shape per page of PostScript, but only the first shape is actually
+	rendered (unless the user edits the generated CFDG code, of course).
+	CFDG doesn't support multi-page output, so this probably a reasonable thing to do.
+ 
+	For more on Context Free see:
+	\URL{http://www.contextfreeart.org/}
 
   \subsection{LaTeX2e} 
 

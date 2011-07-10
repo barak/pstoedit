@@ -1,4 +1,4 @@
-configure-no-pedantic.patch
-dynload-no-dlclose.patch
-errors-to-stderr.patch
-doc-remove-nonfree-options.patch
+01-configure-no-pedantic.patch
+02-errors-to-stderr.patch
+03-doc-remove-nonfree-options.patch
+04-disable-ACLOCAL_AMFLAGS.patch
