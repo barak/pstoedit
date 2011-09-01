@@ -5,7 +5,7 @@ Maintainer: Roland Stigge <stigge@antcom.de>
 Build-Depends: debhelper (>= 7.0.50~), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++-dev,
  libplot-dev (>= 2.4.1-14), libpng12-dev (>= 1.2.5.0-4), ghostscript,
- pkg-config, autoconf, automake, libtool, texlive-extra-utils
+ pkg-config, texlive-extra-utils, autotools-dev
 Homepage: http://www.pstoedit.net/
 Standards-Version: 3.9.2
 

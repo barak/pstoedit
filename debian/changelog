@@ -1,3 +1,11 @@
+pstoedit (3.60-1) unstable; urgency=low
+
+  * New upstream release
+  * Removed 04-disable-ACLOCAL_AMFLAGS.patch - not necessary anymore
+  * Updated 02-errors-to-stderr.patch - adjustments to upstream source
+
+ -- Roland Stigge <stigge@antcom.de>  Thu, 01 Sep 2011 22:18:59 +0200
+
 pstoedit (3.51~pre1-1) unstable; urgency=low
 
   * New upstream (pre-)release

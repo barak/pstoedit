@@ -4,10 +4,9 @@
 #export DH_VERBOSE=1
 
 %:
-	dh $@
+	dh $@ --with autotools_dev
 
 override_dh_auto_configure:
-	autoreconf -if
 	CXX="c++ -Wl,--as-needed -Wl,-O1" dh_auto_configure
 
 override_dh_auto_build:
@@ -19,11 +18,6 @@ override_dh_auto_clean:
 	dh_auto_clean
 	rm -f debian/buildinfo
 	rm -rf autom4te.cache
-	rm -f aclocal.m4 ltmain.sh configure config.guess config.sub depcomp
-	rm -f mkinstalldirs install-sh missing src/pstoedit_config.h.in
-	-find -type f -name 'Makefile.in' | xargs rm -f
-	-find -type f -name 'Makefile.in' | sed -e 's/\.in$$//' | xargs rm -f
-	rm -rf m4
 	rm -f doc/pstoedit.1 doc/pstoedit.htm
 
 override_dh_auto_install:

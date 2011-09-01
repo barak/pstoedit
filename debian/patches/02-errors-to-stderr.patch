@@ -3,9 +3,9 @@ Description: Redirect error messages to stderr
 Author: Roland Stigge <stigge@antcom.de>
 Bug-Debian: http://bugs.debian.org/551125
 
---- pstoedit-3.50.orig/src/pstoedit.cpp
-+++ pstoedit-3.50/src/pstoedit.cpp
-@@ -387,7 +387,7 @@ extern "C" DLLEXPORT
+--- pstoedit-3.60.orig/src/pstoedit.cpp
++++ pstoedit-3.60/src/pstoedit.cpp
+@@ -401,7 +401,7 @@ extern "C" DLLEXPORT
  		break;
  			}
  	default:{
@@ -14,7 +14,7 @@ Bug-Debian: http://bugs.debian.org/551125
  		shortusage(diag);
  		return 1;
  			}
-@@ -465,7 +465,7 @@ extern "C" DLLEXPORT
+@@ -482,7 +482,7 @@ extern "C" DLLEXPORT
  		usage(diag,false,false);
  		const char *gstocall = whichPI(diag, options.verbose, options.gsregbase.value.value(),options.GSToUse.value.value());
  		if (gstocall != 0) {
@@ -23,7 +23,7 @@ Bug-Debian: http://bugs.debian.org/551125
  		}
  		getglobalRp()->explainformats(diag);
  		return 1;
-@@ -543,13 +543,13 @@ To get the pre 8.00 behaviour, either us
+@@ -560,13 +560,13 @@ To get the pre 8.00 behaviour, either us
  		// try to find driver according to suffix of input file
  		const char * suffixOfInputFile = 0;
  		if (!options.nameOfOutputFile) {
@@ -39,7 +39,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				shortusage(diag);
  				return 1;
  			} else {
-@@ -558,7 +558,7 @@ To get the pre 8.00 behaviour, either us
+@@ -575,7 +575,7 @@ To get the pre 8.00 behaviour, either us
  					errstream << "No explicit output format specified - using " << suffixDriverDesc->symbolicname << " as derived from suffix of output file" << endl;
  					options.drivername = suffixDriverDesc->symbolicname;
  				} else {
@@ -48,7 +48,7 @@ Bug-Debian: http://bugs.debian.org/551125
  					// usage(errstream);
  					getglobalRp()->explainformats(diag); // ,true);
  					return 1;
-@@ -577,13 +577,13 @@ To get the pre 8.00 behaviour, either us
+@@ -594,13 +594,13 @@ To get the pre 8.00 behaviour, either us
  		}
  		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.value());
  		if (currentDriverDesc == 0) {
@@ -64,7 +64,7 @@ Bug-Debian: http://bugs.debian.org/551125
  			return 1;
  		}
  
-@@ -591,7 +591,7 @@ To get the pre 8.00 behaviour, either us
+@@ -608,7 +608,7 @@ To get the pre 8.00 behaviour, either us
  		if (driveroptions && (strcmp(driveroptions, "-help") == 0)) {
  			ProgramOptions* dummy = currentDriverDesc->createDriverOptions();
  			if (dummy->numberOfOptions() ) {
@@ -73,7 +73,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				dummy->showhelp(diag,false,false);
  			}
  			delete dummy;
-@@ -601,7 +601,7 @@ To get the pre 8.00 behaviour, either us
+@@ -618,7 +618,7 @@ To get the pre 8.00 behaviour, either us
  // TODO:
  			// Check for input file (exists, or stdin) stdout handling
  			if (!options.nameOfInputFile) {
@@ -82,7 +82,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				return 1;
  			}
  			// an input file was given as argument
-@@ -612,23 +612,23 @@ To get the pre 8.00 behaviour, either us
+@@ -629,23 +629,23 @@ To get the pre 8.00 behaviour, either us
  			convertBackSlashes(options.nameOfInputFile);
  
  			if (!fileExists(options.nameOfInputFile)) {

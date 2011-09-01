@@ -2,7 +2,7 @@
    pstoedit.cpp : This file is part of pstoedit
    main control procedure 
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,7 +42,9 @@
 
 #include "drvbase.h"
 
+#ifndef UPPVERSION
 #include "dynload.h"
+#endif
 
 #define strequal(s1,s2) (strcmp(s1,s2) == 0)
 
@@ -72,7 +74,7 @@ extern const char *defaultPIoptions(ostream & errstream, int verbose);	// in cal
 
 static void writeFileName(ostream & outstream, const char *const filename)
 {
-	const unsigned int len = strlen(filename);
+	const size_t len = strlen(filename);
 	for (unsigned int i = 0; i < len; i++) {
 		if (filename[i] == '\\') {
 			outstream << '/';	// '/' works on DOS also
@@ -118,7 +120,7 @@ static int grep(const char *const matchstring, const char *const filename, ostre
 			// gcount returns int on MSVC 
 			// make a temp variable to avoid a compiler warning on MSVC
 			// (signed/unsigned comparison)
-			const unsigned int inFile_gcountresult = inFile.gcount();
+			const std::streamsize inFile_gcountresult = inFile.gcount();
 #ifdef HAVESTL
 			// Notes regarding ANSI C++ version (from KB)
 			// istream::get( char* pch, int nCount, char delim ) is different in three ways: 
@@ -243,6 +245,7 @@ void checkheap(const char * tracep, const void * pUserData) {};
 #endif
 #endif
 
+#ifndef UPPVERSION
 static void loadpstoeditplugins(const char *progname, ostream & errstream, bool verbose)
 {
 	static bool pluginsloaded = false;
@@ -274,7 +277,7 @@ static void loadpstoeditplugins(const char *progname, ostream & errstream, bool 
 
 	// delete[]plugindir;
 }
-
+#endif
 
 extern FILE *yyin;				// used by lexer 
 						// This has to be declared here because of the extern "C"
@@ -337,11 +340,17 @@ extern "C" DLLEXPORT
 	const char buildtype [] = "release build";
 #endif
 #ifdef __VERSION__
-	#ifdef __GNUG__
-		const char compversion [] = "g++ " __VERSION__;
+	#if defined(_LP64) && (_LP64)
+		#define COMPILEDFORWHICHARCH "64-bit"
 	#else
-		const char compversion [] = "unknown compiler " __VERSION__;
+		#define COMPILEDFORWHICHARCH "32-bit"
+	#endif
+        #ifdef __GNUG__
+                const char compversion [] = "g++ " __VERSION__ " - " COMPILEDFORWHICHARCH;
+        #else
+                const char compversion [] = "unknown compiler " __VERSION__ " - " COMPILEDFORWHICHARCH;
         #endif
+
 #else
 	#ifdef _MSC_VER
 		#define XNUMTOSTRING(x) NUMTOSTRING(x)
@@ -369,7 +378,7 @@ extern "C" DLLEXPORT
 	if (!options.quiet) {
 		errstream << "pstoedit: version " << version << " / DLL interface " <<
 		drvbaseVersion << " (built: " << __DATE__ << " - " << buildtype << " - " << compversion << ")" 
-		" : Copyright (C) 1993 - 2010 Wolfgang Glunz\n";
+		" : Copyright (C) 1993 - 2011 Wolfgang Glunz\n";
 	}
 
 	//  handling of derived parameters
@@ -443,9 +452,12 @@ extern "C" DLLEXPORT
 		options.nameOfOutputFile = 0;
 	}
 
+#ifndef UPPVERSION
+// not needed for importps
 	if (!options.dontloadplugins) {
 		loadpstoeditplugins(argv[0], errstream, options.verbose);	// load the driver plugins
 	}
+#endif
 
 	if ((pushinsPtr != 0) && (pushinsPtr != getglobalRp())) {
 		getglobalRp()->mergeRegister(errstream, *pushinsPtr, "push-ins");
@@ -864,9 +876,9 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 				RSString gsin = full_qualified_tempnam("psin");
 				const char *successstring;	// string that indicated success of .pro
 				ofstream inFileStream(gsin.value());
-				inFileStream << "/pagetoextract " << options.pagetoextract << " def" << endl;
+				inFileStream << "/pstoedit.pagetoextract " << options.pagetoextract << " def" << endl;
 				if (options.nomaptoisolatin1) {
-					inFileStream << "/maptoisolatin1 false def" << endl;
+					inFileStream << "/pstoedit.maptoisolatin1 false def" << endl;
 				}
 				if (options.psLanguageLevel != 3 ) {
 					inFileStream << "/.setlanguagelevel where { pop " << options.psLanguageLevel << " .setlanguagelevel } if" << endl;
@@ -1346,7 +1358,10 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
 		errorMessage("wrong version of pstoedit");
 		return 0;
 	}
+#ifndef UPPVERSION
+// not needed for importps
 	loadpstoeditplugins("pstoedit", cerr, false );
+#endif
 
 	const int dCount = getglobalRp()->nrOfDescriptions();
 	/* use malloc to be compatible with C */
@@ -1362,7 +1377,7 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
 			curR->symbolicname =  currentDD->symbolicname;
 			curR->explanation =  currentDD->short_explanation;
 			curR->suffix =  currentDD->suffix;
-			curR->additionalInfo =  currentDD->additionalInfo;
+			curR->additionalInfo =  currentDD->additionalInfo();
 			curR->backendSupportsSubPathes = (int) currentDD->backendSupportsSubPathes;
 			curR->backendSupportsCurveto = (int) currentDD->backendSupportsCurveto;
 			curR->backendSupportsMerging = (int) currentDD->backendSupportsMerging;

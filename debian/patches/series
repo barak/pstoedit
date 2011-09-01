@@ -1,4 +1,3 @@
 01-configure-no-pedantic.patch
 02-errors-to-stderr.patch
 03-doc-remove-nonfree-options.patch
-04-disable-ACLOCAL_AMFLAGS.patch

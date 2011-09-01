@@ -1,5 +1,5 @@
 '\" t
-.\" Manual page created with latex2man on Wed Jan  5 17:18:13 WEST 2011
+.\" Manual page created with latex2man on Sat Aug 27 20:45:56     2011
 .\" NOTE: This file is generated, DO NOT EDIT.
 .de Vb
 .ft CW
@@ -10,7 +10,7 @@
 
 .fi
 ..
-.TH "PSTOEDIT" "1" "January 2011" "Conversion Tools " "Conversion Tools "
+.TH "PSTOEDIT" "1" "August 2011" "Conversion Tools " "Conversion Tools "
 .SH NAME
 
 pstoedit
@@ -27,7 +27,6 @@ pstoedit
 .br 
 .PP
 pstoedit
-.PP
 [\fB\-include\fP\fI name of a PostScript file to be included\fP]
 [\fB\-df\fP\fI font name\fP]
 [\fB\-nomaptoisolatin1\fP]
@@ -101,7 +100,7 @@ details.
 .PP
 .SS RELEASE LEVEL
 .PP
-This manpage documents release 3.51 of pstoedit\&.
+This manpage documents release 3.60 of pstoedit\&.
 .PP
 .SS USE
 .PP
@@ -775,16 +774,57 @@ No driver specific options
 .PP
 .SS hpgl \- HPGL code
 .TP
-[\fB\-pen\fP]
- plotter is pen plotter 
+[\fB\-penplotter\fP]
+ plotter is pen plotter (i.e. no support for specific line widths) 
+.PP
+.TP
+[\fB\-pencolorsfromfile\fP]
+ read pen colors from file drvhpgl.pencolors in pstoedit data directory 
 .PP
 .TP
 [\fB\-pencolors\fP\fI number\fP]
- number of pen colors available 
+ maximum number of pen colors to be used by pstoedit (default 0) \- 
 .PP
 .TP
 [\fB\-filltype\fP\fI string\fP]
  select fill type e.g. FT 1 
+.PP
+.TP
+[\fB\-hpgl2\fP]
+ Use HPGL/2 instead of HPGL/1 
+.PP
+.TP
+[\fB\-rot90\fP]
+ rotate hpgl by 90 degrees 
+.PP
+.TP
+[\fB\-rot180\fP]
+ rotate hpgl by 180 degrees 
+.PP
+.TP
+[\fB\-rot270\fP]
+ rotate hpgl by 270 degrees 
+.PP
+.SS pcl \- PCL code
+.TP
+[\fB\-penplotter\fP]
+ plotter is pen plotter (i.e. no support for specific line widths) 
+.PP
+.TP
+[\fB\-pencolorsfromfile\fP]
+ read pen colors from file drvhpgl.pencolors in pstoedit data directory 
+.PP
+.TP
+[\fB\-pencolors\fP\fI number\fP]
+ maximum number of pen colors to be used by pstoedit (default 0) \- 
+.PP
+.TP
+[\fB\-filltype\fP\fI string\fP]
+ select fill type e.g. FT 1 
+.PP
+.TP
+[\fB\-hpgl2\fP]
+ Use HPGL/2 instead of HPGL/1 
 .PP
 .TP
 [\fB\-rot90\fP]
@@ -1107,6 +1147,10 @@ and \fBhttp://www.penguin.cz/~utx/pstoedit\-pcb/\fP
 .TP
 [\fB\-stdnames\fP]
  use standard layer names instead of descriptive names 
+.PP
+.TP
+[\fB\-forcepoly\fP]
+ force all objects to be interpreted as polygons 
 .PP
 .SS pcbfill \- pcb format with fills
 See also: \fBhttp://pcb.sourceforge.net\fP
@@ -1476,7 +1520,8 @@ Try to use PostScript fonts instead of the bitmap fonts when generating a PostSc
 .SH AUTHOR
 
 .PP
-Wolfgang Glunz, \fBwglunz35_AT_pstoedit.net\fP
+Wolfgang Glunz, \fBwglunz35_AT_pstoedit.net\fP,
+\fBhttp://de.linkedin.com/in/wolfgangglunz\fP
 .PP
 .SH CANONICAL ARCHIVE SITE
 
@@ -1487,6 +1532,8 @@ At this site you also find more information about pstoedit
 and related 
 programs and hints how to subscribe to a mailing list in order to get informed 
 about new releases and bug\-fixes. 
+.PP
+If you like pstoedit \- please express so also at Facebook \fBhttp://www.facebook.com/pages/pstoedit/260606183958062\fP\&.
 .PP
 .SH ACKNOWLEDGEMENTS
 

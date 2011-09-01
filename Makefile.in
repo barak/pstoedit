@@ -133,6 +133,7 @@ LTLIBOBJS = @LTLIBOBJS@
 MAGICK_CONFIG = @MAGICK_CONFIG@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 MKSTEMP_CFLAGS = @MKSTEMP_CFLAGS@
 NM = @NM@
@@ -165,6 +166,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
@@ -211,14 +213,13 @@ srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-to_host_path_cmd = @to_host_path_cmd@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = copying autogen.sh readme.install
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = config doc examples contrib misc os2 othersrc src msdev 
+SUBDIRS = config doc examples contrib misc os2 othersrc src msdev m4
 all: all-recursive
 
 .SUFFIXES:
