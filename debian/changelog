@@ -1,3 +1,9 @@
+pstoedit (3.61-1) experimental; urgency=low
+
+  * New upstream release (Closes: #685976)
+
+ -- Roland Stigge <stigge@antcom.de>  Tue, 25 Sep 2012 14:24:51 +0200
+
 pstoedit (3.60-2) unstable; urgency=low
 
   * debian/control:
