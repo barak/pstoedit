@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+include /usr/share/dpkg/architecture.mk
+
 %:
 	dh $@ --with autotools_dev
 
@@ -24,11 +26,11 @@ override_dh_auto_install:
 	dh_auto_install
 	
 	@for plugin in libp2edrvstd libp2edrvmagick++ libp2edrvlplot ; do \
-		if ! test -r $(CURDIR)/debian/tmp/usr/lib/pstoedit/$$plugin.la ; then \
+		if ! test -r $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/$$plugin.la ; then \
 			echo "" ; \
 			echo "pstoedit plugins \"$$plugin\" didn't get installed properly" ; \
 			echo "Please investigate" ; \
 			exit 1; \
 		fi ; \
-		sed -i "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/pstoedit/$$plugin.la ; \
+		sed -i "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/$$plugin.la ; \
 	done

@@ -6,9 +6,9 @@ Description: Remove documentation of nonfree options
 Author: Roland Stigge <stigge@antcom.de>
 Bug-Debian: http://bugs.debian.org/554518
 
---- pstoedit-3.50.orig/doc/pstoedit.tex
-+++ pstoedit-3.50/doc/pstoedit.tex
-@@ -545,54 +545,6 @@ trace ???
+--- pstoedit-3.62.orig/doc/pstoedit.tex
++++ pstoedit-3.62/doc/pstoedit.tex
+@@ -576,54 +576,6 @@ trace ???
  
  \end{description}
  %%// end of options 
@@ -63,7 +63,7 @@ Bug-Debian: http://bugs.debian.org/554518
  \subsubsection{xaml - eXtensible Application Markup Language}
  \begin{description}
  \item[\oOpt{-localdtd}] 
-@@ -640,98 +592,6 @@ text to use as title for the generated d
+@@ -671,98 +623,6 @@ text to use as title for the generated d
  
  
  \end{description}

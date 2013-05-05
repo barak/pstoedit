@@ -1,5 +1,5 @@
 usr/include/pstoedit/*
-usr/lib/pkgconfig/pstoedit.pc
-usr/lib/lib*.so
-usr/lib/pstoedit/*.la
+usr/lib/*/pkgconfig/pstoedit.pc
+usr/lib/*/lib*.so
+usr/lib/*/pstoedit/*.la
 usr/share/aclocal/*.m4

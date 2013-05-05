@@ -3,8 +3,8 @@ Description: Redirect error messages to stderr
 Author: Roland Stigge <stigge@antcom.de>
 Bug-Debian: http://bugs.debian.org/551125
 
---- pstoedit-3.60.orig/src/pstoedit.cpp
-+++ pstoedit-3.60/src/pstoedit.cpp
+--- pstoedit-3.62.orig/src/pstoedit.cpp
++++ pstoedit-3.62/src/pstoedit.cpp
 @@ -401,7 +401,7 @@ extern "C" DLLEXPORT
  		break;
  			}
@@ -23,23 +23,23 @@ Bug-Debian: http://bugs.debian.org/551125
  		}
  		getglobalRp()->explainformats(diag);
  		return 1;
-@@ -560,13 +560,13 @@ To get the pre 8.00 behaviour, either us
+@@ -559,13 +559,13 @@ To get the pre 8.00 behaviour, either us
+ 	if (options.drivername.value.value() == 0) {
  		// try to find driver according to suffix of input file
- 		const char * suffixOfInputFile = 0;
  		if (!options.nameOfOutputFile) {
 -			diag << "No output format specified (-f option) and format could not be deduced from suffix of output file since no output file name was given" << endl;
 +			errstream << "No output format specified (-f option) and format could not be deduced from suffix of output file since no output file name was given" << endl;
  			shortusage(diag);
  			return 1;
  		} else {
- 			suffixOfInputFile = strrchr(options.nameOfOutputFile,'.');
+ 			const char * suffixOfInputFile = strrchr(options.nameOfOutputFile,'.');
  			if (!suffixOfInputFile) {
 -				diag << "No output format specified (-f option) and format could not be deduced from suffix of output file since no suffix was found" << endl;
 +				errstream << "No output format specified (-f option) and format could not be deduced from suffix of output file since no suffix was found" << endl;
  				shortusage(diag);
  				return 1;
  			} else {
-@@ -575,7 +575,7 @@ To get the pre 8.00 behaviour, either us
+@@ -574,7 +574,7 @@ To get the pre 8.00 behaviour, either us
  					errstream << "No explicit output format specified - using " << suffixDriverDesc->symbolicname << " as derived from suffix of output file" << endl;
  					options.drivername = suffixDriverDesc->symbolicname;
  				} else {
@@ -48,7 +48,7 @@ Bug-Debian: http://bugs.debian.org/551125
  					// usage(errstream);
  					getglobalRp()->explainformats(diag); // ,true);
  					return 1;
-@@ -594,13 +594,13 @@ To get the pre 8.00 behaviour, either us
+@@ -593,13 +593,13 @@ To get the pre 8.00 behaviour, either us
  		}
  		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.value());
  		if (currentDriverDesc == 0) {
@@ -64,8 +64,8 @@ Bug-Debian: http://bugs.debian.org/551125
  			return 1;
  		}
  
-@@ -608,7 +608,7 @@ To get the pre 8.00 behaviour, either us
- 		if (driveroptions && (strcmp(driveroptions, "-help") == 0)) {
+@@ -607,7 +607,7 @@ To get the pre 8.00 behaviour, either us
+ 		if (driveroptions && strequal(driveroptions, "-help") ) {
  			ProgramOptions* dummy = currentDriverDesc->createDriverOptions();
  			if (dummy->numberOfOptions() ) {
 -				diag << "The driver for this output format supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
@@ -73,7 +73,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				dummy->showhelp(diag,false,false);
  			}
  			delete dummy;
-@@ -618,7 +618,7 @@ To get the pre 8.00 behaviour, either us
+@@ -617,7 +617,7 @@ To get the pre 8.00 behaviour, either us
  // TODO:
  			// Check for input file (exists, or stdin) stdout handling
  			if (!options.nameOfInputFile) {
@@ -82,7 +82,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				return 1;
  			}
  			// an input file was given as argument
-@@ -629,23 +629,23 @@ To get the pre 8.00 behaviour, either us
+@@ -628,23 +628,23 @@ To get the pre 8.00 behaviour, either us
  			convertBackSlashes(options.nameOfInputFile);
  
  			if (!fileExists(options.nameOfInputFile)) {

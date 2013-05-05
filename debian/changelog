@@ -1,3 +1,15 @@
+pstoedit (3.62-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/control:
+    - Standards-Version: 3.9.4
+    - Build-Depends: debhelper (>= 9), dpkg-dev (>= 1.16.1~)
+      (for architecture.mk include)
+    - libpstoedit0c2a: Pre-Depend: multiarch-support
+  * debian/compat: 9
+
+ -- Roland Stigge <stigge@antcom.de>  Sun, 05 May 2013 14:28:01 +0200
+
 pstoedit (3.61-1) experimental; urgency=low
 
   * New upstream release (Closes: #685976)
