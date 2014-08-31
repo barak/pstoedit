@@ -1,3 +1,15 @@
+pstoedit (3.62-2) unstable; urgency=medium
+
+  * Fix build on new architectures by using dh-autoreconf, thanks to
+    Breno Leitao (Closes: #748131)
+  * Fix loading of plugins on Hurd, thanks to Pino Toscano
+    (Closes: #753987)
+  * Removed google and facebook references from index.htm due to privacy and
+    copyright concerns
+  * debian/control: Standards-Version: 3.9.5
+
+ -- Roland Stigge <stigge@antcom.de>  Sun, 31 Aug 2014 12:52:22 +0200
+
 pstoedit (3.62-1) unstable; urgency=low
 
   * New upstream release

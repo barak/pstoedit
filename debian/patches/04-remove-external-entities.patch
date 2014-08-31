@@ -1,0 +1,105 @@
+Description: Fix external references in doc/index.htm
+ This patch removes external references from the index.htm doc file
+ that are unfit for Debian: Google, facebook, paypal. We can't ship
+ with those references toe to privacy and copyright concerns.
+Author: Roland Stigge <stigge@antcom.de>
+
+--- pstoedit-3.62.orig/doc/index.htm
++++ pstoedit-3.62/doc/index.htm
+@@ -3,57 +3,9 @@
+ 
+ <head>
+ <title>pstoedit</title>
+-<style type="text/css">
+-@import url(http://www.google.com/cse/api/branding.css);
+-</style>
+ </head>
+ <body>
+ 
+-<div id="cse-search-results"></div>
+-<script type="text/javascript">
+-  var googleSearchIframeName = "cse-search-results";
+-  var googleSearchFormName = "cse-search-box";
+-  var googleSearchFrameWidth = 800;
+-  var googleSearchDomain = "www.google.com";
+-  var googleSearchPath = "/cse";
+-</script>
+-
+-<script type="text/javascript" src="http://www.google.com/afsonline/show_afs_search.js"></script>
+-
+-
+-<div class="cse-branding-bottom" style="background-color:#FFFFFF;color:#000000">
+-  <div class="cse-branding-form">
+-    <form action="http://www.helga-glunz.homepage.t-online.de/pstoedit/" id="cse-search-box">
+-      <div>
+-        <input type="hidden" name="cx" value="partner-pub-2239328204426644:3mybph-3n0p" />
+-        <input type="hidden" name="cof" value="FORID:10" />
+-        <input type="hidden" name="ie" value="ISO-8859-1" />
+-        <input type="text" name="q" size="31" />
+-        <input type="submit" name="sa" value="Search" />
+-      </div>
+-    </form>
+-  </div>
+-  <div class="cse-branding-logo">
+-    <img src="http://www.google.com/images/poweredby_transparent/poweredby_FFFFFF.gif" alt="Google" width="56" height="20" />
+-  </div>
+-  <div class="cse-branding-text">
+-    Custom Search
+-  </div>
+-</div>
+-
+-
+-<script type="text/javascript"><!--
+-google_ad_client = "ca-pub-2239328204426644";
+-/* pstoedit-1 */
+-google_ad_slot = "6331927855";
+-google_ad_width = 728;
+-google_ad_height = 15;
+-//-->
+-</script>
+-<script type="text/javascript"
+-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+-</script>
+-
+ 
+ <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" summary="pstoedit">
+   <tr>
+@@ -195,19 +147,6 @@ Martin Weber and can be found at <a href
+ Wolfgang Glunz email: wglunz35_AT_pstoedit.net
+ <a href="http://de.linkedin.com/in/wolfgangglunz">http://de.linkedin.com/in/wolfgangglunz</a>
+ 
+-<h1><a name="Donations">Donations</a></h1>
+-Donations to the pstoedit project are welcome and can be done easily here:
+-<form target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+-<input type="hidden" name="cmd" value="_s-xclick">
+-<input type="hidden" name="hosted_button_id" value="2HSK5PN3TPCH8">
+-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+-<img alt="" border="0" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif" width="1" height="1">
+-</form>
+-
+-<h1><a name="Pstoedit at Facebook">Pstoedit at Facebook</a></h1>
+-
+-<iframe src="http://www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2Fpstoedit%2F260606183958062&amp;width=329&amp;colorscheme=light&amp;show_faces=false&amp;border_color&amp;stream=false&amp;header=false&amp;height=62" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:229px; height:62px;" allowTransparency="true"></iframe>
+-
+ <h1><a name="Mailing list">Mailing List</a></h1>
+ 
+ <p>There is an e-mail list for people that want to be informed
+@@ -252,18 +191,6 @@ Wolfgang Glunz email: wglunz35_AT_pstoed
+ 
+     <td width="15%" valign="top">
+ 
+-<script type="text/javascript"><!--
+-google_ad_client = "ca-pub-2239328204426644";
+-/* pstoedit-side */
+-google_ad_slot = "2537341958";
+-google_ad_width = 160;
+-google_ad_height = 600;
+-//-->
+-</script>
+-<script type="text/javascript"
+-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+-</script>
+-
+ 
+ 	    
+ <p>
