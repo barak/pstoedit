@@ -1,3 +1,12 @@
+pstoedit (3.70-1) unstable; urgency=medium
+
+  * New upstream release
+    - Doesn't contain external references with privacy and copyright
+      concerns anymore (Closes: #777305)
+  * debian/control: Standards-Version: 3.9.6
+
+ -- Roland Stigge <stigge@antcom.de>  Fri, 22 Jan 2016 12:12:56 +0100
+
 pstoedit (3.62-2) unstable; urgency=medium
 
   * Fix build on new architectures by using dh-autoreconf, thanks to

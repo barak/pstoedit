@@ -6,159 +6,161 @@ Description: Remove documentation of nonfree options
 Author: Roland Stigge <stigge@antcom.de>
 Bug-Debian: http://bugs.debian.org/554518
 
---- pstoedit-3.62.orig/doc/pstoedit.tex
-+++ pstoedit-3.62/doc/pstoedit.tex
-@@ -576,54 +576,6 @@ trace ???
+Index: pstoedit-3.70/doc/pstoedit.tex
+===================================================================
+--- pstoedit-3.70.orig/doc/pstoedit.tex
++++ pstoedit-3.70/doc/pstoedit.tex
+@@ -588,54 +588,6 @@ trace ???
  
  \end{description}
- %%// end of options 
--\subsubsection{svg - scalable vector graphics}
+ %%// end of options
+-\subsubsection{svg - Scalable Vector Graphics}
 -\begin{description}
--\item[\oOpt{-localdtd}] 
+-\item[\oOpt{-localdtd}]
 -use local DTD
 -
 -
--\item[\oOpt{-standalone}] 
+-\item[\oOpt{-standalone}]
 -create stand-alone type svg
 -
 -
--\item[\oOpt{-withdtd}] 
+-\item[\oOpt{-withdtd}]
 -write DTD
 -
 -
--\item[\oOpt{-withgrouping}] 
+-\item[\oOpt{-withgrouping}]
 -write also ordinary save/restores as SVG group
 -
 -
--\item[\oOpt{-nogroupedpath}] 
--do not write a group around pathes
+-\item[\oOpt{-nogroupedpath}]
+-do not write a group around paths
 -
 -
--\item[\oOpt{-noviewbox}] 
--don't write a view box
+-\item[\oOpt{-noviewbox}]
+-do not write a view box
 -
 -
--\item[\oOpt{-texmode}] 
--TeX Mode
+-\item[\oOpt{-texmode}]
+-\TeX\, mode
 -
 -
--\item[\oOpt{-imagetofile}] 
+-\item[\oOpt{-imagetofile}]
 -write raster images to separate files instead of embedding them
 -
 -
--\item[\oOpt{-notextrendering}] 
+-\item[\oOpt{-notextrendering}]
 -do not write textrendering attribute
 -
 -
--\item[\oOptArg{-border}{~number}] 
+-\item[\oOptArg{-border}{~number}]
 -additional border to draw around bare bounding box (in percent of width and height)
 -
 -
--\item[\oOptArg{-title}{~string}] 
+-\item[\oOptArg{-title}{~string}]
 -text to use as title for the generated document
 -
 -
 -\end{description}
--%%// end of options 
+-%%// end of options
  \subsubsection{xaml - eXtensible Application Markup Language}
  \begin{description}
- \item[\oOpt{-localdtd}] 
-@@ -671,98 +623,6 @@ text to use as title for the generated d
+ \item[\oOpt{-localdtd}]
+@@ -683,98 +635,6 @@ text to use as title for the generated d
  
  
  \end{description}
--%%// end of options 
--\subsubsection{cgmb1 - CGM binary Format (V1)}
+-%%// end of options
+-\subsubsection{cgmb1 - CGM Binary format (V1)}
 -No driver specific options
--%%// end of options 
--\subsubsection{cgmb - CGM binary Format (V3)}
+-%%// end of options
+-\subsubsection{cgmb - CGM Binary format (V3)}
 -No driver specific options
--%%// end of options 
--\subsubsection{cgmt - CGM textual Format}
+-%%// end of options
+-\subsubsection{cgmt - CGM Textual format}
 -No driver specific options
--%%// end of options 
+-%%// end of options
 -\subsubsection{mif - (Frame)Maker Intermediate Format}
 -\begin{description}
--\item[\oOpt{-nopage}] 
+-\item[\oOpt{-nopage}]
 -do not add a separate Page entry
 -
 -
 -\end{description}
--%%// end of options 
--\subsubsection{rtf - RTF Format}
+-%%// end of options
+-\subsubsection{rtf - Rich Text Format}
 -No driver specific options
--%%// end of options 
--\subsubsection{wemf - Wogls version of EMF }
+-%%// end of options
+-\subsubsection{wemf - Wogl's version of EMF}
 -\begin{description}
--\item[\oOpt{-df}] 
+-\item[\oOpt{-df}]
 -write info about font processing
 -
 -
--\item[\oOpt{-dumpfontmap}] 
+-\item[\oOpt{-dumpfontmap}]
 -write info about font mapping
 -
 -
--\item[\oOpt{-size:psbbox}] 
--use the bounding box as calculated by the PostScript frontent as size
+-\item[\oOpt{-size:psbbox}]
+-use the bounding box as calculated by the PostScript frontend as size
 -
 -
--\item[\oOpt{-size:fullpage}] 
--set the size to the size of a full page
+-\item[\oOpt{-size:fullpage}]
+-set the size to that of the full page
 -
 -
--\item[\oOpt{-size:automatic}] 
--let windows calculate the bounding box (default)
+-\item[\oOpt{-size:automatic}]
+-let MS Windows calculate the bounding box (default)
 -
 -
--\item[\oOpt{-keepimages}] 
--debug option - keep the embedded bitmaps as external files 
+-\item[\oOpt{-keepimages}]
+-debug option - keep the embedded bitmaps as external files
 -
 -
--\item[\oOpt{-useoldpolydraw}] 
--do not use Windows PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
+-\item[\oOpt{-useoldpolydraw}]
+-do not use MS Windows' PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
 -
 -
--\item[\oOpt{-OO}] 
+-\item[\oOpt{-OO}]
 -generate OpenOffice compatible EMF file
 -
 -
 -\end{description}
--%%// end of options 
--\subsubsection{wemfc - Wogls version of EMF with experimental clip support}
+-%%// end of options
+-\subsubsection{wemfc - Wogl's version of EMF with experimental clip support}
 -\begin{description}
--\item[\oOpt{-df}] 
+-\item[\oOpt{-df}]
 -write info about font processing
 -
 -
--\item[\oOpt{-dumpfontmap}] 
+-\item[\oOpt{-dumpfontmap}]
 -write info about font mapping
 -
 -
--\item[\oOpt{-size:psbbox}] 
--use the bounding box as calculated by the PostScript frontent as size
+-\item[\oOpt{-size:psbbox}]
+-use the bounding box as calculated by the PostScript frontend as size
 -
 -
--\item[\oOpt{-size:fullpage}] 
--set the size to the size of a full page
+-\item[\oOpt{-size:fullpage}]
+-set the size to that of the full page
 -
 -
--\item[\oOpt{-size:automatic}] 
--let windows calculate the bounding box (default)
+-\item[\oOpt{-size:automatic}]
+-let MS Windows calculate the bounding box (default)
 -
 -
--\item[\oOpt{-keepimages}] 
--debug option - keep the embedded bitmaps as external files 
+-\item[\oOpt{-keepimages}]
+-debug option - keep the embedded bitmaps as external files
 -
 -
--\item[\oOpt{-useoldpolydraw}] 
--do not use Windows PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
+-\item[\oOpt{-useoldpolydraw}]
+-do not use MS Windows' PolyDraw but an emulation of it - sometimes needed for certain programs reading the EMF files
 -
 -
--\item[\oOpt{-OO}] 
+-\item[\oOpt{-OO}]
 -generate OpenOffice compatible EMF file
 -
 -
 -\end{description}
- %%// end of options 
- \subsubsection{wemfnss - Wogls version of EMF - no subpathes }
+ %%// end of options
+ \subsubsection{wemfnss - Wogl's version of EMF - no subpaths}
  \begin{description}

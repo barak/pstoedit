@@ -3,9 +3,11 @@ Description: Redirect error messages to stderr
 Author: Roland Stigge <stigge@antcom.de>
 Bug-Debian: http://bugs.debian.org/551125
 
---- pstoedit-3.62.orig/src/pstoedit.cpp
-+++ pstoedit-3.62/src/pstoedit.cpp
-@@ -401,7 +401,7 @@ extern "C" DLLEXPORT
+Index: pstoedit-3.70/src/pstoedit.cpp
+===================================================================
+--- pstoedit-3.70.orig/src/pstoedit.cpp
++++ pstoedit-3.70/src/pstoedit.cpp
+@@ -414,7 +414,7 @@ extern "C" DLLEXPORT
  		break;
  			}
  	default:{
@@ -14,17 +16,17 @@ Bug-Debian: http://bugs.debian.org/551125
  		shortusage(diag);
  		return 1;
  			}
-@@ -482,7 +482,7 @@ extern "C" DLLEXPORT
+@@ -500,7 +500,7 @@ extern "C" DLLEXPORT
  		usage(diag,false,false);
- 		const char *gstocall = whichPI(diag, options.verbose, options.gsregbase.value.value(),options.GSToUse.value.value());
+ 		const char *gstocall = whichPI(diag, options.verbose, options.gsregbase.value.c_str(),options.GSToUse.value.c_str());
  		if (gstocall != 0) {
 -			diag << "Default interpreter is " << gstocall << endl;
 +			errstream << "Default interpreter is " << gstocall << endl;
  		}
  		getglobalRp()->explainformats(diag);
  		return 1;
-@@ -559,13 +559,13 @@ To get the pre 8.00 behaviour, either us
- 	if (options.drivername.value.value() == 0) {
+@@ -577,13 +577,13 @@ To get the pre 8.00 behaviour, either us
+ 	if (options.drivername.value.length() == 0) {
  		// try to find driver according to suffix of input file
  		if (!options.nameOfOutputFile) {
 -			diag << "No output format specified (-f option) and format could not be deduced from suffix of output file since no output file name was given" << endl;
@@ -39,7 +41,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				shortusage(diag);
  				return 1;
  			} else {
-@@ -574,7 +574,7 @@ To get the pre 8.00 behaviour, either us
+@@ -592,7 +592,7 @@ To get the pre 8.00 behaviour, either us
  					errstream << "No explicit output format specified - using " << suffixDriverDesc->symbolicname << " as derived from suffix of output file" << endl;
  					options.drivername = suffixDriverDesc->symbolicname;
  				} else {
@@ -48,12 +50,12 @@ Bug-Debian: http://bugs.debian.org/551125
  					// usage(errstream);
  					getglobalRp()->explainformats(diag); // ,true);
  					return 1;
-@@ -593,13 +593,13 @@ To get the pre 8.00 behaviour, either us
+@@ -611,13 +611,13 @@ To get the pre 8.00 behaviour, either us
  		}
- 		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.value());
+ 		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.c_str());
  		if (currentDriverDesc == 0) {
--			diag << "Unsupported output format " << options.drivername.value.value() << endl;
-+			errstream << "Unsupported output format " << options.drivername.value.value() << endl;
+-			diag << "Unsupported output format " << options.drivername.value.c_str() << endl;
++			errstream << "Unsupported output format " << options.drivername.value.c_str() << endl;
  			getglobalRp()->explainformats(diag);
  			return 1;
  		}
@@ -64,7 +66,7 @@ Bug-Debian: http://bugs.debian.org/551125
  			return 1;
  		}
  
-@@ -607,7 +607,7 @@ To get the pre 8.00 behaviour, either us
+@@ -625,7 +625,7 @@ To get the pre 8.00 behaviour, either us
  		if (driveroptions && strequal(driveroptions, "-help") ) {
  			ProgramOptions* dummy = currentDriverDesc->createDriverOptions();
  			if (dummy->numberOfOptions() ) {
@@ -73,7 +75,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				dummy->showhelp(diag,false,false);
  			}
  			delete dummy;
-@@ -617,7 +617,7 @@ To get the pre 8.00 behaviour, either us
+@@ -635,7 +635,7 @@ To get the pre 8.00 behaviour, either us
  // TODO:
  			// Check for input file (exists, or stdin) stdout handling
  			if (!options.nameOfInputFile) {
@@ -82,7 +84,7 @@ Bug-Debian: http://bugs.debian.org/551125
  				return 1;
  			}
  			// an input file was given as argument
-@@ -628,23 +628,23 @@ To get the pre 8.00 behaviour, either us
+@@ -646,23 +646,23 @@ To get the pre 8.00 behaviour, either us
  			convertBackSlashes(options.nameOfInputFile);
  
  			if (!fileExists(options.nameOfInputFile)) {
