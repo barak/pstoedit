@@ -1,11 +1,10 @@
-#ifndef __drvMPOST_h
-#define __drvMPOST_h
-
-/* 
-   drvmpost.h : This file is part of pstoedit
-   Backend for MetaPost files
+#ifndef __drvCFDG_h
+#define __drvCFDG_h
+/*
+   drvcfdg.h : This file is part of pstoedit
+   Backend for Context Free Design Grammar files
    Contributed by: Scott Pakin <scott+ps2ed_AT_pakin.org>
-
+  
    Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
@@ -24,29 +23,16 @@
 
 */
 
-
-
 #include "drvbase.h"
 
 
-#ifdef HAVESTL
-#include <string>        // C++ string class
-// STL no longer needed, use FontMapper from miscutil.h
-//#include <set>           // C++ STL set class
-//#include <memory>        // Needed for allocator class
-//#include <functional>
-#else
-typedef RSString string;
-#endif
-
-
-class drvMPOST : public drvbase {
+class drvCFDG : public drvbase {
 
 public:
 
-	derivedConstructor(drvMPOST);
+	derivedConstructor(drvCFDG);
 
-	~drvMPOST(); // Destructor
+	~drvCFDG(); // Destructor
 	class DriverOptions : public ProgramOptions {
 	public:
 		DriverOptions() 
@@ -55,26 +41,10 @@ public:
 	}*options;
 
 #include "drvfuncs.h"
-	void show_text(const TextInfo & textInfo);
 
 private:
-	void print_coords();
-	// Previous values of graphics state variables
- 	string prevFontName;
-	float prevR, prevG, prevB;
- 	float prevFontAngle;
- 	float prevFontSize;
-	float prevLineWidth;
-	unsigned int prevLineCap;
-	unsigned int prevLineJoin;
-	string prevDashPattern;
-
-	// Set to true if we're filling, false if we're stroking
-	bool fillmode;
-
+        void print_coords();
+	void print_rgb_as_hsv(float red, float green, float blue);
 };
 
 #endif
- 
- 
- 

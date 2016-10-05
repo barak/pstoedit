@@ -121,7 +121,10 @@ gs_load_dll(const char * szDllName)
 
 	// long version;
     hmodule = LoadLibrary(szDllName);
-    if (hmodule < (HINSTANCE)HINSTANCE_ERROR) return false;
+    if (hmodule < (HINSTANCE)HINSTANCE_ERROR) {
+		/* fprintf(stderr,"loading  %s failed\n", szDllName); */
+		return false;
+	}
 
 	// fprintf(stderr, "loaded %s\n", szDllName);
 
@@ -192,7 +195,7 @@ callgsDLL(int argc, char *argv[])
 {
 
 	GSDLL gsapi;
-    (void) setmode(fileno(stdin), O_BINARY);
+    (void) SETMODE(FILENO(stdin), O_BINARY);
 
 	// const char szDllName[] = "gsdll32.dll";
 	const char * const szDllName = argv[0]; // 

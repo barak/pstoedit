@@ -4,7 +4,7 @@
    Contributed / Copyright 2004 by: Mark Rages 
    Contributed / Copyright 2008 by: Stanislav Brabec sbrabec_AT_suse.cz
 
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz34_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz34_AT_pstoedit.net
    (for the skeleton and the rest of pstoedit)
 
     This program is free software; you can redistribute it and/or modify
@@ -153,14 +153,11 @@ void drvPCB2::show_path()
 
 			{
 				const Point & p0 = pathElement(0).getPoint(0);
-				const Point & pl = pathElement(numberOfElementsInPath()-1).getPoint(0);
-
+				numberofvalidelements = numberOfElementsInPath();
+				if (pathElement(numberofvalidelements-1).getType() == closepath ) numberofvalidelements--; // closepath can be ignored
+				const Point & pl = pathElement(numberofvalidelements-1).getPoint(0);
 				/* Polygons are closed automatically. Skip last element for already closed polygons. */
-				if (p0.x_ == pl.x_ && p0.y_ == pl.y_) {
-					numberofvalidelements = numberOfElementsInPath() - 1;
-				} else {
-					numberofvalidelements = numberOfElementsInPath();
-				}
+				if (p0.x_ == pl.x_ && p0.y_ == pl.y_) numberofvalidelements--;
 			}
 			/* If snap to grid fails for any of points draw into layer_polygons_nogrid layer */
 			round_success = true;

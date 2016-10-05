@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -320,7 +320,7 @@ public:
 
 	static bool Verbose();  // need a wrapper function because static initialized data cannot be DLLEXPORTed
 	static void SetVerbose(bool param);
-	static unsigned int totalNumberOfPages;
+	static unsigned int &totalNumberOfPages();
 	
 	static BBox	* bboxes() ; // [maxPages]; // array of bboxes - maxpages long
 	static RSString& pstoeditHomeDir(); // usually the place where the binary is installed

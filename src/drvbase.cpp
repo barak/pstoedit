@@ -2,7 +2,7 @@
    drvbase.cpp : This file is part of pstoedit
    Basic, driver independent output routines
 
-   Copyright (C) 1993 - 2009 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -261,9 +261,9 @@ const BBox & drvbase::getCurrentBBox() const
 {
 	if ( verbose )
 		cout << " get getCurrentBBox for page: " << currentPageNumber <<
-			" of " << totalNumberOfPages << endl;
-	if ((totalNumberOfPages > 0)
-		&& (currentPageNumber <= totalNumberOfPages)) {
+			" of " << totalNumberOfPages() << endl;
+	if ((totalNumberOfPages() > 0)
+		&& (currentPageNumber <= totalNumberOfPages())) {
 		// page numbers start from 1.
 		return bboxes()[currentPageNumber > 0 ? (currentPageNumber - 1) : 0];
 	} else {
@@ -1486,7 +1486,11 @@ BBox * drvbase::bboxes() {	// array of bboxes - maxpages long
 #endif
 }
 
-unsigned int drvbase::totalNumberOfPages = 0;
+unsigned int &drvbase::totalNumberOfPages() {
+	// using the singleton pattern for easier linkage
+	static unsigned int nrOfPages = 0;
+	return nrOfPages;
+}
 
 RSString& drvbase::pstoeditHomeDir(){// usually the place where the binary is installed
 #ifdef SINGLETONSONHEAP
