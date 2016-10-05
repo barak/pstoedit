@@ -1,0 +1,436 @@
+/*
+   winp2eap.rc : This file is part of pstoedit
+   All resources defined here.
+
+   Copyright (C) 1996 Jens Weber, rz47b7@PostAG.DE
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+*/
+
+
+#if !defined(WORKSHOP_INVOKED)
+# include <windows.h>
+#endif
+#define STRINGTABLE_101	101
+#include "winp2eap.rh"
+
+
+IDM_SDI MENU
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MENUITEM "&Convert", CM_CONVERT1
+    MENUITEM "&Parameter", CM_PARAMETER
+//    MENUITEM "&New", CM_FILENEW
+//    MENUITEM "&Open...", CM_FILEOPEN
+    MENUITEM SEPARATOR
+//    MENUITEM "&Save", CM_FILESAVE, GRAYED
+//    MENUITEM "Save &As...", CM_FILESAVEAS, GRAYED
+//    MENUITEM SEPARATOR
+    MENUITEM "E&xit\tAlt+F4", CM_EXIT
+  END
+
+  MENUITEM SEPARATOR
+
+  MENUITEM SEPARATOR
+
+  MENUITEM SEPARATOR
+
+  POPUP "&Help"
+  BEGIN
+    MENUITEM "&About...", CM_HELPABOUT
+  END
+
+END
+
+
+// Accelerator table for short-cut to menu commands. (include/owl/editfile.rc)
+//
+/*
+IDM_SDI ACCELERATORS
+BEGIN
+  VK_DELETE, CM_EDITCUT, VIRTKEY, SHIFT
+  VK_INSERT, CM_EDITCOPY, VIRTKEY, CONTROL
+  VK_INSERT, CM_EDITPASTE, VIRTKEY, SHIFT
+  VK_DELETE, CM_EDITCLEAR, VIRTKEY, CONTROL
+  VK_BACK,   CM_EDITUNDO, VIRTKEY, ALT
+  VK_F3,     CM_EDITFINDNEXT, VIRTKEY
+END
+
+*/
+
+// Table of help hints displayed in the status bar.
+//
+STRINGTABLE
+BEGIN
+  -1,                   "File/document operations"
+  CM_CONVERT1,           "Converts a postscript file"
+  CM_PARAMETER,           "Definition of conversion parameters"
+  CM_FILENEW,           "Creates a new window"
+  CM_FILEOPEN,          "Opens a window"
+  CM_FILECLOSE,         "Closes the active document"
+  CM_FILESAVE,          "Saves the active document"
+  CM_FILESAVEAS,        "Saves the active document with a new name"
+  CM_EXIT,              "Quits Winp2e"
+  CM_EDITUNDO-1,        "Edit operations"
+  CM_EDITUNDO,          "Reverses the last operation"
+  CM_EDITCUT,           "Cuts the selection and puts it on the Clipboard"
+  CM_EDITCOPY,          "Copies the selection and puts it on the Clipboard"
+  CM_EDITPASTE,         "Inserts the Clipboard contents at the insertion point"
+  CM_EDITDELETE,        "Deletes the selection"
+  CM_EDITCLEAR,         "Clears the active document"
+  CM_EDITADD,           "Inserts a new line"
+  CM_EDITEDIT,          "Edits the current line"
+  CM_EDITFIND-1,        "Search/replace operations"
+  CM_EDITFIND,          "Finds the specified text"
+  CM_EDITREPLACE,       "Finds the specified text and changes it"
+  CM_EDITFINDNEXT,      "Finds the next match"
+  CM_HELPABOUT-1,       "Access About"
+  CM_HELPABOUT,         "About the Winp2e application"
+END
+
+
+//
+// OWL string table
+//
+
+// EditFile (include/owl/editfile.rc and include/owl/editsear.rc)
+//
+STRINGTABLE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+  IDS_CANNOTFIND,       "Cannot find ""%s""."
+  IDS_UNTITLED,         "Document"
+  IDS_UNABLEREAD,       "Unable to read file %s from disk."
+  IDS_UNABLEWRITE,      "Unable to write file %s to disk."
+  IDS_FILECHANGED,      "The text in the %s file has changed.\n\nDo you want to save the changes?"
+  IDS_FILEFILTER,       "Text files|*.txt|AllFiles|*.*|"
+END
+
+
+// Exception string resources (include/owl/except.rc)
+//
+STRINGTABLE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+  IDS_OWLEXCEPTION,     "ObjectWindows Exception"
+  IDS_UNHANDLEDXMSG,    "Unhandled Exception"
+  IDS_OKTORESUME,       "OK to resume?"
+  IDS_UNKNOWNEXCEPTION, "Unknown exception"
+
+  IDS_UNKNOWNERROR,     "Unknown error"
+  IDS_NOAPP,            "No application object"
+  IDS_OUTOFMEMORY,      "Out of memory"
+  IDS_INVALIDMODULE,    "Invalid module specified for window"
+  IDS_INVALIDMAINWINDOW,"Invalid MainWindow"
+  IDS_VBXLIBRARYFAIL,   "VBX Library init failure"
+
+  IDS_INVALIDWINDOW,    "Invalid window %s"
+  IDS_INVALIDCHILDWINDOW,"Invalid child window %s"
+  IDS_INVALIDCLIENTWINDOW,"Invalid client window %s"
+
+  IDS_CLASSREGISTERFAIL,"Class registration fail for window %s"
+  IDS_CHILDREGISTERFAIL,"Child class registration fail for window %s"
+  IDS_WINDOWCREATEFAIL, "Create fail for window %s"
+  IDS_WINDOWEXECUTEFAIL,"Execute fail for window %s"
+  IDS_CHILDCREATEFAIL,  "Child create fail for window %s"
+
+  IDS_MENUFAILURE,      "Menu creation failure"
+  IDS_VALIDATORSYNTAX,  "Validator syntax error"
+  IDS_PRINTERERROR,     "Printer error"
+
+  IDS_LAYOUTINCOMPLETE, "Incomplete layout constraints specified in window %s"
+  IDS_LAYOUTBADRELWIN,  "Invalid relative window specified in layout constraint in window %s"
+
+  IDS_GDIFAILURE,       "GDI failure"
+  IDS_GDIALLOCFAIL,     "GDI allocate failure"
+  IDS_GDICREATEFAIL,    "GDI creation failure"
+  IDS_GDIRESLOADFAIL,   "GDI resource load failure"
+  IDS_GDIFILEREADFAIL,  "GDI file read failure"
+  IDS_GDIDELETEFAIL,    "GDI object %X delete failure"
+  IDS_GDIDESTROYFAIL,   "GDI object %X destroy failure"
+  IDS_INVALIDDIBHANDLE, "Invalid DIB handle %X"
+END
+
+
+// General Window's status bar messages. (include/owl/statusba.rc)
+//
+STRINGTABLE
+BEGIN
+  IDS_MODES             "EXT|CAPS|NUM|SCRL|OVR|REC"
+  IDS_MODESOFF          "   |  |   |  |   |   "
+  SC_SIZE,              "Changes the size of the window"
+  SC_MOVE,              "Moves the window to another position"
+  SC_MINIMIZE,          "Reduces the window to an icon"
+  SC_MAXIMIZE,          "Enlarges the window to it maximum size"
+  SC_RESTORE,           "Restores the window to its previous size"
+  SC_CLOSE,             "Closes the window"
+  SC_TASKLIST,          "Opens task list"
+  SC_NEXTWINDOW,        "Switches to next window"
+END
+
+
+// Validator messages (include/owl/validate.rc)
+//
+STRINGTABLE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+  IDS_VALPXPCONFORM     "Input does not conform to picture:\n""%s"""
+  IDS_VALINVALIDCHAR    "Invalid character in input"
+  IDS_VALNOTINRANGE     "Value is not in the range %ld to %ld."
+  IDS_VALNOTINLIST      "Input is not in valid-list"
+END
+
+
+//
+// Bitmaps used by the speedbar.  Each bitmap is associated with a
+// particular menu command.
+//
+CM_CONVERT1 BITMAP "bitmaps/copy.bmp"
+CM_PARAMETER BITMAP "bitmaps/preview.bmp"
+
+CM_FILENEW BITMAP "bitmaps/new.bmp"
+CM_FILEOPEN BITMAP "bitmaps/open.bmp"
+CM_FILESAVE BITMAP "bitmaps/save.bmp"
+
+CM_EDITUNDO BITMAP "bitmaps/undo.bmp"
+CM_EDITCUT BITMAP "bitmaps/cut.bmp"
+CM_EDITCOPY BITMAP "bitmaps/copy.bmp"
+CM_EDITPASTE BITMAP "bitmaps/paste.bmp"
+
+CM_EDITFIND BITMAP "bitmaps/find.bmp"
+CM_EDITFINDNEXT BITMAP "bitmaps/findnext.bmp"
+
+CM_FILEPRINT BITMAP "bitmaps/print.bmp"
+
+
+//
+// Misc application definitions
+//
+
+// Application ICON
+//
+IDI_SDIAPPLICATION ICON "applsdi.ico"
+
+
+// Client Dialog
+//
+IDD_CLIENT DIALOG 6, 15, 207, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Dialog Client"
+FONT 8, "MS Sans Serif"
+BEGIN
+//  DEFPUSHBUTTON "OK", IDOK, 40, 88, 50, 14
+//  PUSHBUTTON "Cancel", IDCANCEL, 116, 88, 50, 14
+END
+
+
+// About box.
+//
+IDD_ABOUT DIALOG 12, 17, 204, 114
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Winp2e"
+FONT 8, "MS Sans Serif"
+{
+ CTEXT " Version (of GUI)", IDC_VERSION, 2, 14, 200, 8, SS_NOPREFIX
+ CTEXT "pstoedit - GUI", -1, 2, 4, 200, 8, SS_NOPREFIX
+ CTEXT "", IDC_COPYRIGHT, 32, 34, 136, 48, SS_NOPREFIX
+ RTEXT "", IDC_DEBUG, 136, 55, 66, 8, SS_NOPREFIX
+ ICON IDI_SDIAPPLICATION, -1, 2, 2, 34, 34
+ DEFPUSHBUTTON "OK", IDOK, 82, 99, 40, 14
+}
+
+
+// TInputDialog class dialog box.
+//
+IDD_INPUTDIALOG DIALOG 20, 24, 180, 64
+STYLE WS_POPUP | WS_CAPTION | DS_SETFONT
+FONT 8, "Helv"
+BEGIN
+  LTEXT "", ID_PROMPT, 10, 8, 160, 10, SS_NOPREFIX
+  CONTROL "", ID_INPUT, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 10, 20, 160, 12
+  DEFPUSHBUTTON "&OK", IDOK, 47, 42, 40, 14
+  PUSHBUTTON "&Cancel", IDCANCEL, 93, 42, 40, 14
+END
+
+IDD_PARAMETER DIALOG 32, 20, 295, 192
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Conversion parameters"
+FONT 8, "Helv"
+{
+ EDITTEXT ID_NAMEEDIT1, 140, 8, 71, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+ EDITTEXT ID_NAMEEDIT2, 140, 24, 71, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+ EDITTEXT ID_NAMEEDIT3, 140, 40, 32, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+ EDITTEXT ID_NAMEEDIT4, 180, 40, 32, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+ CONTROL "Merging", ID_CHECK1, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 24, 120, 45, 15
+ CONTROL "Draw Text", ID_CHECK2, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 92, 120, 76, 15
+ CONTROL "Display", ID_CHECK3, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 24, 99, 45, 15
+ CONTROL "Verbose", ID_CHECK4, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 24, 140, 40, 15
+ CONTROL "Backend only", ID_CHECK5, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 220, 99, 56, 15
+ CONTROL "Map fonts to ISOLatin1", ID_CHECK6, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 92, 99, 92, 15
+ CONTROL "Dont quit gs", ID_CHECK7, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 220, 121, 60, 15
+ CONTROL "Enhanced (WMF)", ID_CHECK8, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 92, 140, 84, 15
+ DEFPUSHBUTTON "&OK", 1, 20, 164, 49, 14, WS_CHILD | WS_VISIBLE | WS_TABSTOP
+ PUSHBUTTON "&Cancel", 2, 232, 164, 49, 14, WS_CHILD | WS_VISIBLE | WS_TABSTOP
+ CONTROL "Magnification ", -1, "STATIC", SS_CENTER | WS_CHILD | WS_VISIBLE, 24, 8, 92, 12
+ CONTROL "Flatness ", -1, "STATIC", SS_CENTER | WS_CHILD | WS_VISIBLE, 24, 24, 90, 12
+ CONTROL "Format ", -1, "STATIC", SS_CENTER | WS_CHILD | WS_VISIBLE, 24, 64, 90, 12
+ CONTROL "Test", ID_LISTBOX, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 140, 60, 75, 100
+ CONTROL "Resolution (DPI)", -1, "static", SS_CENTER | WS_CHILD | WS_VISIBLE, 20, 40, 96, 12
+ CONTROL "X", -1, "static", SS_CENTER | WS_CHILD | WS_VISIBLE, 172, 40, 8, 12
+}
+
+ICON_1 ICON
+BEGIN
+	'00 00 01 00 01 00 20 20 10 00 00 00 00 00 E8 02'
+	'00 00 16 00 00 00 28 00 00 00 20 00 00 00 40 00'
+	'00 00 01 00 04 00 00 00 00 00 80 02 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 80 00 00 80 00 00 00 80 80 00 80 00'
+	'00 00 80 00 80 00 80 80 00 00 C0 C0 C0 00 80 80'
+	'80 00 00 00 FF 00 00 FF 00 00 00 FF FF 00 FF 00'
+	'00 00 FF 00 FF 00 FF FF 00 00 FF FF FF 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F F0'
+	'00 00 00 00 00 00 00 00 00 00 00 00 FF 00 0F F0'
+	'FF F0 F0 0F 0F FF 0F 0F FF 0F 00 F0 FF 00 0F F0'
+	'F0 00 F0 0F 0F 0F 0F 0F 00 0F 00 F0 FF 00 0F F0'
+	'F0 00 FF FF 0F FF 0F 0F 00 0F FF F0 FF 00 0F F0'
+	'F0 00 F0 0F 0F 00 0F 0F 00 0F 00 F0 FF 00 0F F0'
+	'FF F0 0F F0 0F FF 0F 0F 00 00 FF 00 FF 00 0F F0'
+	'00 00 00 00 00 00 00 00 00 00 00 00 FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 00 00'
+	'00 00 00 00 00 F0 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 0F FF 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 FF FF F0 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 0F FF 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 0F FF 00 00 00 00 00 00 00 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F F0'
+	'00 00 00 00 00 00 00 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 0F 00 0F FF 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 0F 00 00 0F 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 0F FF 0F FF 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 0F 0F 0F 00 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 0F FF 0F FF 00 00 00 00 00 FF 00 0F F0'
+	'00 00 00 00 00 00 00 00 00 00 00 00 FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 0F FF'
+	'FF FF FF FF FF FF FF FF FF FF FF FF FF 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+	'00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+END
+
+
+// Slider thumb bitmaps for TSlider and TVSlider (include/owl/slider.rc)
+//
+IDB_HSLIDERTHUMB BITMAP "bitmaps/hslider.bmp"
+IDB_VSLIDERTHUMB BITMAP "bitmaps/hslider.bmp"
+
+// Version info.
+//
+#if !defined(__DEBUG_)
+
+// Non-Debug VERSIONINFO
+//
+1 VERSIONINFO 
+FILEVERSION 1, 0, 0, 0
+PRODUCTVERSION 1, 0, 0, 0
+FILEFLAGSMASK 0
+FILEFLAGS VS_FFI_FILEFLAGSMASK
+FILEOS VOS__WINDOWS16
+FILETYPE VFT_APP
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "040904E4"
+  {
+   VALUE "CompanyName", "\000"
+   VALUE "FileDescription", "Winp2e for Windows - GUI for pstoedit\000"
+   VALUE "FileVersion", "1.0\000"
+   VALUE "InternalName", "Winp2e\000"
+   VALUE "LegalCopyright", "Copyright © 1996. Jens Weber for GUI; Wolfgang Glunz for pstoedit; All Rights Reserved.\000"
+   VALUE "LegalTrademarks", "Windows(TM) is a trademark of Microsoft Corporation\000"
+   VALUE "OriginalFilename", "Winp2e.exe\000"
+   VALUE "ProductName", "Winp2e\000"
+   VALUE "ProductVersion", "1.0\000"
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 0x0409, 0x04e4
+ }
+
+}
+
+STRINGTABLE 
+{
+ STRINGTABLE_101, ""
+}
+
+
+#else
+
+// Debug VERSIONINFO
+//
+1 VERSIONINFO LOADONCALL MOVEABLE
+FILEVERSION 1, 0, 0, 0
+PRODUCTVERSION 1, 0, 0, 0
+FILEFLAGSMASK VS_FF_DEBUG | VS_FF_PRERELEASE | VS_FF_PATCHED | VS_FF_PRIVATEBUILD | VS_FF_SPECIALBUILD
+FILEFLAGS VS_FFI_FILEFLAGSMASK
+#if defined(BI_PLAT_WIN32)
+FILEOS VOS__WINDOWS32
+#else
+FILEOS VOS__WINDOWS16
+#endif
+FILETYPE VFT_APP
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    // Language type = U.S. English(0x0409) and Character Set = Windows, Multilingual(0x04e4)
+    BLOCK "040904E4"              // Matches VarFileInfo Translation hex value.
+    BEGIN
+      VALUE "CompanyName", "\000"
+      VALUE "FileDescription", "Winp2e for Windows\000"
+      VALUE "FileVersion", "1.0\000"
+      VALUE "InternalName", "Winp2e\000"
+      VALUE "LegalCopyright", "Copyright © 1996. All Rights Reserved.\000"
+      VALUE "LegalTrademarks", "Windows(TM) is a trademark of Microsoft Corporation\000"
+      VALUE "OriginalFilename", "Winp2e.exe\000"
+      VALUE "ProductName", "Winp2e\000"
+      VALUE "ProductVersion", "1.0\000"
+      VALUE "SpecialBuild", "Debug Version\000"
+      VALUE "PrivateBuild", "Built by \000"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04e4    // U.S. English(0x0409) & Windows Multilingual(0x04e4) 1252
+  END
+END
+
+#endif
