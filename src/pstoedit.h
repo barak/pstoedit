@@ -4,7 +4,7 @@
    pstoedit.h : This file is part of pstoedit
    main control procedure
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -127,7 +127,6 @@ extern "C" DLLEXPORT void setPstoeditOutputFunction(void * cbData,write_callback
 
 #endif
 
- 
  
  
  

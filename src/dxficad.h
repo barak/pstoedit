@@ -1737,4 +1737,3 @@ static const char dxf14icadtrailer[] =
 "ENDSEC\n"
 "  0\n"
 "EOF\n";
- 

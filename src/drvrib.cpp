@@ -1,13 +1,13 @@
 /* 
    drvrib.cpp - Driver to output RenderMan RIB polygons
-             - written by Glenn M. Lewis <glenn@gmlewis.com> - 6/18/96
+             - written by Glenn M. Lewis <glenn_AT_gmlewis.com> - 6/18/96
 	       http://www.gmlewis.com/>
 		Based on...
 
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ constructBase
 	outf << "version 3.03" << endl;
 	outf << "AttributeBegin" << endl;
 }
-
+ 
 drvRIB::~drvRIB()
 {
 	// driver specific deallocations
@@ -102,10 +102,10 @@ void drvRIB::show_path()
 {
 	outf << "Color " << currentR() << " " << currentG() << " " << currentB() << endl;
 	print_coords();
-};
+}
 
 
-static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestream", "rib", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestream", "","rib", false,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
 										   // moveto (start of subpath)
@@ -122,7 +122,7 @@ static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestrea
 										   false,	// if backend supports elements with fill and edges
 										   false,	// if backend supports text, else 0
 										   DriverDescription::noimage,	// no support for PNG file images
-										   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
-										   false, /*clipping */
-										   nodriverspecificoptions);
- 
+										   DriverDescription::normalopen, 
+										   false,	// if format supports multiple pages in one file
+										   false  /*clipping */
+										   );

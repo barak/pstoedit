@@ -6,7 +6,7 @@
    Backend for idraw files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,12 @@ public:
   //(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
   ~drvIDRAW(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
 
 void show_image(const PSImage & imageinfo);
 
@@ -52,9 +58,13 @@ private:
   } color[IDRAW_NUMCOLORS];
 
   // Scale a PostScript value to an idraw value
+#if 0
+  inline const float iscale(float invalue) const { return invalue; }
+#else
   inline const unsigned int iscale(float invalue) const {
-    return (unsigned int) (invalue/IDRAW_SCALING + 0.5);
+     return (unsigned int) (invalue/IDRAW_SCALING + 0.5);
   }
+#endif
 private:
 
      //  int           objectId;
@@ -71,7 +81,6 @@ private:
 };
 
 #endif
- 
  
  
  

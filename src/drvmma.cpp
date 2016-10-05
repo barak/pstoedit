@@ -1,12 +1,12 @@
 /*
    drvMMA.cpp : This file is part of pstoedit
    Backend for Mathematica Graphics
-   Contributed by: Manfred Thole <manfred@thole.org>
-   $Id: drvmma.cpp,v 1.2 2001/02/27 19:48:27 manfred Exp $
+   Contributed by: Manfred Thole <manfred_AT_thole.org>
+   $Id: drvmma.cpp,v 1.5 2003/03/15 16:25:46 manfred Exp $
    Based on drvSAMPL.cpp
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net,
-                             Manfred Thole, manfred@thole.org
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net,
+                             Manfred Thole, manfred_AT_thole.org
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,9 @@
 
 
 /*
-    Not implemented: eofill, images
+    Not implemented:
+     - eofill - driver option '-eofillfills' (fill/don't fill)
+     - images
 
     Usage within Mathematica:
        gr = Get["myfile.m"]
@@ -42,10 +44,36 @@
 #include I_stdlib
 
 
+
+
 drvMMA::derivedConstructor(drvMMA):
 constructBase,
 mmaDashing(solid), mmaThickness(0.0), mmaR(0.0), mmaG(0.0), mmaB(0.0), buffer(tempFile.asOutput())
 {
+//	bool show_usage_line = false;
+	// Driver options
+#if 0
+	for (unsigned int i = 0; i < d_argc; i++) {
+		assert(d_argv && d_argv[i]);	//lint !e796 !e1776
+		if (Verbose())
+			outf << "% " << d_argv[i] << endl;
+		if (strcmp(d_argv[i], "-eofillfills") == 0) {
+			eofillFills = true;
+		} else if (strcmp(d_argv[i], "-help") == 0) {
+			errf << "-help         # Show this message" << endl;
+			errf << "-eofillfills  # Filling is used for eofill (default is not to fill)" << endl;
+			show_usage_line = true;
+		} else {
+			errf << "Unknown mma driver option: " << d_argv[i] << endl;
+			show_usage_line = true;
+		}
+	}
+
+
+	if (show_usage_line) {
+		errf << "Usage -f 'mma: [-help] [-eofillfills]'" << endl;
+	}
+#endif
 	// MMA has a different scientific notation
 	(void) buffer.setf(ios::fixed, ios::floatfield);
 	(void) outf.setf(ios::fixed, ios::floatfield);
@@ -91,9 +119,10 @@ void drvMMA::draw_path(bool close, Point firstpoint, bool filled)
 
 void drvMMA::print_coords()
 {
-	Point firstpoint;			// Where "closepath" takes us back to
+	Point firstpoint;		// Where "closepath" takes us back to
+	Point tmppoint;			// Temporary Point
 	bool datapres = false;		// Is data in the buffer?
-	bool filled = false;			// Must we fill it?
+	bool filled = false;		// Must we fill it?
 
 	switch (currentShowType()) {
 	case drvbase::stroke:
@@ -103,7 +132,7 @@ void drvMMA::print_coords()
 		filled = true;
 		break;
 	case drvbase::eofill:		// It is nearly impossible to do eofill in MMA
-		filled = false;
+		filled = options->eofillFills.value;
 		break;
 	default:
 		break;
@@ -122,7 +151,8 @@ void drvMMA::print_coords()
 			break;
 		case lineto:
 			datapres = true;
-			buffer << ", " << elem.getPoint(0);
+			tmppoint = elem.getPoint(0);
+			buffer << ", " << tmppoint;
 			break;
 		case closepath:
 			if (datapres) {
@@ -183,7 +213,10 @@ void drvMMA::show_text(const TextInfo & textinfo)
 		case '"':
 		case '\\':
 			outf << '\\';
+		//lint -fallthrough
+		default: ;
 		}
+		
 		outf << *c;
 	}
 	outf << "\", ";
@@ -239,7 +272,7 @@ void drvMMA::show_path()
 		outf << "AbsoluteThickness[" << mmaThickness << "],\n";
 	}
 	print_coords();
-};
+}
 
 void drvMMA::RGBColor(float R, float G, float B)
 {
@@ -251,7 +284,7 @@ void drvMMA::RGBColor(float R, float G, float B)
 	}
 }
 
-static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica Graphics", "m", true,	// backend supports subpathes
+static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica Graphics", "","m", true,	// backend supports subpathes
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
 										   // moveto (start of subpath)
@@ -269,6 +302,6 @@ static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica Graphics", "m", t
 										   true,	// backend supports text
 										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-										   false, /*clipping */ 
-										   nodriverspecificoptions);
+										   false  /*clipping */ 
+										   );
  

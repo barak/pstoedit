@@ -1,20 +1,27 @@
 #!/bin/sh
+AMVERSION=1.xxx
+AMVERSION=1.7
+AMVERSION=local
+
+BINDIR=/usr/bin
+BINDIR=/usr/local/bin
+set -x
 echo running aclocal
-if (aclocal-1.4 --version)  < /dev/null > /dev/null 2>&1; then
-    aclocal-1.4 ${ACLOCAL_FLAGS}
+if (aclocal-$AMVERSION --version)  < /dev/null > /dev/null 2>&1; then
+    aclocal-$AMVERSION ${ACLOCAL_FLAGS}
 else
-    aclocal ${ACLOCAL_FLAGS}
+    $BINDIR/aclocal ${ACLOCAL_FLAGS}
 fi
 
 echo running automake
-if (automake-1.4 --version) < /dev/null > /dev/null 2>&1; then
-    automake-1.4 -a
+if (automake-$AMVERSION --version) < /dev/null > /dev/null 2>&1; then
+    automake-$AMVERSION -a
 else
-    automake -a
+    $BINDIR/automake -a
 fi
 
 echo running autoconf
-autoconf
+$BINDIR/autoconf
 # CONFIG_DIR=config
 # echo aclocal -I /usr/local/share/aclocal/ --output=${CONFIG_DIR}/aclocal.m4
 # aclocal -I /usr/local/share/aclocal --output=${CONFIG_DIR}/aclocal.m4

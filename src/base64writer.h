@@ -38,8 +38,9 @@ PERFORMANCE OF THIS SOFTWARE.
 */
 
 
-
+#ifndef cppcomp_h
 #include "cppcomp.h"
+#endif
 
 #include I_iostream
 //#include I_fstream
@@ -65,8 +66,8 @@ public:
 private:
 	// declared but not defined
 	Base64Writer(const Base64Writer&);
+	Base64Writer();
 	const Base64Writer& operator=(const Base64Writer&);
 };
 
 #endif
- 

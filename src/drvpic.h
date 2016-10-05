@@ -30,6 +30,34 @@ class drvPIC : public drvbase {
 public:
 	 derivedConstructor(drvPIC);
 	~drvPIC(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		// Option < bool, BoolTrueExtractor > groff;
+		Option < bool, BoolTrueExtractor > troff_mode;
+		Option < bool, BoolTrueExtractor > landscape;
+		Option < bool, BoolTrueExtractor > portrait;
+		Option < bool, BoolTrueExtractor > keepFont;
+		Option < bool, BoolTrueExtractor > textAsText;
+		Option < bool, BoolTrueExtractor > debug;
+
+		DriverOptions() : 
+			// groff(true,"-groff","",0,"groff mode",0,false),
+			troff_mode(true,"-troff","",0,"troff mode (default is groff)",0,false),
+			landscape(true,"-landscape","",0,"landscape output",0,false),
+			portrait(true,"-portrait","",0,"portrait output",0,false),
+			keepFont(true,"-keepfont","",0,"print unrecognized literally",0,false),
+			textAsText(true,"-text","",0,"try not to make pictures from running text",0,false),
+			debug(true,"-debug","",0,"enable debug output",0,false)
+		{
+			// ADD(groff);
+			ADD(troff_mode);
+			ADD(landscape);
+			ADD(portrait);
+			ADD(keepFont);
+			ADD(textAsText);
+			ADD(debug);
+		}
+	} *options;
 
 #include "drvfuncs.h"
 	void show_text(const TextInfo & textInfo);
@@ -41,11 +69,13 @@ private:
 	void ps_begin();
 	void ps_end();
 
+	/*
 	int troff_mode;         // troff, as opposed to groff
 	int landscape;          // original is in landscape mode
 	int keep_font;          // print unrecognized literally
 	int text_as_text;       // try not to make pictures from running text
 	int debug;              // obvious...
+	*/
 
 	float largest_y;
 	float pageheight;
@@ -53,6 +83,5 @@ private:
 };
 
 #endif
- 
  
  

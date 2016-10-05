@@ -1,5 +1,6 @@
 EXTRA_DIST=cliptst2.ps				\
 closepathtest.ps				\
+figtext.ps				\
 colrtest.ps					\
 eofill.ps					\
 eschertr.ps					\

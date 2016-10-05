@@ -214,7 +214,7 @@ void drvSK::show_path()
 	outf << "b()\n";
 	print_coords();
 
-};
+}
 
 void drvSK::show_rectangle(const float llx, const float lly, const float urx, const float ury)
 {
@@ -311,9 +311,9 @@ void drvSK::show_image(const PSImage & imageinfo)
 	string temp = ppm.str();
 	// basic_string<char, std::char_traits<char>, std::allocator<char> >	 temp = ppm.str();
 	const unsigned char * ppmdata = (const unsigned char*) temp.data();
-	base64writer.write_base64( ppmdata, temp.size());
+	(void)base64writer.write_base64( ppmdata, temp.size());
 #else
- 	base64writer.write_base64( (unsigned  char *) ppm.str(), ppm.pcount());
+ 	(void)base64writer.write_base64( (unsigned  char *) ppm.str(), ppm.pcount());
 	ppm.rdbuf()->freeze(0);
 #endif
 
@@ -343,14 +343,13 @@ void drvSK::show_image(const PSImage & imageinfo)
 
 }
 
-static DriverDescriptionT < drvSK > D_sampl("sk", "Sketch Format", "sk", true,	// backend supports subpaths
+static DriverDescriptionT < drvSK > D_sampl("sk", "Sketch Format","", "sk", true,	// backend supports subpaths
 											true,	// backend supports curves
 											true,	// backend supports elements which are filled and stroked
 											true,	// backend supports text
 											DriverDescription::memoryeps,	// no support for PNG file images
 											DriverDescription::normalopen, false,	// if format supports multiple pages in one file
-											false, /*clipping */
-											nodriverspecificoptions);
- 
+											false  /*clipping */
+											);
  
  

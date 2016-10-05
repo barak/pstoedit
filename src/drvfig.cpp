@@ -2,7 +2,7 @@
    drvFIG.cpp : This file is part of pstoedit
    Based on the skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,15 +21,15 @@
 */
 
 /*
-    FIG 3.1 driver by Ian MacPhedran (Ian_MacPhedran@engr.usask.ca)
+    FIG 3.1 driver by Ian MacPhedran (Ian_MacPhedran_AT_engr.usask.ca)
     April 1995
 
     Color support and conversion to use C++ streams done by Wolfgang Glunz
 
-    Object depth support by Gerhard Kircher <kircher@edvz.tuwien.ac.at>
+    Object depth support by Gerhard Kircher <kircher_AT_edvz.tuwien.ac.at>
     March 1996
 
-    Curves and image support by Leszek Piotrowicz <zorro@delta.ds2.pg.gda.pl>
+    Curves and image support by Leszek Piotrowicz <zorro_AT_delta.ds2.pg.gda.pl>
     July 1997
 
     Support for xfig format 3.2 (X-Splines) by Wolfgang Glunz
@@ -121,29 +121,24 @@ static void dumpnewcolors(ostream & theoutStream)
 	}
 }
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-startdepth","number","Set the initial depth (default 999)"),
-	OptionDescription("-metric","","Switch to centimeter display (default inches)"),
-	OptionDescription("-use_correct_font_size","","don't scale fonts for xfig. Use this if you also use this option with xfig"),
-	OptionDescription("-depth","number","Set the page depth in inches"),
-	endofoptions};
 
 drvFIG::derivedConstructor(drvFIG):
 constructBase,
 buffer(tempFile.asOutput()),
 imgcount(1),
 format(32),
-startdepth(999),
-use_correct_font_size(false),
+//startdepth(999),
+//use_correct_font_size(false),
 glob_min_x(0), glob_max_x(0), glob_min_y(0), glob_max_y(0),
 loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bbox_flag(0)
+
 {
 	// driver specific initializations
-	float depth_in_inches = 11;
-	bool show_usage_line = false;
-	const char *paper_size = NULL;
-	const char *units = "Inches";
+//	float depth_in_inches = 11;
+//	bool show_usage_line = false;
 
+
+#if 0
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);	//lint !e796 !e1776
 		if (Verbose())
@@ -185,13 +180,15 @@ loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bb
 	if (show_usage_line) {
 		errf << "Usage -f 'fig: [-help] [-depth #] [-startdepth #]'" << endl;
 	}
+#endif
+
+	const char *units = (options->metric) ? "Metric" : "Inches";
+
 	// Set the papersize
-	if (!paper_size)
-		paper_size = (depth_in_inches <= 11.0 ? "Letter" : "A4");
+	const char *paper_size  = (options->depth_in_inches <= 11.0 ? "Letter" : "A4");
 
 	// set FIG specific values
-	scale = 1;
-	currentDeviceHeight = depth_in_inches * 1200.0f * scale;
+	currentDeviceHeight = options->depth_in_inches * 1200.0f ;
 	// We use objectId as depth value.
 	// We need this because editing will reorder objects of equal depth,
 	// which has an undesireable effect if objects overlap.
@@ -200,7 +197,7 @@ loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bb
 	// xfig will set negative depth values to zero.
 	// This feature will thus become useless if we have more
 	// than 1000 objects. This is an xfig limitation.
-	objectId = startdepth + 1;	// +1 because a predecrement is done when used
+	objectId = options->startdepth + 1;	// +1 because a predecrement is done when used
 
 	x_offset = 0.0;
 	y_offset = currentDeviceHeight;
@@ -530,79 +527,188 @@ void drvFIG::close_page()
 // 11 inches and start again.
 	y_offset += currentDeviceHeight;
 	// reset depth counter
-	objectId = startdepth + 1;	// also changed to 499
+	objectId = options->startdepth + 1;	// also changed to 499
 }
 
 void drvFIG::open_page()
 {
 }
 
+struct FontTableType { 
+	int index; 
+	const char * fontname; 
+};
 	//
 	// FIG 3.1 uses an index for the popular fonts:
 	//
 	// (we cannot make this array local to drvFIG::show_textstring
 	// because some CCs don't support that yet.
 
-static const char * const FigFonts[] = {
-	"Times-Roman", "Times-Italic", "Times-Bold", "Times-BoldItalic",
-	"AvantGarde-Book", "AvantGarde-BookOblique", "AvantGarde-Demi",
-	"AvantGarde-DemiOblique", "Bookman-Light", "Bookman-LightItalic",
-	"Bookman-Demi", "Bookman-DemiItalic", "Courier", "Courier-Oblique",
-	"Courier-Bold", "Courier-BoldOblique", "Helvetica",
-	"Helvetica-Oblique",
-	"Helvetica-Bold", "Helvetica-BoldOblique", "Helvetica-Narrow",
-	"Helvetica-Narrow-Oblique", "Helvetica-Narrow-Bold",
-	"Helvetica-Narrow-BoldOblique", "NewCenturySchlbk-Roman",
-	"NewCenturySchlbk-Italic", "NewCenturySchlbk-Bold",
-	"NewCenturySchlbk-BoldItalic", "Palatino-Roman",
-	"Palatino-Italic", "Palatino-Bold", "Palatino-BoldItalic",
-	"Symbol", "ZapfChancery-MediumItalic", "ZapfDingbats"
+static const FontTableType FigPSFonts[] = {
+	{0,"Times-Roman"}, 
+	{1,"Times-Italic"}, 
+	{2,"Times-Bold"}, 
+	{3,"Times-BoldItalic"},
+	{4,"AvantGarde-Book"}, 
+	{5,"AvantGarde-BookOblique"}, 
+	{6,"AvantGarde-Demi"},
+	{7,"AvantGarde-DemiOblique"}, 
+	{8,"Bookman-Light"}, 
+	{9,"Bookman-LightItalic"},
+	{10,"Bookman-Demi"}, 
+	{11,"Bookman-DemiItalic"}, 
+	{12,"Courier"}, 
+	{13,"Courier-Oblique"},
+	{14,"Courier-Bold"}, 
+	{15,"Courier-BoldOblique"}, 
+	{16,"Helvetica"},
+	{17,"Helvetica-Oblique"},
+	{18,"Helvetica-Bold"}, 
+	{19,"Helvetica-BoldOblique"}, 
+	{20,"Helvetica-Narrow"},
+	{21,"Helvetica-Narrow-Oblique"}, 
+	{22,"Helvetica-Narrow-Bold"},
+	{23,"Helvetica-Narrow-BoldOblique"}, 
+	{24,"NewCenturySchlbk-Roman"},
+	{25,"NewCenturySchlbk-Italic"}, 
+	{26,"NewCenturySchlbk-Bold"},
+	{27,"NewCenturySchlbk-BoldItalic"}, 
+	{28,"Palatino-Roman"},
+	{29,"Palatino-Italic"}, 
+	{30,"Palatino-Bold"}, 
+	{31,"Palatino-BoldItalic"},
+	{32,"Symbol"}, 
+	{33,"ZapfChancery-MediumItalic"}, 
+	{34,"ZapfDingbats"}
 };
 
-static int getfigfontnumber(const char *fname)
+static const size_t MaxPSFntnum = sizeof(FigPSFonts) / sizeof(FontTableType) - 1;
+
+/*
+	For font_flags bit 2 = 0 (LaTeX fonts):
+
+	 0	Default font
+	 1	Roman
+	 2	Bold
+	 3	Italic
+	 4	Sans Serif
+	 5	Typewriter
+*/
+	static const FontTableType FigLaTeXFonts[] = {
+		{0,"Default font"},
+		{0,"Default"},
+		{0,"Defaultfont"},
+		{1,"Roman"},
+		{2,"Bold"},
+		{3,"Italic"},
+		{4,"Sans Serif"},
+		{4,"Sans-Serif"},
+		{4,"SansSerif"},
+		{4,"Sansserif"},
+		{5,"Typewriter"}
+	};
+
+static const size_t MaxLaTeXFntnum = sizeof(FigLaTeXFonts) / sizeof(FontTableType) - 1;
+
+
+static int getfigFontnumber(const char *fname,const FontTableType *FigFonts, unsigned int MaxFntNum)
 {
-	size_t fntlength = strlen(fname);
-	size_t MAXFNTNUM = sizeof(FigFonts) / (sizeof(char *)) - 1;
-	for ( unsigned int i = 0; i <= MAXFNTNUM; i++) {
-		if (fntlength == strlen(FigFonts[i])) {
-			if (strncmp(fname, FigFonts[i], fntlength) == 0)
-				return (int) i;
+	const size_t fntlength = strlen(fname);
+	for ( unsigned int i = 0; i <= MaxFntNum; i++) {
+		if (fntlength == strlen(FigFonts[i].fontname)) {
+			if (strncmp(fname, FigFonts[i].fontname, fntlength) == 0)
+				return FigFonts[i].index;
 		}
 	}
 	return -1;
 }
 
 
+
 void drvFIG::show_text(const TextInfo & textinfo)
 {
 	const float toRadians = 3.14159265359f / 180.0f;
 
-	int FigFontNum = getfigfontnumber(textinfo.currentFontName.value());
-	if (FigFontNum == -1) {
-		errf << "Warning, unsupported font " << textinfo.currentFontName.value() << ", using ";
-		FigFontNum = getfigfontnumber(defaultFontName);
-		if (FigFontNum != -1) {
-			errf << defaultFontName;
-		} else {
-			if (strstr(textinfo.currentFontName.value(), "Bold") == 0) {
-				if (strstr(textinfo.currentFontName.value(), "Italic") == 0) {
-					errf << "Times-Roman";
-					FigFontNum = 0;	// Times-Roman
-				} else {
-					FigFontNum = 1;
-					errf << "Times-Italic";
-				}
+/*
+	The font_flags field is defined as follows:
+
+	 Bit	Description
+
+	  0	Rigid text (text doesn't scale when scaling compound objects)
+	  1	Special text (for LaTeX)
+	  2	PostScript font (otherwise LaTeX font is used)
+	  3	Hidden text
+
+*/
+
+/*
+Notation for font names:
+
+((LaTeX|PostScript|<empty>)(::special)::)FontName
+
+Examples:
+
+LaTeX::Fontname
+LaTeX::special::Fontname
+
+FontName
+PostScript::special::Fontname
+::special::Fontname (same as Postscript::special::Fontname)
+
+
+*/
+
+	int fontflags = 4; // fontflags (bit vector)
+	// 4 is 0100 - PostScript
+
+	int FigFontNum = 0;
+	const char * const specialindex = strstr(textinfo.currentFontName.value(),"::special::");
+	const bool special = (specialindex != 0);
+	if (!strncmp(textinfo.currentFontName.value(),"LaTeX::",7) ) {
+		// it is a LaTeX Font
+		fontflags = special ? 2 : 0 ; // 0010 or 0000  - LaTeX
+		const char* fontname = special ? (specialindex + 11) : ( textinfo.currentFontName.value() + 7);
+		FigFontNum = getfigFontnumber(fontname,FigLaTeXFonts,MaxLaTeXFntnum);
+		// debug cout << "LaTeX::" << (const char *) (special ? "special" : "normal") << "::"<< fontname << " " <<textinfo.currentFontName.value() << endl;
+		if (FigFontNum == -1) {
+			errf << "Warning, unsupported font " << fontname << ", using LaTeX default instead.";
+			FigFontNum = 0;
+		}
+	} else {
+		const char * fontname = textinfo.currentFontName.value();
+		if (!strncmp(textinfo.currentFontName.value(),"PostScript::",12) ) {
+			fontname+=12; // just skip "PostScript::"
+		}
+		if (special) { fontname+=11 ; } // just skip "::special::"
+		fontflags = special ? 6 : 4; // 0110 or 0100 - PostScript
+		// debug cout << "PostScript::" << (const char *) (special ? "special" : "normal") << "::" << fontname<< " " <<textinfo.currentFontName.value() << endl;
+		FigFontNum = getfigFontnumber(fontname,FigPSFonts,MaxPSFntnum);
+		if (FigFontNum == -1) {
+			errf << "Warning, unsupported font " << fontname << ", using ";
+			FigFontNum = getfigFontnumber(defaultFontName,FigPSFonts,MaxPSFntnum);
+			if (FigFontNum != -1) {
+				errf << defaultFontName;
 			} else {
-				if (strstr(textinfo.currentFontName.value(), "Italic") == 0) {
-					errf << "Times-Bold";
-					FigFontNum = 2;	// Times-Bold
+				if (strstr(fontname, "Bold") == 0) {
+					if (strstr(fontname, "Italic") == 0) {
+						errf << "Times-Roman";
+						FigFontNum = 0;	// Times-Roman
+					} else {
+						FigFontNum = 1;
+						errf << "Times-Italic";
+					}
 				} else {
-					FigFontNum = 3;
-					errf << "Times-BoldItalic";
+					if (strstr(fontname, "Italic") == 0) {
+						errf << "Times-Bold";
+						FigFontNum = 2;	// Times-Bold
+					} else {
+						FigFontNum = 3;
+						errf << "Times-BoldItalic";
+					}
 				}
 			}
+			errf << " instead." << endl;
 		}
-		errf << " instead." << endl;
 	}
 
 	const unsigned int color = registercolor(textinfo.currentR, textinfo.currentG,
@@ -611,7 +717,7 @@ void drvFIG::show_text(const TextInfo & textinfo)
 	if (localFontSize <= 0.1) {
 		localFontSize = 9;
 	}
-	if (!use_correct_font_size) {
+	if (!options->use_correct_font_size) {
 		// formerly xfig used scaled font sizes and not the X11 font sizes
 		localFontSize = (((float)localFontSize * 80.0f) / 72.0f) + 0.5f; 
 	}
@@ -642,14 +748,18 @@ void drvFIG::show_text(const TextInfo & textinfo)
 	}
 	buffer << "# text\n";
 	new_depth();
-	buffer << "4 0 ";
+
+	
+	buffer << "4 0 "; // 4 means text, 0 left justified
 	buffer << color;
 	if (objectId)
 		objectId--;				// don't let it get < 0
-	buffer << " " << objectId << " -1 "
+	buffer << " " << objectId // depth
+		<< " -1 " // pen_style - not used
 		<< FigFontNum << " "
 		<< (int) localFontSize << " "
-		<< textinfo.currentFontAngle * toRadians << " 4 "
+		<< textinfo.currentFontAngle * toRadians 
+		<< " " << fontflags << " "  
 		<< FigHeight << " "
 		<< FigLength << " "
 		<< (int) (PntFig * textinfo.x) << " "
@@ -687,10 +797,15 @@ void drvFIG::bbox_path()
 void drvFIG::show_path()
 {
 	float localLineWidth = currentLineWidth();
+#if 0
+	if (localLineWidth <= 1.0) localLineWidth = 1.0;
+#else
+	// line width of 0 remain 0 - everything else is at least 1 
 	if ((localLineWidth < 0.0) || ((localLineWidth > 0.0) && (localLineWidth <= 1.0))) {
 		localLineWidth = 1.0;
-	}
-	int linestyle = 0;
+	} 
+#endif
+	unsigned int linestyle = 0;
 	switch (currentLineType()) {
 	case solid:
 		linestyle = 0;
@@ -708,6 +823,9 @@ void drvFIG::show_path()
 		linestyle = 2;
 		break;
 	}
+
+	const unsigned int linecap = currentLineCap();
+	const unsigned int linejoin = currentLineJoin();
 	// Calculate BBox
 	bbox_path();
 
@@ -721,7 +839,10 @@ void drvFIG::show_path()
 		if (objectId)
 			objectId--;			// don't let it get < 0
 		buffer << color << " " << color << " " << objectId << " 0 " <<
-			fill_or_nofill << " " << "4.0" << " 0 0 0 0 0 ";
+			fill_or_nofill << " " << "4.0" << 
+			" " << linejoin << " " << linecap 
+			//" 0 0"
+			<< " 0 0 0 ";
 		// 4.0 is the gap spec. we could also derive this from the input
 		buffer << (int) (numberOfElementsInPath()) << "\n";
 		print_polyline_coords();
@@ -735,7 +856,9 @@ void drvFIG::show_path()
 		if (objectId)
 			objectId--;			// don't let it get < 0
 		buffer << color << " " << color << " " << objectId << " 0 " <<
-			fill_or_nofill << " " << "4.0" << " 0 0 0 ";
+			fill_or_nofill << " " << "4.0" << //" 0"
+			" " << linecap 
+			<< " 0 0 ";
 		// 4.0 is the gap spec. we could also derive this from the input
 
 		// IJMP - change to quintic spline - 5 pnts per spline, not 3
@@ -799,11 +922,29 @@ void drvFIG::show_image(const PSImage & imageinfo)
 }
 
 
-static DriverDescriptionT < drvFIG > D_fig("fig", ".fig format for xfig", "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
-										   DriverDescription::normalopen,
-										   false, false /*clipping */ ,driveroptions);
+static const char * const additionalDoku = 
+"The xfig backend supports special fontnames, which may be produced by using a fontmap file. "
+"The following types of names are supported : BREAK  "
+"\n\\begin{verbatim}\n"
+"General notation: \n"
+"\"Postscript Font Name\" ((LaTeX|PostScript|empty)(::special)::)XFigFontName\n"
+" \n"
+"Examples:\n"
+"\n"
+"Helvetica LaTeX::SansSerif\n"
+"Courier LaTeX::special::Typewriter\n"
+"GillSans \"AvantGarde Demi\"\n"
+"Albertus PostScript::special::\"New Century Schoolbook Italic\" \n"
+"Symbol ::special::Symbol (same as Postscript::special::Symbol)\n"
+"\\end{verbatim}\n"
+"See also the file examplefigmap.fmp in the misc directory of the pstoedit source distribution for an example font map file for xfig. "
+"Please note that the Fontname has to be among those supported by xfig. "
+"See - \\URL{http://www.xfig.org/userman/fig-format.html} for a list of legal font names";
 
-static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
+static DriverDescriptionT < drvFIG > D_fig( "fig", ".fig format for xfig",  additionalDoku,"fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
+										   DriverDescription::normalopen,
+										   false, false /*clipping */ );
+
+static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "See fig format for more details.","fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
 											DriverDescription::normalopen,
-											false, false /*clipping */ ,driveroptions);
- 
+											false, false /*clipping */ );

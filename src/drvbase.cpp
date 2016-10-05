@@ -2,7 +2,7 @@
    drvbase.cpp : This file is part of pstoedit
    Basic, driver independent output routines
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,11 +24,13 @@
 
 #include I_stdlib
 #include I_iostream
-#include I_iomanip
+//#include I_iomanip
 
 #include I_string_h
 
 #include I_strstream
+
+#include <math.h>
 
 #ifndef miscutil_h
 #include "miscutil.h"
@@ -83,21 +85,21 @@ drvbase::drvbase(const char *driveroptions_p, ostream & theoutStream,
 				 ostream & theerrStream,
 				 const char *nameOfInputFile_p,
 				 const char *nameOfOutputFile_p,
-				 const float scalefactor,
 				 const PsToEditOptions & globaloptions_p, 
 				 const DriverDescription * Pdriverdesc_p)
 :								// constructor
-Pdriverdesc(Pdriverdesc_p), simulateSubPaths(false),
+Pdriverdesc(Pdriverdesc_p), 
+DOptions_ptr(Pdriverdesc_p->createDriverOptions()),
 //  totalNumberOfPages(0),
 //  bboxes(0),
 	outf(theoutStream),
 errf(theerrStream),
 inFileName(nameOfInputFile_p),
 outFileName(nameOfOutputFile_p), 
-outDirName(0), outBaseName(0), d_argc(0), d_argv(0), scale(scalefactor), globaloptions(globaloptions_p),
+outDirName(0), outBaseName(0), d_argc(0), d_argv(0), globaloptions(globaloptions_p),
 	// set some common defaults
-	currentDeviceHeight(792.0f * scale),
-currentDeviceWidth(640.0f * scale),
+	currentDeviceHeight(792.0f ),
+currentDeviceWidth(640.0f ),
 x_offset(0.0f),
 y_offset(0.0f),
 currentPageNumber(0),
@@ -109,6 +111,9 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(1), drivero
 	currentPath(0), outputPath(0), lastPath(0)
 	// default for textInfo_ and lasttextInfo_
 {
+
+	
+
 	// verbose = (getenv("PSTOEDITVERBOSE") != 0);
 
 	if (verbose) {
@@ -139,11 +144,13 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(1), drivero
 			optstream >> currentarg;
 			d_argc++;
 		}
-		d_argv = new char *[d_argc + 1];
+		d_argv = new const char *[d_argc + 2];  // 1 more for the argv[0]
 		// now fill d_args array;
 		(void) optstream.seekg(startOfStream);	// reposition to start
 		optstream.clear();
-		d_argc = 0;
+		// fill argv[0] with driver name (to be similar with Unix)
+		d_argv[0] = cppstrdup(Pdriverdesc_p->symbolicname);
+		d_argc = 1;
 		while (!optstream.eof()) {
 			optstream >> currentarg;
 			d_argv[d_argc] = cppstrdup(currentarg);
@@ -151,12 +158,29 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(1), drivero
 		}
 		d_argv[d_argc] = 0;
 		if (verbose) {
-			errf << "got " << d_argc << " driver arguments" << endl;
+			errf << "got " << d_argc << " driver argument(s)" << endl;
 			for (unsigned int i = 0; i < d_argc; i++) {
 				errf << "Driver option " << i << ":" << d_argv[i] << endl;
 			}
 		}
 	}
+
+// now call the driver specific option parser.
+	if (d_argc>0) {
+		if (DOptions_ptr) {
+			//debug errf << "DOptions_ptr: " << (void*) DOptions_ptr << endl;
+			const unsigned int remaining = DOptions_ptr->parseoptions(errf,d_argc,d_argv);
+			if (remaining > 0) {
+				errf << "the following options could not be handled by the driver: " << endl;
+				for (unsigned int i = 0; i < remaining; i++) {
+					errf << DOptions_ptr->unhandledOptions[i] << endl;
+				}
+			}
+		} else {
+			cerr << "DOptions_ptr is NIL - program flow error - contact author." << endl;
+		}
+	}
+
 //  bboxes = new BBox[maxPages];
 
 	// init segment info for first segment
@@ -178,9 +202,10 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(1), drivero
 	setCurrentFontWeight("Regular");
 	setCurrentFontFullName("Courier");
 	setCurrentFontSize(10.0f);
-	lasttextInfo_ = textInfo_;
-	lasttextInfo_.currentFontSize = -textInfo_.currentFontSize;	// to force a new font the first time.
-	lasttextInfo_.currentR = textInfo_.currentR + 1;	// to force new color
+	mergedTextInfo = textInfo_; // initial value - empty buffer
+	lastTextInfo_ = textInfo_;
+	lastTextInfo_.currentFontSize = -textInfo_.currentFontSize;	// to force a new font the first time.
+	lastTextInfo_.currentR = textInfo_.currentR + 1;	// to force new color
 }
 
 drvbase::~drvbase()
@@ -206,6 +231,9 @@ drvbase::~drvbase()
 	delete[]outBaseName;
 	outBaseName = NIL;
 	Pdriverdesc = NIL;
+
+	delete DOptions_ptr;
+	DOptions_ptr = NIL;
 
 	if (currentSaveLevel->previous != NIL) {
 		while (currentSaveLevel->previous != NIL) {
@@ -233,14 +261,14 @@ const BBox & drvbase::getCurrentBBox() const
 	}
 }
 
-void drvbase::startup(bool merge)
+void drvbase::startup(bool mergelines)
 {
 	domerge = false;			// default
-	if (merge) {
+	if (mergelines) {
 		if (Pdriverdesc->backendSupportsMerging) {
 			domerge = true;
 		} else {
-			errf << "the selected backend does not support merging, -merge ignored" << endl;
+			errf << "the selected backend does not support merging, -mergelines ignored" << endl;
 		}
 	}
 }
@@ -255,7 +283,7 @@ void drvbase::finalize()
 
 void drvbase::showpage()
 {
-	dumpPath();					// dump last path 
+	flushOutStanding();					// dump last path 
 	if (!page_empty) {
 		close_page();
 	}
@@ -308,6 +336,8 @@ bool drvbase::pathsCanBeMerged(const PathInfo & path1, const PathInfo & path2) c
 	}
 }
 
+
+
 const basedrawingelement & drvbase::pathElement(unsigned int index) const
 {
 	return *(outputPath->path[index + outputPath->subpathoffset]);
@@ -341,7 +371,28 @@ bool drvbase::textIsWorthToPrint(const char *thetext) const
 	return false;
 }
 
-void    drvbase::show_text(const TextInfo & textinfo) 
+bool drvbase::textCanBeMerged(const TextInfo & text1, const TextInfo & text2) const
+{
+	return (
+				(text1.currentFontName == text2.currentFontName)
+			 && (text1.currentFontFamilyName  == text2.currentFontFamilyName)
+			 && (text1.currentFontFullName  == text2.currentFontFullName)
+			 && (text1.currentFontWeight  == text2.currentFontWeight)
+			 && (text1.currentFontSize  == text2.currentFontSize)
+			 && (text1.currentFontAngle  == text2.currentFontAngle)
+			 && (text1.currentR  == text2.currentR)
+			 && (text1.currentG  == text2.currentG)
+			 && (text1.currentB  == text2.currentB)
+
+			 && (fabs(text1.x - text2.x_end) < text1.currentFontSize / 10)
+			 && (fabs(text1.y - text2.y_end) < text1.currentFontSize / 10)
+
+			);
+
+	// text matrix is ignored for the moment
+}
+
+void drvbase::show_text(const TextInfo & textinfo) 
 {
 		unused(&textinfo);
 		if (Pdriverdesc->backendSupportsText) {
@@ -360,18 +411,105 @@ void drvbase::show_rectangle(
 {
 	// outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ")" << endl;
 	// just do show_path for a first guess
-		unused(&llx);
-		unused(&lly);
-		unused(&urx);
-		unused(&ury);
-		show_path(); // default - just write the rect as an ordinary polygon
+
+	if (globaloptions.convertFilledRectToStroke && (currentShowType() == drvbase::fill || currentShowType() == drvbase::eofill)) {
+// if possible and wished - convert a filled rectangle to a single stroked line
+
+		const float dx = urx - llx;
+		const float dy = ury - lly;
+		const float lw = currentLineWidth();
+		const float lwhalf = lw/2.0f;
+
+		PathInfo * savepath = currentPath;
+		currentPath = outputPath; // in order to be able to use the add.. functions
+		// we have to use outputPath-> instead of currentpath
+
+		setCurrentShowType(drvbase::stroke);
+		setCurrentLineCap(0); // 0 means "butt", i.e. no overlap
+		setCurrentLineType(drvbase::solid); 
+
+		if (dx > dy) {
+			// horizontal line
+			const float mid = (ury+lly)/2.0f;
+	 		currentPath->clear();
+	 		addtopath(new Moveto(llx-lwhalf,mid));
+	 		addtopath(new Lineto(urx+lwhalf,mid));
+	 		setCurrentLineWidth( dy+lw );
+			// debug cout << "rect -> horizontal line " << endl;
+		} else {
+			// vertical line
+			const float mid = (urx+llx)/2.0f;
+			currentPath->clear();
+			addtopath(new Moveto(mid,lly+lwhalf));
+			addtopath(new Lineto(mid,ury+lwhalf));
+			setCurrentLineWidth( dx+lw );
+			// debug cout << "rect -> vertical line " << endl;
+		}
+		currentPath = savepath; 
+	} else {
+		// default - just write the rect as an ordinary polygon
+
+		// debug cout << "rect as path " << endl;
+	}	
+
+	show_path(); 
 }
 
-void drvbase::dumpText(const char *const thetext, const float x, const float y)
+void drvbase::flushTextBuffer(bool useMergeBuffer)
 {
-	if (textIsWorthToPrint(thetext)) {
-		dumpPath();				// dump last path to avoid wrong sequence of text and graphics
-		add_to_page();
+	if (useMergeBuffer) textInfo_ = mergedTextInfo; // this is ugly, I know, but to be consistent
+								// with other functions that use textInfo_ directly
+								// this is needed.
+	const TextInfo* textToBeFlushed = useMergeBuffer ? &mergedTextInfo : &textInfo_;
+	add_to_page();
+	show_text(*textToBeFlushed);	
+	lastTextInfo_ = *textToBeFlushed;	// save for font and color comparison
+}
+
+void drvbase::showOrMergeText()
+{
+	flushOutStanding(flushpath); // dump last path to avoid wrong sequence of text and graphics
+	// this flushing needs to be done in any case, even if the text is not written immediately
+	// but instead buffered first. But otherwise, the order gets corrupted
+
+	if (globaloptions.mergetext) {
+		if (mergedTextInfo.thetext == "") {
+			mergedTextInfo = textInfo_;
+			// there was nothing in the buffer so far, so just place it there.
+			// for this we need a final flush somewhere
+		} else if (textCanBeMerged(textInfo_,mergedTextInfo)) {
+		   // text can be merged.
+			if (verbose) {
+				errf << "Info: merging text '" << mergedTextInfo.thetext 
+					<< "' and '"
+					<< textInfo_.thetext << "'" << endl;
+			}
+			mergedTextInfo.thetext += textInfo_.thetext;
+			mergedTextInfo.x_end = textInfo_.x_end;
+			mergedTextInfo.y_end = textInfo_.y_end;
+		} else {
+			// cannot be merged, so dump text collected so far and place the new
+			// one in the buffer for later
+			if (textIsWorthToPrint(mergedTextInfo.thetext.value())) {
+				TextInfo temp = textInfo_;	// save "new" text in temp
+				flushTextBuffer(true); // true -> use merge buffer
+				mergedTextInfo = temp;		// set the merge buffer to the "new" text
+			} else {
+				// the merge buffer was not worth to be printed so forget it and 
+				// start over with new text
+				mergedTextInfo = textInfo_;
+			}
+		}
+	} else {
+		// always just "pass through" if it is worth to be printed
+		if (textIsWorthToPrint(textInfo_.thetext.value())) {
+			flushTextBuffer(false); // false -> use textinfo_
+		}
+	}
+}
+
+void drvbase::pushText(const char *const thetext, const float x, const float y)
+{
 		textInfo_.x = x;
 		textInfo_.y = y;
 		textInfo_.thetext.copy(thetext);
@@ -386,7 +524,9 @@ void drvbase::dumpText(const char *const thetext, const float x, const float y)
 			textInfo_.currentFontName.copy(remappedFontName);
 			textInfo_.remappedfont= true;
 		}
-		show_text(textInfo_);
+
+		showOrMergeText();
+
 #if 0
 		if ((lasttextInfo_.y == textInfo_.y)
 			&& (lasttextInfo_.x_end >= textInfo_.x)
@@ -398,8 +538,7 @@ void drvbase::dumpText(const char *const thetext, const float x, const float y)
 			}
 		}
 #endif
-		lasttextInfo_ = textInfo_;	// save for font and color comparison
-	}
+
 }
 
 
@@ -407,37 +546,18 @@ static unsigned short hexdecode( char high, char low) {
 	return 16*hextoint(high) + hextoint(low);
 }
 
-void drvbase::dumpHEXText(const char *const thetext, const float x, const float y)
+void drvbase::pushHEXText(const char *const thetext, const float x, const float y)
 {
 	const unsigned int textlen = strlen(thetext);
 	if (textlen) {
-		dumpPath();				// dump last path to avoid wrong sequence of text and graphics
-		add_to_page();
 		char * decodedText = new char[ (textlen / 2 ) + 1 ];
 		for (unsigned int i = 0, j = 0; i < (textlen/2); i++) {
 			decodedText[i] = hexdecode(thetext[j], thetext[j+1]);
 			j++;j++;
 		}
 		decodedText[textlen/2] = '\0';
-		textInfo_.x = x;
-		textInfo_.y = y;
-		textInfo_.thetext.copy(decodedText,textlen/2);
-		textInfo_.remappedfont= false;
-
+		pushText(decodedText,x,y);
 		delete [] decodedText;
-
-		const char *remappedFontName = drvbase::theFontMapper().mapFont(textInfo_.currentFontName);
-		// errf << " Mapping of " << textInfo_.currentFontName << " returned " << (remappedFontName ? remappedFontName:" ") << endl;
-		if (remappedFontName) {
-			if (verbose) {
-				errf << "Font remapped from '" << textInfo_.
-					currentFontName << "' to '" << remappedFontName << "'" << endl;
-			}
-			textInfo_.currentFontName.copy(remappedFontName);
-			textInfo_.remappedfont= true;
-		}
-		show_text(textInfo_);
-		lasttextInfo_ = textInfo_;	// save for font and color comparison
 	}
 }
 
@@ -668,7 +788,7 @@ void drvbase::guess_linetype()
 
 void drvbase::dumpImage()
 {
-	dumpPath();					// dump last path to avoid wrong sequence of text and graphics
+	flushOutStanding();					// dump last path to avoid wrong sequence of text and graphics
 	add_to_page();
 	imageInfo.calculateBoundingBox();
 	show_image(imageInfo);
@@ -707,11 +827,11 @@ void drvbase::dumpRearrangedPathes()
 		numpaths = 1;
 
 	const unsigned int origCount = numberOfElementsInPath();
-	unsigned int start = 0;
+	unsigned int starti = 0;
 	for (unsigned int i = 0; i < numpaths; i++) {
-		unsigned int end = start;
+		unsigned int end = starti;
 		outputPath->subpathoffset = 0;
-		while (1)				// Find the next end index
+		while (true)				// Find the next end index
 		{
 			end++;
 			if (end >= origCount)
@@ -721,12 +841,12 @@ void drvbase::dumpRearrangedPathes()
 		}
 		if (end <= origCount) {
 			if (verbose)
-				errf << "dumping subpath from " << start << " to " << end << endl;
-			outputPath->subpathoffset = start;
+				errf << "dumping subpath from " << starti << " to " << end << endl;
+			outputPath->subpathoffset = starti;
 			outputPath->numberOfElementsInPath = end - start;
 			show_path();		// from start to end
 		}
-		start = end;
+		starti = end;
 	}
 	outputPath->numberOfElementsInPath = origCount;
 	outputPath->subpathoffset = 0;
@@ -760,7 +880,7 @@ bool drvbase::close_output_file_and_reopen_in_binary_mode()
 		cerr << "Error: This driver cannot write to stdout since it writes binary data " << endl;
 		return 0;
 	}
-	return 0; // not reached - but to make some compilers happy
+//	return 0; // not reached - but to make some compilers happy
 }
 
 
@@ -769,7 +889,7 @@ void drvbase::beginClipPath()
 {
 	// now we start a clippath, so we need to dump
 	// all previous pathes
-	dumpPath();
+	flushOutStanding();
 	last_currentPath = currentPath;
 	currentPath = &clippath;
 	outputPath = currentPath;
@@ -801,10 +921,34 @@ void drvbase::Restore()
 {
 }
 
-
-void drvbase::dumpPath()
+void drvbase::flushOutStanding( flushmode_t flushmode )
 {
-	guess_linetype();			// needs to be done here, because we must write to currentpath
+	switch ( flushmode ) {
+		case  flushall:
+			// this needs to be fixed concerning the ordering (which was first  - the text or the path)
+			flushOutStanding(flushpath);
+			flushOutStanding(flushtext); 
+			break;
+		case flushtext:
+			if (textIsWorthToPrint(mergedTextInfo.thetext.value())) {
+				flushTextBuffer(true); 
+				mergedTextInfo.thetext="";		// clear the merge buffer
+			} 
+			break;
+		case flushpath:
+			dumpPath(false); // false -> no flush text
+			break;
+		default:
+			break;
+	}
+}
+
+void drvbase::dumpPath(bool doFlushText)
+{
+	if (doFlushText) flushOutStanding(flushtext); // flush text, so merge is not supported in case of
+								 // text path text sequence
+
+	guess_linetype();			 // needs to be done here, because we must write to currentpath
 
 #if fixlater
 	// this does not work as it is at the moment since
@@ -869,6 +1013,7 @@ void drvbase::dumpPath()
 		outputPath = lastPath;
 	}
 	if (numberOfElementsInPath() > 0) {
+
 		// nothing to do for empty pathes
 		// pathes may be empty due to a merge operation
 
@@ -896,23 +1041,22 @@ void drvbase::dumpPath()
 			add_to_page();
 			if (isPolygon()) {	/* PolyGon */
 				if (is_a_rectangle()) {
-					float llx, lly, urx, ury;
-					llx =
+					const float llx =
 						min(min
 							(pathElement(0).getPoint(0).x_,
 							 pathElement(1).getPoint(0).x_),
 							min(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
-					urx =
+					const float urx =
 						max(max
 							(pathElement(0).getPoint(0).x_,
 							 pathElement(1).getPoint(0).x_),
 							max(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
-					lly =
+					const float lly =
 						min(min
 							(pathElement(0).getPoint(0).y_,
 							 pathElement(1).getPoint(0).y_),
 							min(pathElement(2).getPoint(0).y_, pathElement(3).getPoint(0).y_));
-					ury =
+					const float ury =
 						max(max
 							(pathElement(0).getPoint(0).y_,
 							 pathElement(1).getPoint(0).y_),
@@ -920,13 +1064,13 @@ void drvbase::dumpPath()
 
 					show_rectangle(llx, lly, urx, ury);
 				} else {
-					if (simulateSubPaths)
+					if (globaloptions.simulateSubPaths)
 						dumpRearrangedPathes();
 					else
 						show_path();
 				}
 			} else {			/* PolyLine */
-				if (simulateSubPaths)
+				if (globaloptions.simulateSubPaths)
 					dumpRearrangedPathes();
 				else
 					show_path();
@@ -937,13 +1081,18 @@ void drvbase::dumpPath()
 	}
 	// swap current and last pointers
 	PathInfo *help = currentPath;
-	currentPath = lastPath;
+	currentPath = lastPath; // currentPath will be filled next be Lexer
 	lastPath = help;
 
 	currentPath->copyInfo(*help);	// initialize next path with state of last path
 	// currentPath is the path filled next by lexer
 
 	outputPath = currentPath;
+}
+
+void drvbase::removeFromElementFromPath()
+{
+	currentPath->numberOfElementsInPath--;
 }
 
 void drvbase::addtopath(basedrawingelement * newelement)
@@ -972,7 +1121,7 @@ void drvbase::PathInfo::clear()
 {
 	for (unsigned int i = 0; i < numberOfElementsInPath; i++) {
 		// delete path[i];
-		path[i]->deleteyourself(); // see not in drvbase.h 
+		path[i]->deleteyourself(); // see note in drvbase.h 
 		path[i] = 0;
 	}
 	numberOfElementsInPath = 0;
@@ -983,8 +1132,8 @@ void drvbase::PathInfo::copyInfo(const PathInfo & p)
 {
 	// copies the whole path state except the path array
 	currentShowType = p.currentShowType;
-// wogl: I added the following three ones since
-// these were obviously missing
+	// wogl: I added the following three ones since
+	// these were obviously missing
 	currentLineType = p.currentLineType;
 	currentLineCap = p.currentLineCap;
 	currentLineJoin = p.currentLineJoin;
@@ -1105,7 +1254,7 @@ const char *  ColorTable::getColorString(unsigned int index) const
 
 
 
-const DriverDescription *DescriptionRegister:: getdriverdesc(const char *drivername) const
+const DriverDescription *DescriptionRegister:: getDriverDescForName(const char *drivername) const
 {
 	unsigned int i = 0;
 	while (rp[i] != 0) {
@@ -1117,40 +1266,66 @@ const DriverDescription *DescriptionRegister:: getdriverdesc(const char *drivern
 	return 0;
 }
 
+const DriverDescription *DescriptionRegister:: getDriverDescForSuffix(const char *suffix) const
+{
+	unsigned int i = 0;
+	const DriverDescription * founditem = 0; 
+	while (rp[i] != 0) {
+		if ((strcmp(suffix, rp[i]->suffix) == 0)) {
+			if (founditem) {
+				// already found an entry for this suffix - so it is not unique -> return 0
+				return 0;
+			} else {
+				founditem = rp[i]; // first chance - but loop throug all items
+			}
+		}
+		i++;
+	}
+	return founditem;
+}
+
 void DescriptionRegister::explainformats(ostream & out, bool withdetails) const
 {
-
-	out << "Available formats :\n";
+	if (withdetails) {
+		// out << "\\subsection{Available formats and their specific options}" << endl;
+	} else {
+		out << "Available formats :\n";
+	}
 	unsigned int i = 0;
 	while (rp[i] != 0) {
-		out << '\t' << rp[i]->symbolicname << ":\t";
-		if (strlen(rp[i]->symbolicname) < 7) {
-			out << '\t';
+		if (withdetails) {
+			out << "\\subsubsection{" << rp[i]->symbolicname << " - " << rp[i]->short_explanation <<"}" << endl;
+			if (strlen(rp[i]->long_explanation)>0) { out << rp[i]->long_explanation << endl << endl; }
+		} else {
+			out << '\t' << rp[i]->symbolicname << ":\t";
+			if (strlen(rp[i]->symbolicname) < 7) {
+				out << '\t';
+			}
+			out << "\t." << rp[i]->suffix << ":\t";
+			out << rp[i]->short_explanation << " " << rp[i]->additionalInfo;
 		}
-		out << rp[i]->explanation << " " << rp[i]->additionalInfo;
-#if 0
-		if (rp[i]->checkfunc) {
+
+		if (!withdetails && rp[i]->checkfunc) {
 			if (!(rp[i]->checkfunc())) {
 				out << " (no valid key found)";
 			}
 		}
-#endif
-		out << "\t(" << rp[i]->filename << ")";
-		out << endl;
-		if (withdetails) {
-			if (rp[i]->optionDescription) {
-				out << "This driver supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
-				const OptionDescription * iter = rp[i]->optionDescription;
-				while (iter && (iter->Name != 0)) {
-					out << iter->Name;
-					if (iter->Parameter!=0) out << " " << iter->Parameter;
-					if (iter->Description!=0) out << " //" << iter->Description;
-					out << endl;
-					iter++;
-				}
-			}
-			out << "#################################" << endl;
+
+		if (!withdetails) out << "\t(" << rp[i]->filename << ")" << endl;
+
+		ProgramOptions* dummy = rp[i]->createDriverOptions();
+		if (!withdetails && dummy->numberOfOptions() ) {
+			out << "This driver supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
 		}
+		dummy->showhelp(out,withdetails,withdetails);
+		delete dummy;
+		
+		if (withdetails) {
+			out << "%%// end of options " << endl;
+		} else {
+			out << "-------------------------------------------" << endl;
+		}
+	
 		i++;
 	}
 }
@@ -1165,8 +1340,7 @@ void DescriptionRegister::mergeRegister(ostream & out,
 				src.rp[i]->filename = filename;
 				registerDriver(src.rp[i]);
 			} else {
-				out << src.rp[i]->
-					explanation << "(" << filename << ")" <<
+				out << src.rp[i]->short_explanation << "(" << filename << ")" <<
 					" - backend has other version than expected by pstoedit core "
 					<< srcversion << " <> " << drvbaseVersion << endl;
 				out <<
@@ -1222,7 +1396,8 @@ Point Point::transform(const float matrix[6]) const
 
 const char * DriverDescription::currentfilename = "built-in";
 DriverDescription::DriverDescription(	const char *const s_name, 
-										const char *const expl, 
+										const char *const short_expl, 
+										const char *const long_expl, 
 										const char *const suffix_p, 
 										const bool backendSupportsSubPathes_p, 
 										const bool backendSupportsCurveto_p, 
@@ -1232,16 +1407,14 @@ DriverDescription::DriverDescription(	const char *const s_name,
 										const opentype backendFileOpenType_p, 
 										const bool backendSupportsMultiplePages_p, 
 										const bool backendSupportsClipping_p, 
-										const OptionDescription* optionDescription_p, 
 										const bool nativedriver_p,
 										checkfuncptr checkfunc_p):
-symbolicname(s_name), explanation(expl), suffix(suffix_p), additionalInfo((checkfunc_p != 0) ? (checkfunc_p()? "" : "(license key needed, see pstoedit manual)") : ""), backendSupportsSubPathes(backendSupportsSubPathes_p), backendSupportsCurveto(backendSupportsCurveto_p), backendSupportsMerging(backendSupportsMerging_p),	// merge a separate outline and filling of a polygon -> 1. element
+symbolicname(s_name), short_explanation(short_expl), long_explanation(long_expl), suffix(suffix_p), additionalInfo((checkfunc_p != 0) ? (checkfunc_p()? "" : "(license key needed, see pstoedit manual)") : ""), backendSupportsSubPathes(backendSupportsSubPathes_p), backendSupportsCurveto(backendSupportsCurveto_p), backendSupportsMerging(backendSupportsMerging_p),	// merge a separate outline and filling of a polygon -> 1. element
 	backendSupportsText(backendSupportsText_p), 
 	backendDesiredImageFormat(backendDesiredImageFormat_p),
 backendFileOpenType(backendFileOpenType_p),
 backendSupportsMultiplePages(backendSupportsMultiplePages_p),
 backendSupportsClipping(backendSupportsClipping_p), 
-optionDescription(optionDescription_p),
 nativedriver(nativedriver_p),
 filename(DriverDescription::currentfilename), checkfunc(checkfunc_p)
 {
@@ -1255,7 +1428,7 @@ filename(DriverDescription::currentfilename), checkfunc(checkfunc_p)
 drvbase *DriverDescription::
 CreateBackend(const char *const driveroptions_P, ostream & theoutStream,
 			  ostream & theerrStream, const char *const nameOfInputFile,
-			  const char *const nameOfOutputFile, const float scalefactor,
+			  const char *const nameOfOutputFile, 
 			  const PsToEditOptions & globaloptions) const
 {
 	unused(driveroptions_P);
@@ -1263,7 +1436,6 @@ CreateBackend(const char *const driveroptions_P, ostream & theoutStream,
 	unused(&theerrStream);
 	unused(nameOfInputFile);
 	unused(nameOfOutputFile);
-	unused(&scalefactor);
 	unused(&globaloptions);
 	return 0;
 }
@@ -1335,5 +1507,4 @@ FontMapper& drvbase::theFontMapper() {
 bool drvbase::verbose = false; // offensichtlich kann man keine initialisierten Daten DLLEXPORTieren
 bool drvbase::Verbose() { return verbose; }
 void drvbase::SetVerbose(bool param) { verbose = param; }
- 
  

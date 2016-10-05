@@ -2,11 +2,11 @@
 \usepackage[latin1]{inputenc}
 \usepackage{babel}
 
-%% do we have the `fancyhdr' package?
+%% do we have the fancyhdr package?
 \IfFileExists{fancyhdr.sty}{
 \usepackage[fancyhdr]{latex2man}
 }{
-%% do we have the `fancyheadings' package?
+%% do we have the fancyheadings package?
 \IfFileExists{fancyheadings.sty}{
 \usepackage[fancy]{latex2man}
 }{
@@ -15,8 +15,8 @@
 }}
 
 \setVersionWord{Version}  %%% that's the default, no need to set it.
-\setVersion{3.33}
-\setDate{2003/01/04}    
+\setVersion{3.40}
+\setDate{January 2005}    
 
 \setlength{\emergencystretch}{1.5em}
 
@@ -35,57 +35,63 @@
 
 \subsection{From the command shell}
 
-\Prog{pstoedit} \oOpt{-v -help}
+\Prog{pstoedit} \oOpt{-v -help} 
+\\  
 
-\Prog{pstoedit} \oOpt{-adt}
-		\oOpt{-correctdefinefont}
-		\oOptArg{-df}{~fontname}
-		\oOpt{-dis}
-        	\oOpt{-dt}
-		\oOptArg{-flat}{~number}
-		\oOptArg{-fontmap}{~file}
-		\oOptArg{-include}{~includefile}
-		\oOpt{-merge}
-		\oOpt{-nb}
-        	\oOpt{-ndt}
-		\oOpt{-nfr}
-		\oOpt{-nomaptoisolatin1}
-		\oOpt{-nq}
-		\oOptArg{-page}{~number}
-		\oOptArg{-pagesize}{~string}
-		\oOptArg{-psarg}{~string}
-		\oOpt{-pti or -pta}
-		\oOpt{-rgb}
-		\oOptArg{-rotate}{~angle (0-360)}
-		\oOptArg{-scale}{~factor}
-		\oOpt{-sclip}
-		\oOpt{-ssp}
-		\oOpt{-split}
-		\oOpt{-t2fontsast1}
-		\oOptArg{-uchar}{~character}
-		\oOpt{-v}
-		\OptArg{-f}{~"format[:options]"} 
-		[\Arg{inputfile} \oArg{outputfile}]
-	       
-\Prog{pstoedit} \oOptArg{-scale}{~factor}
-		\OptArg{-f}{~"format[:options]"}
-                \Opt{-bo} 
-		\Arg{input-file} \oArg{output-file}  
-		      
+\Prog{pstoedit} 
+
+\oOptArg{-include}{~name of a PostScript file to be included} 
+\oOptArg{-df}{~font name} 
+\oOpt{-nomaptoisolatin1} 
+\oOpt{-dis} 
+\oOpt{-nq} 
+\oOpt{-nc} 
+\oOpt{-nsp} 
+\oOpt{-mergelines} 
+\oOpt{-filledrecttostroke} 
+\oOpt{-mergetext} 
+\oOpt{-dt} 
+\oOpt{-adt} 
+\oOpt{-ndt} 
+\oOpt{-correctdefinefont} 
+\oOpt{-pti} 
+\oOpt{-pta} 
+\oOptArg{-xscale}{~number} 
+\oOptArg{-yscale}{~number} 
+\oOpt{-split} 
+\oOpt{-v} 
+\oOpt{-usebbfrominput} 
+\oOpt{-ssp} 
+\oOptArg{-uchar}{~character} 
+\oOpt{-nb} 
+\oOptArg{-page}{~page number} 
+\oOptArg{-flat}{~flatness factor} 
+\oOpt{-sclip} 
+\oOpt{-ups} 
+\oOpt{-rgb} 
+\oOpt{-noclip} 
+\oOpt{-t2fontsast1} 
+\oOpt{-keep} 
+\oOpt{-gstest} 
+\oOpt{-nfr} 
+\oOptArg{-rotate}{~angle (0-360)} 
+\oOptArg{-fontmap}{~name of font map file for pstoedit} 
+\oOptArg{-pagesize}{~page format} 
+\oOpt{-help} 
+\oOpt{-bo} 
+\oOptArg{-psarg}{~argument string} 
+\OptArg{-f}{~"format\Lbr:options\Rbr"} 
+[ inputfile [outputfile] ] 
+
 \subsection{From Gsview}
 
-From within gsview pstoedit can be called via 
+Pstoedit can be called from within gsview via 
 "\textbf{Edit | Convert to vector format}"
-
-For this pstoedit needs to be installed in parallel to gsview. This means that if gsview is installed under "c:\Bs program files\Bs ghostgum\Bs gsview\Bs gsview32.exe" 
-then pstoedit is expected in "c:\Bs program files\Bs ghostgum\Bs pstoedit\Bs pstoedit.dll"
-
-
 
 \subsection{From programs that support the ALDUS graphic import filter interface}
   
 \Prog{pstoedit} can also be used as PostScript and PDF graphic import filter for several programs including
-MS-Office 95/97,2000,XP PaintShop-Pro and PhotoLine. See 
+MS-Office,  PaintShop-Pro and PhotoLine. See 
 \URL{http://www.pstoedit.net/importps/} for more 
 details.
 
@@ -108,23 +114,23 @@ packages. Type
 \noindent to get a list of supported output formats. Pstoedit comes with a
 large set of format drivers integrated in the binary. Additional drivers can be
 installed as plugins and are available via 
-\URL{http://www.pstoedit.net/plugins/}. Just
-copy the plugins to the same directory where the pstoedit binary is installed.
+\URL{http://www.pstoedit.net/plugins/}. 
+Just copy the plugins to the same directory where the pstoedit binary is installed or - under Unix like systems only - alternatively into the lib directory parallel to the bin directory where pstoedit is installed.
+
 However, unless you also get a license key for the plugins, the additional
 drivers will slightly distort the resulting graphics. See the documentation
 provided with the plugins for further details.
 
 \subsection{PRINCIPLE OF CONVERSION}
 
-\Prog{pstoedit} works by redefining the two basic painting operators of
-PostScript, \textbf{stroke} and \textbf{show} (bitmaps drawn by the image
+\Prog{pstoedit} works by redefining the some basic painting operators of
+PostScript, e.g. \textbf{stroke} or \textbf{show} (bitmaps drawn by the image
 operator are not supported by all backends.) After
 redefining these operators, the PostScript or PDF file that needs to be
 converted is processed by a PostScript interpreter, e.g., Ghostscript
 (\Cmd{gs}{1}). You normally need to have a PostScript interpreter installed in
-order to use this program. However, you can perform some "back end" processing
-of prepared files by specifying the \Opt{-bo} option for debugging or limited
-filtering. See "BACK END-SPECIFIC OPTIONS" below. 
+order to use this program. However, you can perform some "back end only" processing
+of files following the conventions of the pstoedit intermediate formate by specifying the \Opt{-bo} option. See "Available formats and their specific options" below. 
 
 The output that is written by the interpreter due to the redefinition of the
 drawing operators is a sort of 'flat' PostScript file that contains only simple
@@ -137,442 +143,916 @@ the drawing functions in the selected back end driver, or backend.
 \subsection{NOTES}
 
 If you want to process PDF files directly, your PostScript interpreter must
-provide this feature, as does Ghostscript. Aladdin Ghostscript 4.03 or later is
-recommended for processing PDF (and PostScript Level 2) files.
+provide this feature, as does Ghostscript. Aladdin Ghostscript is
+recommended for processing PDF and PostScript files.
 
 \section{Options}
-%%%%%%%%%%%%%%%%%
 
+
+\subsection{General options}
 \begin{description}
+\item[\oOptArg{-include}{~name of a PostScript file to be included}] 
+This options allows to specify an additional PostScript file that will be executed just before the normal input is read. This is helpful for including specific page settings or for disabling potentially unsafe PostScript operators, e.g., file, renamefile, or deletefile. 
 
 
-\item[\Opt{-correctdefinefont}] Some PostScript files, e.g. such as generated by ChemDraw, use the PostScript definefont operator in way that is incompatible with pstoedit's assumptions. The new font is defined by copying an old font without changing the FontName of the new font. When this option is applied, some "patches" are done after a definefont in order to make it again compatible with pstoedit's assumptions. This option is not enabled per default, since it may break other PostScript file. It is tested only with ChemDraw generated files.
-
-\item[\Opt{-dt}] Draw text - Text is drawn as polygons. This might produce a large output file. This option is automatically
-     switched on if the selected backend does not support this, e.g. 
-     \Cmd{gnuplot}{1}.
-
-\item[\Opt{-adt}] Automatic Draw text - This option turns on the -dt option selectively for fonts that seem to be no normal text fonts, e.g. Symbol..
-
-\item[\Opt{-ndt}] Never Draw text -  fully disable the heuristics used by pstoedit to decide when to "draw" text instead of showing it as text. This may produce incorrect results, but in some cases it might nevertheless be useful. "Use at own risk". 
+\item[\oOptArg{-xscale}{~number}] 
+scale by a factor in x-direction
 
 
-\item[\Opt{-t2fontsast1}] Handle type 2 fonts same as type 1. Type 2 fonts sometimes occur as
-embedded fonts within PDF files. In the default mode, text using such fonts is drawn as polygons
-since pstoedit assumes that such a font is not available on the users machine. If this option
-is set, pstoedit assumes that the internal encoding follows the same as for a standard font
-and generates normal text output. This assumption may not be true in all cases. But it
-is nearly impossible for pstoedit to verify this assumption - it would have to do a sort of OCR.
-
-\item[\Opt{-ndt}] fully disable any heuristic about drawing text. However, this can result in 
-unsupported fontnames to be generated into the output file so there is no guarentee about the 
-correctness of the generated output in this case. 
-
-\item[\Opt{-pti or -pta}] Precision text - With \Opt{-pta}, each character of a text string is placed 
-	separately. With \Opt{-pti}, this is done only in cases when there is a non zero inter-letter 
-	spacing. Normally
-     	a text string is drawn as it occurs in the input file. However, in some situations, this might
-	produce wrongly positioned characters. This is due to limitiations in most backends of 
-	pstoedit. They cannot represent text with arbitray inter-letter spacing which is easily
-	possible in PDF and PostScript. The downside of "precision text" is a bigger file size and hard to edit
-	text.
-
-\item[\Opt{-nfr}] In normal mode pstoedit replaces bitmap fonts with a font as defined by the \Opt{-df} option. This is done, because most backends can't handle such fonts. This behavior can be 
-switched off using the \Opt{-nfr} option but then it strongly depends on the application reading the the generated file whether the file is usable and correctly interpreted or not. Any problems are then out of control of pstoedit.
+\item[\oOptArg{-yscale}{~number}] 
+scale by a factor in y-direction
 
 
-\item[\Opt{-dis}] Open a display during processing by Ghostscript. Some files
-     only work correctly this way. 
-
-\item[\OptArg{-psarg}{~string}] The string given with this option is passed
-     directly to Ghostscript when Ghostscript is called to process the
-     PostScript file for \Prog{pstoedit}. For example:     
-     %\Opt{-psarg "-r300x300"} % latex2man bug (")
-     \textbf{-psarg}\textbf{~"}\textbf{-r300x300}\textbf{"}
-     This causes the resolution to be changed to
-     300x300 dpi. (With older versions of GhostScript, changing the resolution
-     this way has an effect only if \Opt{-display} is set.) 
-
-\end{description} 
-
-You can switch Ghostscript into PostScript Level 1 only mode by 
-\Opt{-psarg "level1.ps"}. This can be useful for example if the PostScript file to be
-converted uses some Level 2 specific custom color models that are not supported
-by pstoedit. However, this requires that the PostScript program checks for the
-PostScript level supported by the interpreter and "acts" accordingly. 
-
-If you want to pass multiple options to Ghostscript you must can use multiple 
--psarg options \Opt{-psarg opt1} \Opt{-psarg opt2} \Opt{-psarg opt2}.
-See the GhostScript manual for other possible options. 
-
-\begin{description}
-
-\item[\Opt{-merge}] Some output formats permit the representation of filled
-     polygons with edges that are in a different color than the fill color.
-     Since PostScript does not support this, drawing programs typically
-     generate two objects (the outline and the filled polygon) into the
-     PostScript output. \Prog{pstoedit} is able to recombine these, if they
-     follow each other directly and you specify  \Opt{-merge}.
-     
-\item[\OptArg{-page}{~page number}]Select a single page from a multi page
-     PostScript or PDF file. 
-
-\item[\OptArg{-rotate}{~angle (0-360)}]Rotage image by angle.
-
-\item[\Opt{-rgb}] Since version 3.30 pstoedit uses the CMYK colors internally. The -rgb option turns on the old behavior to use RGB values.
+\item[\oOpt{-split}] 
+Create a new file for each page of the input. For this the output filename must contain a \%d which is replaced with the current page number. This option is automatically switched on for backends that don't support multiple pages within one file, e.g. fig or gnuplot. 
 
 
-\item[\Opt{-split}] Create a new file for each page of the input. For this the
-    output filename must contain a \%d which is replaced with the current page
-    number. This option is automatically switched on for backends that don't
-    support multiple pages within one file, e.g. fig or gnuplot. 
+\item[\oOpt{-usebbfrominput}] 
+If specified, pstoedit uses the BoundingBox as is (hopefully) found in the input file instead of one that is calculated by its own. 
 
-\item[\OptArg{-uchar}{~character}] Sometimes pstoedit cannot map a character
-from the encoding used by the PostScript file to the font encoding of the target
-format. In this case pstoedit replaces the input character by a special character
-in order to show all the places that couldn't be mapped correctly. The default
-for this is a "\#". Using the \Opt{-uchar} option it is possible to specify another character
-to be used instead. If you want to use a space, use -uchar " ".
 
-\item[\OptArg{-df}{~fontname}] Sometimes fonts embedded in a PostScript
-    programs do not have a fontname. For example, this happens in PostScript
-    files generated by \Cmd{dvips}{1}. In such a case \Prog{pstoedit} uses a
-    replacement font. The default for this is Courier. Another font can be
-    specified using the \Opt{-df} option. \Opt{-df Helvetica} causes all
-    unnamed fonts to be replaced by Helvetica. 
+\item[\oOptArg{-page}{~page number}] 
+Select a single page from a multi page PostScript or PDF file. 
 
-\item[\OptArg{-include}{~name of a PostScript file to be included}] This
-    options allows to specify an additional PostScript file that will be
-    executed just before the normal input is read. This is helpful for
-    including specific page settings or for disabling potentially unsafe
-    PostScript operators, e.g., file, renamefile, or deletefile.
 
-\item[\OptArg{-fontmap}{~name of font map file for pstoedit}] The font map is a
-     simple text file containing lines in the following format: 
+\item[\oOpt{-rgb}] 
+Since version 3.30 pstoedit uses the CMYK colors internally. The -rgb option turns on the old behavior to use RGB values.
 
-     \verb+document_font_name    target_font_name+ \\   
-% bug in latex2html (second % char)!
-     \verb+% lines beginning with + \verb+% are comments+ \\    
-     \verb+% if a font name contains spaces, use+ \\
-     \verb+% the "font name with spaces" notation.+
-     
-    Each font name found in the document is checked agains this mapping and if
-    there is a corresponding entry, the new name is used for the output.
 
-    If  the \Opt{-fontmap} option is not specified, \Prog{pstoedit}
-    automatically looks for the file \emph{drivername}.fmp in the installation
-    directory and uses that file as a default fontmap file if available. The
-    installation directory is:
-    
-    \begin{itemize}
-    
-      \item Windows: The same directory where the \Prog{pstoedit} executable is
-		    located 
+\item[\oOpt{-noclip}] 
+don't use clipping (relevant only if backend supports clipping at all)
 
-      \item Unix: \\
-	\verb+<+
-	\emph{The directory where the pstoedit executably is located}
-	\verb+>/../lib/+ 
-	
-    \end{itemize}
 
-    The mpost.fmp in the misc directory of the pstoedit distibution is a sample
-    map file with mappings from over 5000 PostScript font names to their \TeX
-    equivalents. This is useful because MetaPost is frequently used with
-    \TeX/\LaTeX\ and those programs don't use standard font names. This file and
-    the MetaPost backend are provided by Scott Pakin
-    (\Email{pakin@cs.uiuc.edu}). 
+\item[\oOptArg{-rotate}{~angle (0-360)}] 
+Rotage image by angle.
 
-    Another example is wemf.fmp to be used under Windows. See the misc
-    directory of the pstoedit distribution. 
 
-\item[\OptArg{-f}{~format}] target output format recognized by
-    \Prog{pstoedit}.  Since other format drivers can be loaded dynamically,
-    type  \texttt{pstoedit -help} to get a full list of formats. See  "BACK
-    END-SPECIFIC OPTIONS" below for an explanation of the \oArg{:options} to
-    \Opt{-f} format. 
+\item[\oOptArg{-pagesize}{~page format}] 
+set page size for output medium.  
+This option sets the page size for the output medium. Currently this is just used by the libplot backend, but might be used by other  backends in future. The page size is specified in terms of the usual page size names, e.g. letter or a4. 
 
-\item[\OptArg{-scale}{~factor}] scale by the specified factor. (Currently used with
-     \Opt{-f tgif} backend only.) 
 
-\item[\Opt{-ssp}] simulate sub paths \\ 
-    Several backend don't support PostScript pathes containing sub pathes, i.e.
-    pathes with intermediate movetos. In the normal case, each subpath is
-    treated as an independent path for such backends. This can lead to bad
-    looking results. The most common case where this happens is if you use the
-    \Opt{-dt} option and show some text with letters like e, o, or b, i.e.
-    letter that have a "hole". When the \Opt{-ssp} option is set, pstoedit
-    tries to eliminate these problems. However, this option is CPU time
-    intensive! 
+\item[\oOpt{-help}] 
+show the help information
 
-\item[\Opt{-sclip}] simulate clipping \\
-    Most backends of pstoedit don't have native support for clipping. For that
-    \Prog{pstoedit} offers an option to perform the clipping of the graphics
-    directly without passing the clippath to the backends. However, this
-    results in curves being replaces by a lot of line segments and thus larger
-    output files. So use this option only if your output looks different from
-    the input due to clipping. In addition, this "simulated clipping" is not
-    exactly the same as defined in PostScript. There might be lines drawn at
-    the double size. Also clipping of text is not supported unless you also use
-    the \Opt{-dt} option. 
 
-\item[\OptArg{-pagesize}{string}] set page size for output medium \\
-    This option sets the page size for the output medium. Currently this
-    is just used by the libplot backend, but might be used by other 
-    backends in future. The page size is specified in terms of the usual
-    page size names, e.g. letter or a4.
+\item[\oOpt{-bo}] 
+You can run backend processing only (without the PostScript interpreter frontend) by first running \textbf{pstoedit} \Opt{-f dump} \Arg{infile} \Arg{dumpfile} and then running \textbf{pstoedit} \OptArg{-f}{~format}  \Opt{-bo} \Arg{dumpfile} \Arg{outfile}. 
 
-\item[\Opt{-bo}] You can run backend processing only (without the PostScript
-    interpreter frontend) by first running \textbf{pstoedit} \Opt{-f dump}
-    \Arg{infile} \Arg{dumpfile} and then running \textbf{pstoedit}
-    \OptArg{-f}{~format}  \Opt{-bo} \Arg{dumpfile} \Arg{outfile}. 
 
-\item[\OptArg{-flat}{~number}] If the backend does not support curves in the way
-    PostScript does or if the \Opt{-nc} option is specified, all curves are
-    approximated by lines. Using the \Opt{-flat} option one can control this
-    approximation. This parameter is directly converted to a PostScript
-    \textbf{setflat} command. Higher numbers, e.g. 10 give rougher, lower
-    numbers, e.g. 0.1 finer approximations.  
+\item[\oOptArg{-psarg}{~argument string}] 
+The string given with this option is passed directly to Ghostscript when Ghostscript is called to process the PostScript file for \Prog{pstoedit}. For example:      \textbf{-psarg}\textbf{~"}\textbf{-r300x300}\textbf{"}. This causes the resolution to be changed to 300x300 dpi. (With older versions of GhostScript, changing the resolution this way has an effect only if the \Opt{-dis} option is given.)   You can switch Ghostscript into PostScript Level 1 only mode by  \Opt{-psarg "level1.ps"}. This can be useful for example if the PostScript file to be converted uses some Level 2 specific custom color models that are not supported by pstoedit. However, this requires that the PostScript program checks for the PostScript level supported by the interpreter and "acts" accordingly. If you want to pass multiple options to Ghostscript you can use multiple  -psarg options \Opt{-psarg opt1} \Opt{-psarg opt2} \Opt{-psarg opt2}. See the GhostScript manual for other possible options. 
 
-\item[\Opt{-nb}] Since version 3.10 \Prog{pstoedit} uses the
-    \texttt{-dDELAYBIND} option when calling GhostScript. Previously the
-    \texttt{-dNOBIND} option was used instead but that sometimes caused
-    problems if a user's PostScript file overloaded standard PostScript
-    operator with totally new semantic, e.g. lt for lineto. Using \Opt{-nb} the
-    old style can be activated again in case the \texttt{-dDELAYBIND} gives
-    different results as before. In such a case please also contact the
-    author. 
 
-\item[\Opt{-nc}] no curves \\
-    Normally pstoedit tries to keep curves from the input and transfers them to
-    the output if the output format supports curves. If the backend does not
-    support curves, then pstoedit replaces curves by a series of lines (see
-    also \Opt{-flat} option). However, in some cases the user might wish to
-    have this behavior also for backends that originally support curves. This
-    can be forced via the \Opt{-nc} option. 
-    
-\item[\Opt{-nq}] No exit from the PostScript interpreter. Normally Ghostscript
-    exits after processing the pstoedit input-file. For debugging it can be
-    useful to avoid this. If you do, you will have to type quit at the
-    \verb+GS>+ prompt to exit from Ghostscript.    
+\item[\OptArg{-f}{~"format\Lbr:options\Rbr"}] 
+target output format recognized by \Prog{pstoedit}.  Since other format drivers can be loaded dynamically, type  \texttt{pstoedit -help} to get a full list of formats. See  "Available formats and their specific options " below for an explanation of the \oArg{:options} to \Opt{-f} format. If the format option is not given, pstoedit tries to guess the target format  from the suffix of the output filename. However, in a lot of cases, this is not a unique mapping and hence pstoedit demands the \Opt{-f} option.
 
-\item[\Opt{-v}] Switch on verbose mode. Some additional information is shown
-     during processing. 
-
-\item[\Opt{-nomaptoisolatin1}] Normally \Prog{pstoedit} maps all character
-    codes to the ones defined by the ISO-Latin1 encoding. If you specify
-    \Opt{-nomaptoisolatin1} then the encoding from the input PostScript is
-    passed unchanged to the output. 
-
-\item[\Arg{input-file}] input file.  If a "-" is given, standard input is used.
-
-\item[\Arg{output-file}] output file. If no output file or "-" is given as argument,
-    \Prog{pstoedit} writes the result to standard output. 
 
 \end{description}
+\subsection{Text and font handling related options}
+\begin{description}
+\item[\oOptArg{-df}{~font name}] 
+ Sometimes fonts embedded in a PostScript program do not have a fontname. For example, this happens in PostScript files generated by \Cmd{dvips}{1}. In such a case \Prog{pstoedit} uses a replacement font. The default for this is Courier. Another font can be specified using the \Opt{-df} option. \Opt{-df Helvetica} causes all unnamed fonts to be replaced by Helvetica. 
 
+
+\item[\oOpt{-nomaptoisolatin1}] 
+Normally \Prog{pstoedit} maps all character codes to the ones defined by the ISO-Latin1 encoding. If you specify \Opt{-nomaptoisolatin1} then the encoding from the input PostScript is passed unchanged to the output. This may result in strange text output but on the other hand may be the only way to get some fonts converted appropriately. Try what fits best to your concrete case. 
+
+
+\item[\oOpt{-dt}] 
+Draw text - Text is drawn as polygons. This might produce a large output file. This option is automatically switched on if the selected backend does not support text, e.g. \Cmd{gnuplot}{1}.
+
+
+\item[\oOpt{-adt}] 
+Automatic Draw text - This option turns on the \Opt{-dt} option selectively for fonts that seem to be no normal text fonts, e.g. Symbol..
+
+
+\item[\oOpt{-ndt}] 
+Never Draw text -  fully disable the heuristics used by pstoedit to decide when to "draw" text instead of showing it as text. This may produce incorrect results, but in some cases it might nevertheless be useful. "Use at own risk". 
+
+
+\item[\oOpt{-correctdefinefont}] 
+Some PostScript files, e.g. such as generated by ChemDraw, use the PostScript definefont operator in way that is incompatible with pstoedit's assumptions. The new font is defined by copying an old font without changing the FontName of the new font. When this option is applied, some "patches" are done after a definefont in order to make it again compatible with pstoedit's assumptions. This option is not enabled per default, since it may break other PostScript file. It is tested only with ChemDraw generated files.
+
+
+\item[\oOpt{-pti}] 
+Precision text - Normally a text string is drawn as it occurs in the input file. However, in some situations, this might produce wrongly positioned characters. This is due to limitiations in most backends of pstoedit. They cannot represent text with arbitray inter-letter spacing which is easily possible in PDF and PostScript. With \Opt{-pta}, each character of a text string is placed separately. With \Opt{-pti}, this is done only in cases when there is a non zero inter-letter spacing. The downside of "precision text" is a bigger file size and hard to edit text.
+
+
+\item[\oOpt{-pta}] 
+see -pti
+
+
+\item[\oOptArg{-uchar}{~character}] 
+Sometimes pstoedit cannot map a character from the encoding used by the PostScript file to the font encoding of the target format. In this case pstoedit replaces the input character by a special character in order to show all the places that couldn't be mapped correctly. The default for this is a "\#". Using the \Opt{-uchar} option it is possible to specify another character to be used instead. If you want to use a space, use -uchar " ".
+
+
+\item[\oOpt{-t2fontsast1}] 
+Handle type 2 fonts same as type 1. Type 2 fonts sometimes occur as embedded fonts within PDF files. In the default mode, text using such fonts is drawn as polygons since pstoedit assumes that such a font is not available on the users machine. If this option is set, pstoedit assumes that the internal encoding follows the same as for a standard font and generates normal text output. This assumption may not be true in all cases. But it is nearly impossible for pstoedit to verify this assumption - it would have to do a sort of OCR.
+
+
+\item[\oOpt{-nfr}] 
+In normal mode pstoedit replaces bitmap fonts with a font as defined by the \Opt{-df} option. This is done, because most backends can't handle such fonts. This behavior can be switched off using the \Opt{-nfr} option but then it strongly depends on the application reading the the generated file whether the file is usable and correctly interpreted or not. Any problems are then out of control of pstoedit.
+
+
+\item[\oOptArg{-fontmap}{~name of font map file for pstoedit}] 
+The font map is a simple text file containing lines in the following format:\\  
+ 
+
+\verb+document_font_name    target_font_name+ \\
+Lines beginning with \verb+%+ are considerd comments \\
+ If a font name contains spaces, use the \verb+"font name with spaces"+ notation. 
+ 
+Each font name found in the document is checked against this mapping and if there is a corresponding entry, the new name is used for the output.  
+
+If  the \Opt{-fontmap} option is not specified, \Prog{pstoedit} automatically looks for the file \emph{drivername}.fmp in the installation directory and uses that file as a default fontmap file if available. The installation directory is:  
+
+\begin{itemize} 
+ 
+\item Windows: The same directory where the \Prog{pstoedit} executable is 
+    located  
+ 
+\item Unix: \\ 
+$<$\emph{The directory where the pstoedit executably is located}$>$\verb+/../lib/+ 
+ 
+\end{itemize} 
+ 
+The mpost.fmp in the misc directory of the pstoedit distibution is a sample map file with mappings from over 5000 PostScript font names to their \TeX equivalents. This is useful because MetaPost is frequently used with \TeX/\LaTeX\ and those programs don't use standard font names. This file and the MetaPost backend are provided by Scott Pakin (\Email{pakin_AT_cs.uiuc.edu}).   Another example is wemf.fmp to be used under Windows. See the misc directory of the pstoedit source distribution. 
+
+
+\end{description}
+\subsection{Debug options}
+\begin{description}
+\item[\oOpt{-dis}] 
+Open a display during processing by Ghostscript. Some files only work correctly this way. 
+
+
+\item[\oOpt{-nq}] 
+No exit from the PostScript interpreter. Normally Ghostscript exits after processing the pstoedit input-file. For debugging it can be useful to avoid this. If you do, you will have to type quit at the \verb+GS>+ prompt to exit from Ghostscript.   
+
+
+\item[\oOpt{-v}] 
+Switch on verbose mode. Some additional information is shown during processing. 
+
+
+\item[\oOpt{-nb}] 
+Since version 3.10 \Prog{pstoedit} uses the \texttt{-dDELAYBIND} option when calling GhostScript. Previously the \texttt{-dNOBIND} option was used instead but that sometimes caused problems if a user's PostScript file overloaded standard PostScript operator with totally new semantic, e.g. lt for lineto instead of the standard meaning of "less than". Using \Opt{-nb} the old style can be activated again in case the \texttt{-dDELAYBIND} gives different results as before. In such a case please also contact the author. 
+
+
+\item[\oOpt{-ups}] 
+write text as plain string instead of hex string in intermediate format - normally useful for trouble shooting and debugging only.
+
+
+\item[\oOpt{-keep}] 
+keep the intermediate files produced by pstoedit - for debug purposes only
+
+
+\item[\oOpt{-gstest}] 
+perform a basic test for the interworking with GhostScript
+
+
+\end{description}
+\subsection{Drawing related options}
+\begin{description}
+\item[\oOpt{-nc}] 
+no curves.  
+Normally pstoedit tries to keep curves from the input and transfers them to the output if the output format supports curves. If the backend does not support curves, then pstoedit replaces curves by a series of lines (see also \Opt{-flat} option). However, in some cases the user might wish to have this behavior also for backends that originally support curves. This can be forced via the \Opt{-nc} option. 
+
+
+\item[\oOpt{-nsp}] 
+normally subpathes are used if the backend support them. This option turns off subpathes.
+
+
+\item[\oOpt{-mergelines}] 
+Some output formats permit the representation of filled polygons with edges that are in a different color than the fill color. Since PostScript does not support this by the standard drawing primitives directly, drawing programs typically generate two objects (the outline and the filled polygon) into the PostScript output. \Prog{pstoedit} is able to recombine these, if they follow each other directly and you specify \Opt{-mergelines}. However, this merging is not supported by all backends due to restrictions in the target format.
+
+
+\item[\oOpt{-filledrecttostroke}] 
+Rectangles filled with a solid color can be converted to a stroked line with a width that corresponds to the width of the rectangle. This is of primary interest for backends which do not support filled polygons at all. But it is restricted to rectangles only, i.e. it is not supported for general polygons
+
+
+\item[\oOpt{-mergetext}] 
+In order to produce nice looking text output, programs producing PostScript files often split words into smaller pieces which are then placed individually on adjacent positions. However, such split text is hard to edit later on and hence it is sometime better to recombine these pieces again to form a word (or even sequence of words). For this pstoedit implements some heuristics about what text pieces are to be considered parts of a split word. This is based on the geometrical proximity of the different parts and seems to work quite well so far. But there are certainly cases where this simple heuristic fails. So please check the results carefully.
+
+
+\item[\oOpt{-ssp}] 
+simulate sub paths. 
+Several backend don't support PostScript pathes containing sub pathes, i.e. pathes with intermediate movetos. In the normal case, each subpath is treated as an independent path for such backends. This can lead to bad looking results. The most common case where this happens is if you use the \Opt{-dt} option and show some text with letters like e, o, or b, i.e. letter that have a "hole". When the \Opt{-ssp} option is set, pstoedit tries to eliminate these problems. However, this option is CPU time intensive! 
+
+
+\item[\oOptArg{-flat}{~flatness factor}] 
+If the backend does not support curves in the way PostScript does or if the \Opt{-nc} option is specified, all curves are approximated by lines. Using the \Opt{-flat} option one can control this approximation. This parameter is directly converted to a PostScript \textbf{setflat} command. Higher numbers, e.g. 10 give rougher, lower numbers, e.g. 0.1 finer approximations.  
+
+
+\item[\oOpt{-sclip}] 
+simulate clipping.  
+Most backends of pstoedit don't have native support for clipping. For that \Prog{pstoedit} offers an option to perform the clipping of the graphics directly without passing the clippath to the backends. However, this results in curves being replaced by a lot of line segments and thus larger output files. So use this option only if your output looks different from the input due to clipping. In addition, this "simulated clipping" is not exactly the same as defined in PostScript. There might be lines drawn at the double size. Also clipping of text is not supported unless you also use the \Opt{-dt} option.  
+
+
+\end{description}
+\subsection{Input and outfile file arguments}
+[ inputfile [outputfile] ] 
 
 
 If neither an input nor an output file is given as argument, pstoedit works as filter reading from standard input and
 writing to standard output. 
+The special filename "-" can also be used. It represents standard input if it is the first on the command line and standard output if it is the second. So "pstoedit - output.xxx" reads from standard input and writes to output.xxx
 
 
-\section{BACK END-SPECIFIC OPTIONS}
+\section{Available formats and their specific options}
 
-\Prog{pstoedit} allows you to pass individual options to a backend. This is done by
+\Prog{pstoedit} allows passing individual options to a backend. This is done by
 appending all options to the format specified after the \Opt{-f} option. The format
 specifier and its options must be separated by a colon (:). If more than one
 option needs to be passed to the backend, the whole argument to \Opt{-f} must be
 enclosed within double-quote characters, thus:
 
-\OptArg{-f}{~"format[:option option ...]"}
-%\textbf{-f}\textbf{~"}\textbf{format:option option ...}\textbf{"} % latex2man bug (")
+\OptArg{-f}{~"format[:option option ...]"} 
 
 To see which options are supported by a specific format, type:
-     \textbf{pstoedit -f format:-help} 
+     \textbf{pstoedit -f format:-help}  
+     \\ 
 
-The following description is it not up to date at the moment. Sorry! Please use the above command
-to get a current list of options supported by the specific format.
+The following description of the different formats supported by pstoedit is extracted from the source code of the individual drivers.
 
-Currently \emph{met}, \emph{java}, \emph{dxf}, \emph{pic}, \emph{fig},
-\emph{metapost}, \emph{LaTeX2e}, \emph{mif}, \emph{emf}, and \emph{wmf} are the only drivers accepting specific options.
-Other options may be asserted through environment variables. See "ENVIRONMENT
-VARIABLES" below. 
 
-\noindent
-The \emph{wmf} and the \emph{emf} driver supports the following backend specific options:
-
+\subsubsection{psf - Flattened PostScript (no curves)}
+No driver specific options
+%%// end of options 
+\subsubsection{ps - Simplified PostScript with curves}
+No driver specific options
+%%// end of options 
+\subsubsection{debug - for test purposes}
+No driver specific options
+%%// end of options 
+\subsubsection{dump - for test purposes (same as debug)}
+No driver specific options
+%%// end of options 
+\subsubsection{gs - any device that GhostScript provides - use gs:format, e.g. gs:pdfwrite}
+No driver specific options
+%%// end of options 
+\subsubsection{ps2ai - Adobe Illustrator via ps2ai.ps of GhostScript}
+No driver specific options
+%%// end of options 
+\subsubsection{gmfa - ASCII GNU metafile }
 \begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
 
-\item[\Opt{-f wmf:m}] Maps all fonts in the document to Arial (should be 
-	available on every Windows installation)
-\item[\Opt{-f wmf:n}] Emulate narrow fonts by shrinking fonts horizontally 
-	(sometimes does not look that good, but it's the only chance, when 
-	requested font weight is not available. And this is quite common for 
-	off-the-shelf Windows installations)
-\item[\Opt{-f wmf:b}] DON'T draw two white border pixel (upper left and lower 
-	right corner). They are normally drawn to keep content always within 
-	bounding box (is sometimes clipped otherwise, i.e. Windows doesn't 
-	respect pen thickness or rotated text extents).
-	This could be done more smarter for EMF, have to figure out...
 
 \end{description}
-
-The \emph{java} backend allows to specify the class name of the class that is
-generated by pstoedit. The default is PSJava. You can change this using 
-
+%%// end of options 
+\subsubsection{gmfb - binary GNU metafile }
 \begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
 
-  \item[\OptArg{-f java:}{anothername}] 
 
 \end{description}
-
-
-The \emph{dxf} backend accepts the option \Opt{-lines} which forces all
-polygons and lines to be represented as LINEs in the generated DXF file. The
-default is to use POLYLINEs. 
-
-\noindent Example: 
-  %\Opt{-f~"dxf:-lines"}
-  \textbf{-f}\textbf{~"}\textbf{dxf:-lines}\textbf{"} % latex2man bug (")
-
-
-\noindent The \emph{met} backend allows the following single character options (without a
-leading -) 
-
+%%// end of options 
+\subsubsection{plot - GNU libplot output types, e.g. plot:type X}
 \begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
 
-  \item[\Opt{p}] Draw no geometric linewidths, all lines have a width of zero.
-  \item[\Opt{l}] No filling of polygon interiors.
-  \item[\Opt{c}] No colors, just greyscales.
-  \item[\Opt{t}] Omit all text.
-  \item[\Opt{g}] Omit all graphics.
-  \item[\Opt{v}] Put verbose output to \File{STDERR}. 
 
 \end{description}
-
-
-Example: 
-  %\Opt{-f "met:wlc"}
-  \textbf{-f}\textbf{~"}\textbf{met:lc}\textbf{"} % latex2man bug
-
-
-\noindent The \emph{pic} backend accepts the options:
-
+%%// end of options 
+\subsubsection{plot-cgm - cgm  via GNU libplot}
 \begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
 
-  \item[\Opt{-troff}]
-  \item[\Opt{-groff}] 
-     which forces output to be compatible with troff and groff,
-     respectively. Groff mode is default, troff mode severely limiting
-     the choice of supported text fonts.
-
-     BUG: these options really does not belong in a backend
-
-  \item[\Opt{-keep}]
-     makes the pic backend emit the full font name of fonts that does
-     not map to built-in groff fonts.
-
-  \item[\Opt{-text}]
-     makes the pic backend attempt to recognize running text, and
-     treat  it accordingly.
-
-  \item[\Opt{-landscape}]
-  \item[\Opt{-portrait}]
-     to compensate for the postscript orientation. Portrait mode is
-     default.
-
-     Example:
-     %\Opt{-f "pic:-troff -text -landscape"}
-     \textbf{-f}\textbf{~"}\textbf{pic:-troff -text -landscape}\textbf{"} 
-     % latex2man bug
-     
-\end{description}
-
-\noindent The \emph{fig} driver accepts the following options:
-
-\begin{description}
-
-  \item[\Opt{-startdepth}] 
-    Fig knows about 999 layers (0 is the topmost, 999 the backmost). Per
-    default, pstoedit starts with layer 999 and then places all subsequent
-    objects on lower layers (on top of the previous objects). This can result
-    in problems if you want to put something "below" all the objects that
-    were created by pstoedit. In such a case you should define a lower number
-    to leave some space behind.
-     
-  \item[\Opt{-depth}] 
-    depth in inches. Sets the paper width to the specified size in inches.
-     
-\end{description}
-
-The \emph{ps2ai} driver provides an option to select to old AI-88 format
-instead of the default AI-3
-
-\begin{description}
-  
-  \item[\Opt{-88}] selects the AI-88 format.
-  
-     Example: \Opt{-f ps2ai:-88}
-     
-\end{description}
-
-The \emph{tgif} driver provides option to control the conversion of text
-strings into hyperlink attributes.
-
-\begin{description}
-
-  \item[\Opt{-ta}] 
-     enables the conversion of text into boxes with hyperlink attributes. More
-     options allowing finer control about this new feature will follow in
-     future versions.
-     
-\end{description}
-
-\noindent
-The \emph{tk} driver supports the following backend specific options:
-
-\begin{description}
-
-\item[\Opt{-f tk:I}] Disables ImPress specific formatting.  Only canvas
-    objects will be output.
-\item[\Opt{-f tk:N tagname}] Adds a specific tag to all objects.  If ImPress
-    formatting is enabled, the items will be grouped.
-\item[\Opt{-f tk:n tagname}] Deprecated option.  Behaves like N.
-\item[\Opt{-f tk:R}] If ImPress formatting is enabled, swap the Width and
-    Height associated with the pagesize.
 
 \end{description}
+%%// end of options 
+\subsubsection{plot-ai - ai   via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-svg - svg  via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-ps - ps   via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-fig - fig  via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-pcl - pcl  via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-hpgl - hpgl via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{plot-tek - tek  via GNU libplot}
+\begin{description}
+\item[\oOptArg{plotformat}{~string}] 
+plotutil format to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{magick - MAGICK driver}
+This driver uses the C++ API of ImageMagick or GraphicsMagick to finally produce different output formats. The output format is determined automatically by Image/GraphicsMagick based on the suffix of the output filename. So an output file test.png will force the creation of an image in PNG format.
+
+No driver specific options
+%%// end of options 
+\subsubsection{swf - SWF driver: }
+\begin{description}
+\item[\oOpt{-cubic}] 
+cubic ???
+
+
+\item[\oOpt{-trace}] 
+trace ???
+
+
+\end{description}
+%%// end of options 
+\subsubsection{svg - scalable vector graphics}
+\begin{description}
+\item[\oOpt{-localdtd}] 
+use local DTD
+
+
+\item[\oOpt{-standalone}] 
+create standalong type svg
+
+
+\item[\oOpt{-withdtd}] 
+write DTD
+
+
+\item[\oOpt{-withgrouping}] 
+write also ordinary save/restores as SVG group
+
+
+\item[\oOpt{-nogroupedpath}] 
+do not write a group around pathes
+
+
+\item[\oOpt{-noviewbox}] 
+don't write a view box
+
+
+\item[\oOpt{-texmode}] 
+TeX Mode
+
+
+\item[\oOpt{-imagetofile}] 
+write raster images to separate files instead of embedding them
+
+
+\item[\oOptArg{-border}{~number}] 
+additional border to draw around bare bounding box (in percent of width and height)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{cgmb1 - CGM binary Format (V1)}
+No driver specific options
+%%// end of options 
+\subsubsection{cgmb - CGM binary Format (V3)}
+No driver specific options
+%%// end of options 
+\subsubsection{cgmt - CGM textual Format}
+No driver specific options
+%%// end of options 
+\subsubsection{mif - (Frame)Maker Intermediate Format}
+\begin{description}
+\item[\oOpt{-nopage}] 
+do not add a separate Page entry
+
+
+\end{description}
+%%// end of options 
+\subsubsection{rtf - RTF Format}
+No driver specific options
+%%// end of options 
+\subsubsection{wemf - Wogls version of EMF }
+\begin{description}
+\item[\oOpt{-df}] 
+write info about font processing
+
+
+\item[\oOpt{-dumpfontmap}] 
+write info about font mapping
+
+
+\item[\oOpt{-size:psbbox}] 
+use the bounding box as calculated by the PostScript frontent as size
+
+
+\item[\oOpt{-size:fullpage}] 
+set the size to the size of a full page
+
+
+\item[\oOpt{-size:automatic}] 
+let windows calculate the bounding box (default)
+
+
+\item[\oOpt{-keepimages}] 
+debug option - keep the embedded bitmaps as external files 
+
+
+\item[\oOpt{-OO}] 
+generate OpenOffice compatible EMF file
+
+
+\end{description}
+%%// end of options 
+\subsubsection{wemfc - Wogls version of EMF with experimental clip support}
+\begin{description}
+\item[\oOpt{-df}] 
+write info about font processing
+
+
+\item[\oOpt{-dumpfontmap}] 
+write info about font mapping
+
+
+\item[\oOpt{-size:psbbox}] 
+use the bounding box as calculated by the PostScript frontent as size
+
+
+\item[\oOpt{-size:fullpage}] 
+set the size to the size of a full page
+
+
+\item[\oOpt{-size:automatic}] 
+let windows calculate the bounding box (default)
+
+
+\item[\oOpt{-keepimages}] 
+debug option - keep the embedded bitmaps as external files 
+
+
+\item[\oOpt{-OO}] 
+generate OpenOffice compatible EMF file
+
+
+\end{description}
+%%// end of options 
+\subsubsection{wemfnss - Wogls version of EMF - no subpathes }
+\begin{description}
+\item[\oOpt{-df}] 
+write info about font processing
+
+
+\item[\oOpt{-dumpfontmap}] 
+write info about font mapping
+
+
+\item[\oOpt{-size:psbbox}] 
+use the bounding box as calculated by the PostScript frontent as size
+
+
+\item[\oOpt{-size:fullpage}] 
+set the size to the size of a full page
+
+
+\item[\oOpt{-size:automatic}] 
+let windows calculate the bounding box (default)
+
+
+\item[\oOpt{-keepimages}] 
+debug option - keep the embedded bitmaps as external files 
+
+
+\item[\oOpt{-OO}] 
+generate OpenOffice compatible EMF file
+
+
+\end{description}
+%%// end of options 
+\subsubsection{hpgl - HPGL code}
+\begin{description}
+\item[\oOpt{-pen}] 
+plotter is pen plotter
+
+
+\item[\oOptArg{-pencolors}{~number}] 
+number of pen colors available
+
+
+\item[\oOptArg{-filltype}{~string}] 
+select fill type e.g. FT 1
+
+
+\item[\oOpt{-rot90}] 
+rotate hpgl by 90 degrees
+
+
+\item[\oOpt{-rot180}] 
+rotate hpgl by 180 degrees
+
+
+\item[\oOpt{-rot270}] 
+rotate hpgl by 270 degrees
+
+
+\end{description}
+%%// end of options 
+\subsubsection{pic - PIC format for troff et.al.}
+\begin{description}
+\item[\oOpt{-troff}] 
+troff mode (default is groff)
+
+
+\item[\oOpt{-landscape}] 
+landscape output
+
+
+\item[\oOpt{-portrait}] 
+portrait output
+
+
+\item[\oOpt{-keepfont}] 
+print unrecognized literally
+
+
+\item[\oOpt{-text}] 
+try not to make pictures from running text
+
+
+\item[\oOpt{-debug}] 
+enable debug output
+
+
+\end{description}
+%%// end of options 
+\subsubsection{dxf - CAD exchange format}
+\begin{description}
+\item[\oOpt{-polyaslines}] 
+use LINE instead of POLYLINE in DXF
+
+
+\item[\oOpt{-mm}] 
+use mm coordinates instead of points in DXF (mm=pt/72*25.4)
+
+
+\item[\oOpt{-ctl}] 
+map colors to layers
+
+
+\item[\oOpt{-splineaspolyline}] 
+approximate splines with PolyLines (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasnurb}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasbspline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineassinglespline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasmultispline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasbezier}] 
+use Bezier splines in DXF format (only for -f dxf\_s)
+
+
+\item[\oOptArg{-splineprecision}{~number}] 
+number of samples to take from spline curve when doing approximation with -splineaspolyline or -splineasmultispline - should be $>=$ 2 (default 5)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{dxf\_s - CAD exchange format with splines}
+\begin{description}
+\item[\oOpt{-polyaslines}] 
+use LINE instead of POLYLINE in DXF
+
+
+\item[\oOpt{-mm}] 
+use mm coordinates instead of points in DXF (mm=pt/72*25.4)
+
+
+\item[\oOpt{-ctl}] 
+map colors to layers
+
+
+\item[\oOpt{-splineaspolyline}] 
+approximate splines with PolyLines (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasnurb}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasbspline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineassinglespline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasmultispline}] 
+experimental (only for -f dxf\_s)
+
+
+\item[\oOpt{-splineasbezier}] 
+use Bezier splines in DXF format (only for -f dxf\_s)
+
+
+\item[\oOptArg{-splineprecision}{~number}] 
+number of samples to take from spline curve when doing approximation with -splineaspolyline or -splineasmultispline - should be $>=$ 2 (default 5)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{fig - .fig format for xfig}
+The xfig backend supports special fontnames, which may be produced by using a fontmap file. The following types of names are supported : \\  
+\begin{verbatim}
+General notation: 
+"Postscript Font Name" ((LaTeX|PostScript|empty)(::special)::)XFigFontName
  
-The \emph{mif} backend allows the following options:
+Examples:
+
+Helvetica LaTeX::SansSerif
+Courier LaTeX::special::Typewriter
+GillSans "AvantGarde Demi"
+Albertus PostScript::special::"New Century Schoolbook Italic" 
+Symbol ::special::Symbol (same as Postscript::special::Symbol)
+\end{verbatim}
+See also the file examplefigmap.fmp in the misc directory of the pstoedit source distribution for an example font map file for xfig. Please note that the Fontname has to be among those supported by xfig. See - \URL{http://www.xfig.org/userman/fig-format.html} for a list of legal font names
 
 \begin{description}
+\item[\oOptArg{-startdepth}{~number}] 
+Set the initial depth (default 999)
 
-  \item[\Opt{-f mif:-nopage}] Generates an anchored frame instead of a full page.
-This is useful, if you want to insert a figure into an existing document.
 
-  \item[\Opt{-f mif:-imagesaspng}] Bitmap images are written as PNG files instead
-of EPS. This is still experimental but should work for non rotated bitmaps.
+\item[\oOpt{-metric}] 
+Switch to centimeter display (default inches)
+
+
+\item[\oOpt{-usecorrectfontsize}] 
+don't scale fonts for xfig. Use this if you also use this option with xfig
+
+
+\item[\oOptArg{-depth}{~number}] 
+Set the page depth in inches (default 11)
+
 
 \end{description}
-
-The GNU libplot driver (\emph{gmfa}, \emph{gmfb}, \emph{plot}) provides a huge
-set of options. All these are described in the header of the drvlplot.cpp file.
-
-
-
-\subsection{NOTES}
+%%// end of options 
+\subsubsection{xfig - .fig format for xfig}
+See fig format for more details.
 
 \begin{description}
+\item[\oOptArg{-startdepth}{~number}] 
+Set the initial depth (default 999)
 
-  \item[autotrace:]
+
+\item[\oOpt{-metric}] 
+Switch to centimeter display (default inches)
+
+
+\item[\oOpt{-usecorrectfontsize}] 
+don't scale fonts for xfig. Use this if you also use this option with xfig
+
+
+\item[\oOptArg{-depth}{~number}] 
+Set the page depth in inches (default 11)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{gnuplot - gnuplot format}
+No driver specific options
+%%// end of options 
+\subsubsection{gschem - gschem format}
+See also:  \URL{http://www.geda.seul.org/tools/gschem/} 
+
+No driver specific options
+%%// end of options 
+\subsubsection{idraw - Interviews draw format (EPS)}
+No driver specific options
+%%// end of options 
+\subsubsection{java1 - java 1 applet source code}
+\begin{description}
+\item[\oOptArg{java class name}{~string}] 
+name of java class to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{java2 - java 2 source code}
+\begin{description}
+\item[\oOptArg{java class name}{~string}] 
+name of java class to generate
+
+
+\end{description}
+%%// end of options 
+\subsubsection{kil - .kil format for Kontour}
+No driver specific options
+%%// end of options 
+\subsubsection{latex2e - LaTeX2e picture format}
+\begin{description}
+\item[\oOpt{-integers}] 
+round all coordinates to the nearest integer
+
+
+\end{description}
+%%// end of options 
+\subsubsection{lwo - LightWave 3D Object Format}
+No driver specific options
+%%// end of options 
+\subsubsection{mma - Mathematica Graphics}
+\begin{description}
+\item[\oOpt{-eofillfills}] 
+Filling is used for eofill (default is not to fill)
+
+
+\end{description}
+%%// end of options 
+\subsubsection{mpost - MetaPost Format}
+No driver specific options
+%%// end of options 
+\subsubsection{pcbi - engrave data - insulate/PCB format}
+See \URL{http://home.vr-web.de/~hans-juergen-jahn/software/devpcb.html} for more details.
+
+No driver specific options
+%%// end of options 
+\subsubsection{pcb - pcb format}
+See also: \URL{http://pcb.sourceforge.net} 
+
+No driver specific options
+%%// end of options 
+\subsubsection{pcbfill - pcb format with fills}
+See also: \URL{http://pcb.sourceforge.net} 
+
+No driver specific options
+%%// end of options 
+\subsubsection{pdf - Adobe's Portable Document Format}
+No driver specific options
+%%// end of options 
+\subsubsection{rib - RenderMan Interface Bytestream}
+No driver specific options
+%%// end of options 
+\subsubsection{rpl - Real3D Programming Language Format}
+No driver specific options
+%%// end of options 
+\subsubsection{sample - sample driver: if you don't want to see this, uncomment the corresponding line in makefile and make again}
+this is a long description for the sample driver
+
+\begin{description}
+\item[\oOptArg{-sampleoption}{~integer}] 
+just an example
+
+
+\end{description}
+%%// end of options 
+\subsubsection{sk - Sketch Format}
+No driver specific options
+%%// end of options 
+\subsubsection{text - text in different forms }
+\begin{description}
+\item[\oOptArg{-height}{~number}] 
+page height in terms of characters
+
+
+\item[\oOptArg{-width}{~number}] 
+page width in terms of characters
+
+
+\item[\oOpt{-dump}] 
+dump text pieces
+
+
+\end{description}
+%%// end of options 
+\subsubsection{tgif - Tgif .obj format}
+\begin{description}
+\item[\oOpt{-ta}] 
+text as attribute
+
+
+\end{description}
+%%// end of options 
+\subsubsection{tk - tk and/or tk applet source code}
+\begin{description}
+\item[\oOpt{-R}] 
+swap HW
+
+
+\item[\oOpt{-I}] 
+no impress
+
+
+\item[\oOptArg{-n}{~string}] 
+tagnames
+
+
+\end{description}
+%%// end of options 
+\subsubsection{wmf - Windows metafile}
+\begin{description}
+\item[\oOpt{-m}] 
+map to Arial
+
+
+\item[\oOpt{-nf}] 
+emulate narrow fonts
+
+
+\item[\oOpt{-b}] 
+draw bounding box
+
+
+\item[\oOpt{-p}] 
+prune line ends
+
+
+\item[\oOpt{-nfw}] 
+Newer versions of Windows (2000, XP) will not accept WMF/EMF files generated when this option is set and the input contains Text. But if this option is not set, then the WMF/EMF driver will estimate interletter spacing of text using a very coarse heuristic. This may result in ugly looking output. On the other hand, OpenOffice can still read EMF/WMF files where pstoedit delegates the calculation of the inter letter spacing to the program reading the WMF/EMF file. So if the generated WMF/EMF file shall never be processed under Windows, use this option. If WMF/EMF files with high precision text need to be generated under *nix the only option is to use the -pta option of pstoedit. However that causes every text to be split into single characters which makes the text hard to edit afterwards. Hence the -nfw options provides a sort of compromise between portability and nice to edit but still nice looking text. Again - this option has no meaning when pstoedit is executed under Windows anyway. In that case the output is portable but nevertheless not split and still looks fine.
+
+
+\item[\oOpt{-nb}] 
+do not calculate and write bounding box
+
+
+\end{description}
+%%// end of options 
+\subsubsection{emf - Enhanced Windows metafile}
+\begin{description}
+\item[\oOpt{-m}] 
+map to Arial
+
+
+\item[\oOpt{-nf}] 
+emulate narrow fonts
+
+
+\item[\oOpt{-b}] 
+draw bounding box
+
+
+\item[\oOpt{-p}] 
+prune line ends
+
+
+\item[\oOpt{-nfw}] 
+Newer versions of Windows (2000, XP) will not accept WMF/EMF files generated when this option is set and the input contains Text. But if this option is not set, then the WMF/EMF driver will estimate interletter spacing of text using a very coarse heuristic. This may result in ugly looking output. On the other hand, OpenOffice can still read EMF/WMF files where pstoedit delegates the calculation of the inter letter spacing to the program reading the WMF/EMF file. So if the generated WMF/EMF file shall never be processed under Windows, use this option. If WMF/EMF files with high precision text need to be generated under *nix the only option is to use the -pta option of pstoedit. However that causes every text to be split into single characters which makes the text hard to edit afterwards. Hence the -nfw options provides a sort of compromise between portability and nice to edit but still nice looking text. Again - this option has no meaning when pstoedit is executed under Windows anyway. In that case the output is portable but nevertheless not split and still looks fine.
+
+
+\item[\oOpt{-nb}] 
+do not calculate and write bounding box
+
+
+\end{description}
+%%// end of options 
+
+\section{NOTES}
+
+
+  \subsection{autotrace}
 
 	pstoedit cooperates with autotrace. Autotrace can now produce a dump file 
 	for further processing by pstoedit using the \Opt{-bo} (backend only) option. 
 	Autotrace is a program written by a group around Martin Weber and can be 
 	found at \URL{http://sourceforge.net/projects/autotrace/}.
 
-  \item[Ps2ai:]
+  \subsection{Ps2ai}
 
     The ps2ai backend is not a native pstoedit backend. It does not use the
     pstoedit postcript flattener, instead it uses the PostScript program
@@ -581,60 +1061,19 @@ set of options. All these are described in the header of the drvlplot.cpp file.
     The additional benefit is that this conversion is now available also via
     the "convert-to-vector" menu of Gsview. However, lot's of files don't
     convert nicely or at all using ps2ai.ps. So a native pstoedit driver would
-    be much better. Anyone out there to take this ? The AI format is usable for
+    be much better. Anyone out there to take this? The AI format is usable for
     example by Mayura Draw (\URL{http://www.mayura.com}). Also a driver to the
     Mayura native format would be nice. 
 
-    If you have a version of GhostScript older than 5.60, then 
-    you have to apply the following simple patch to the
-    \File{ps2ai.ps} file in order to make this driver work.
-    This patch is already included in newer versions of GhostScript. 
+    An alternative to the ps2ai based driver is available via the -f plot:ai format if the libplot(ter) is installed.
 
-    After the line "\verb+/vers {2.13} def+" insert:
-    
-    \verb+/cdef { 1 index where { pop pop pop } { def } ifelse } def+
-    
-    Replace the lines:
-    
-    "\verb+/jout false def+"  
-    
-    with 
-    
-    "\verb+/jout false cdef+"  
-    
-    (notice the cdef instead of def)
-    
-    "\verb+/joutput (ps2ai.out.aips) def+" 
-    
-    with 
-    
-    "\verb+/joutput (ps2ai.out.aips) cdef+"
-    
-    "\verb+/joutln false def+" 
-    
-    with 
-    
-    "\verb+/joutln false cdef+"
-
-    and the line
-    
-    "\verb+/jtxt3 true def+" 
-    
-    with 
-    
-    "\verb+/jtxt3 true cdef+"
-
-    Note: If you already patched \emph{ps2ai} for pstoedit version 3.02. you
-    have to change to the patch above. This version is different but it better
-    fits the ideas of Peter L. Deutsch. Sorry for the confusion, but this way
-    chances are better that this version will go into the GhostScript
-    distribution.
+    You should use a version of GhostScript greater than or equal to 6.00 for using the ps2ai backend.
 
 
-  \item[MetaPost:]
+  \subsection{MetaPost}
 
     Note that, as far as Scott knows, MetaPost does not support PostScript's
-    eofill. My backend just converts eofill to fill, and issues a warning if
+    eofill. The metapost backend just converts eofill to fill, and issues a warning if
     verbose is set. Fortunately, very few PostScript programs rely on the
     even-odd fill rule, even though many specify it.
 
@@ -642,7 +1081,7 @@ set of options. All these are described in the header of the drvlplot.cpp file.
     
     \URL{http://cm.bell-labs.com/who/hobby/MetaPost.html}
 
-  \item[LaTeX2e:] \ \\
+  \subsection{LaTeX2e} 
 
     \begin{itemize}
    \item LaTeX2e's picture environment is not very powerful.  As a result, many
@@ -676,16 +1115,15 @@ set of options. All these are described in the header of the drvlplot.cpp file.
    \end{itemize}
 
 
-  \item[creating a new backend:]
+  \subsection{Creating a new backend}
 
     To implement a new backend you can start from \File{drvsampl.cpp} and
     \File{drvsampl.h}. See also comments in \File{drvbase.h} and
     \File{drvfuncs.h} for an explanation of methods that should be implemented
     for a new backend.
 
-\end{description}
 
-\subsection{ENVIRONMENT VARIABLES}
+\section{ENVIRONMENT VARIABLES}
 
 A default PostScript interpreter to be called by pstoedit is specified at
 compile time. You can overwrite the default by setting the GS environment
@@ -706,28 +1144,10 @@ for descriptions of environment variables used. On UNIX like system this is
 probably the \verb+TMPDIR+ variable, on DOS/WINDOWS either \verb+TMP+ or
 \verb+TEMP+.
 
-
-\subsection{SYSTEM SPECIFIC NOTES}
-
-\begin{description}
-
-  \item[DOS/WINDOWS]
-
-    pstoedit compiled with MS-Visual C++ or Borland C++ runs under 32-bit
-    only. It might run under WIN32s, but certainly does not run under plain
-    16-bit DOS.
-
-    \Prog{pstoedit} works best if you installed at least version 5.50 of
-    GhostScript and version 2.72 of gsview. Using older version of
-    GhostScript is possible but requires the setting of some environment
-    variables.
-
-\end{description}
-
-\subsection{TROUBLE SHOOTING}
+\section{TROUBLE SHOOTING}
 
 If you have problems with \Prog{pstoedit} first try whether Ghostscript
-successfully displays your file. If yes try 
+successfully displays your file. If yes, then try 
 \textbf{pstoedit} \Opt{-f ps} \Arg{infile.ps} \Arg{testfile.ps} 
 and check whether \Arg{testfile.ps} still displays correctly using
 Ghostscript. If this file doesn't look correctly then there seems to be a
@@ -757,9 +1177,10 @@ I've included work-arounds for the ones mentioned above, but some others
 could show up in addition to those.
 
 
-\subsection{RESTRICTIONS}
+\section{RESTRICTIONS}
 
-Non-standard fonts (e.g. \TeX bitmap fonts) are mapped to a default font which
+\begin{itemize}
+\item Non-standard fonts (e.g. \TeX bitmap fonts) are mapped to a default font which
 can be changed using the \Opt{-df} option. \Prog{pstoedit} chooses the size of
 the replacement font such that the width of the string in the original font is
 the same as in the replacement font. This is done for each text fragment
@@ -767,26 +1188,28 @@ displayed. Special character encoding support is limited in this case. If a
 character cannot be mapped into the target format, pstoedit displays a '\#'
 instead. See also the -uchar option.
 
-pstoedit supports bitmap graphics only for some backends.
+\item pstoedit supports bitmap graphics only for some backends.
 
-The Gnuplot backend and the 3D backends (rpl, lwo, rib) do not support text.
+\item Some backends, e.g. the Gnuplot backend or the 3D backends (rpl, lwo, rib) do not support text.
 
-Generally, pstoedit does not support clipping. You can try to use the
+\item For most backends pstoedit does not support clipping (mainly due to limitations in the target format). You can try to use the
 \Opt{-sclip} option to simulate clipping. However, this doesn't work in all cases
 as expected.
 
-Special note about the Java backends (java1 and java2)
-
+\item Special note about the Java backends (java1 and java2).
 The java backends generate a java source file that needs other files in
 order to be compiled and usable. These other files are Java classes (one
 applet and support classes) that allow to step through the individual pages
 of a converted PostScript document. This applet can easily be activated from
 a html-document. See the \File{java/java1/readme_java1.txt} or 
 \File{java/java2/readme_java2.htm} file for more details.
+ 
+\end{itemize}
 
-\subsection{FAQs}
+\section{FAQs}
 
-Why do letters like O or B get strange if converted to tgif/xfig
+\begin{enumerate}
+\item Why do letters like O or B get strange if converted to tgif/xfig
 using the \Opt{-dt} option?
 
 This is because most backends don't support composite paths with
@@ -798,22 +1221,24 @@ version 3.11 you can try the \Opt{-ssp} option in combination with the xfig
 backend.
 
 
-Why does pstoedit produce ugly results from PostScript files generated
+\item Why does pstoedit produce ugly results from PostScript files generated
 by dvips?
 
 TeX documents usually use bitmap fonts. Such fonts cannot be used as native
 font in other format. So pstoedit replaces the TeX font with another native
 font. Of course, the replacement font will in most cases produce another
 look, especially if mathematical symbols are used.
-
-\subsection{NOTICES}
-
-\subsection{AUTHOR}
-
-Wolfgang Glunz, \Email{wglunz@pstoedit.net}
+Try to use PostScript fonts instead of the bitmap fonts when generating a PostScript file from TeX or LaTeX.
 
 
-\subsection{CANONICAL ARCHIVE SITE}
+\end{enumerate}
+
+\section{AUTHOR}
+
+Wolfgang Glunz, \Email{wglunz34_AT_pstoedit.net}
+
+
+\section{CANONICAL ARCHIVE SITE}
 
 \URL{http://www.pstoedit.net/pstoedit/}
 
@@ -822,115 +1247,115 @@ programs and hints how to subscribe to a mailing list in order to get informed
 about new releases and bug-fixes.
 
 
-\subsection{ACKNOWLEDGEMENTS}
+\section{ACKNOWLEDGEMENTS}
 
 \begin{itemize}\setlength{\itemsep}{0cm}
 
-  \item Klaus Steinberger \Email{Klaus.Steinberger@physik.uni-muenchen.de}
+  \item Klaus Steinberger \Email{Klaus.Steinberger_AT_physik.uni-muenchen.de}
      wrote the initial version of this manpage.
 
   \item Lar Kaufman revised the increasingly complex
      command syntax diagrams and updated the structure and content of this
      manpage following release 2.5. 
 
-  \item David B. Rosen \Email{rosen@unr.edu} provided ideas and some PostScript
+  \item David B. Rosen \Email{rosen_AT_unr.edu} provided ideas and some PostScript
      code from his ps2aplot program.
 
-  \item Ian MacPhedran \Email{Ian_MacPhedran@engr.USask.CA} provided the xfig
+  \item Ian MacPhedran \Email{Ian_MacPhedran_AT_engr.USask.CA} provided the xfig
      backend.
 
-  \item Carsten Hammer \Email{chammer@hermes.hrz.uni-bielefeld.de} provided the
+  \item Carsten Hammer \Email{chammer_AT_hermes.hrz.uni-bielefeld.de} provided the
      gnuplot backend and the initial DXF backend.
 
   \item Christoph Jaeschke provided the OS/2 metafile (MET) backend. 
-  Thomas Hoffmann \Email{thoffman@zappa.sax.de} did some further updates on the OS/2 part.
+  Thomas Hoffmann \Email{thoffman_AT_zappa.sax.de} did some further updates on the OS/2 part.
 
-  \item Jens Weber \Email{rz47b7@PostAG.DE} provided the Windows metafile (WMF)
+  \item Jens Weber \Email{rz47b7_AT_PostAG.DE} provided the Windows metafile (WMF)
      backend, and a graphical user interface (GUI).
 
-  \item G. Edward Johnson \Email{lorax@nist.gov} provided the CGM Draw library
+  \item G. Edward Johnson \Email{lorax_AT_nist.gov} provided the CGM Draw library
      used in the CGM backend.
 
-  \item Gerhard Kircher \Email{kircher@edvz.tuwien.ac.at} provided some bug
+  \item Gerhard Kircher \Email{kircher_AT_edvz.tuwien.ac.at} provided some bug
      fixes.
 
-  \item Bill Cheng \Email{bill.cheng@acm.org} provided help with the tgif
+  \item Bill Cheng \Email{bill.cheng_AT_acm.org} provided help with the tgif
      format and some changes to tgif to make the backend easier to implement.
      URL:\URL{http://bourbon.usc.edu:8001/william/}
 
-  \item Reini Urban \Email{rurban@sbox.tu-graz.ac.at} provided input for the
+  \item Reini Urban \Email{rurban_AT_sbox.tu-graz.ac.at} provided input for the
      extended DXF backend.(\URL{http://xarch.tu-graz.ac.at/autocad/})
 
-  \item Glenn M. Lewis \Email{glenn@gmlewis.com} provided RenderMan (RIB),
+  \item Glenn M. Lewis \Email{glenn_AT_gmlewis.com} provided RenderMan (RIB),
      Real3D (RPL), and LightWave 3D (LWO) backends.
      (\URL{http://www.gmlewis.com/})
 
-  \item Piet van Oostrum \Email{piet@cs.ruu.nl} made several bug fixes.
+  \item Piet van Oostrum \Email{piet_AT_cs.ruu.nl} made several bug fixes.
   
-  \item Lutz Vieweg \Email{lkv@mania.robin.de} provided several bug fixes and
+  \item Lutz Vieweg \Email{lkv_AT_mania.robin.de} provided several bug fixes and
      suggestions for improvements.
      
-  \item Derek B. Noonburg \Email{derekn@vw.ece.cmu.edu} and Rainer Dorsch
-     \Email{rd@berlepsch.wohnheim.uni-ulm.de} isolated and resolved a
+  \item Derek B. Noonburg \Email{derekn_AT_vw.ece.cmu.edu} and Rainer Dorsch
+     \Email{rd_AT_berlepsch.wohnheim.uni-ulm.de} isolated and resolved a
      Linux-specific core dump problem.
 
-  \item Rob Warner \Email{rcw2@ukc.ac.uk} made pstoedit compile under RiscOS.
+  \item Rob Warner \Email{rcw2_AT_ukc.ac.uk} made pstoedit compile under RiscOS.
   
-  \item Patrick Gosling \Email{jpmg@eng.cam.ac.uk} made some suggestions
+  \item Patrick Gosling \Email{jpmg_AT_eng.cam.ac.uk} made some suggestions
      regarding the usage of pstoedit in Ghostscript's SAFER mode.
 
-  \item Scott Pakin \Email{pakin@cs.uiuc.edu} for the Idraw backend and the 
+  \item Scott Pakin \Email{pakin_AT_cs.uiuc.edu} for the Idraw backend and the 
 	autoconf support.
 
-  \item Peter Katzmann \Email{p.katzmann@thiesen.com} for the HPGL backend.
+  \item Peter Katzmann \Email{p.katzmann_AT_thiesen.com} for the HPGL backend.
   
-  \item Chris Cox \Email{ccox@airmail.net} contributed the Tcl/Tk backend.
+  \item Chris Cox \Email{ccox_AT_airmail.net} contributed the Tcl/Tk backend.
   
-  \item Thorsten Behrens \Email{Thorsten_Behrens@public.uni-hamburg.de} and
+  \item Thorsten Behrens \Email{Thorsten_Behrens_AT_public.uni-hamburg.de} and
      Bjoern Petersen for reworking the WMF backend.
 
-  \item Leszek Piotrowicz \Email{leszek@sopot.rodan.pl} implemented the image
+  \item Leszek Piotrowicz \Email{leszek_AT_sopot.rodan.pl} implemented the image
      support for the xfig driver and a JAVA based GUI.
 
-  \item Egil Kvaleberg \Email{egil@kvaleberg.no} contributed the pic backend.
+  \item Egil Kvaleberg \Email{egil_AT_kvaleberg.no} contributed the pic backend.
   
-  \item Kai-Uwe Sattler \Email{kus@iti.cs.uni-magdeburg.de} implemented the
+  \item Kai-Uwe Sattler \Email{kus_AT_iti.cs.uni-magdeburg.de} implemented the
      backend for Kontour.
 
-  \item Scott Pakin,  pakin@cs.uiuc.edu   provided the MetaPost and LaTeX2e backend.
+  \item Scott Pakin,  \Email{pakin_AT_cs.uiuc.edu})   provided the MetaPost and LaTeX2e backend.
   
-  \item Burkhard Plaum (\Email{plaum@IPF.Uni-Stuttgart.de}) added support for
+  \item Burkhard Plaum \Email{plaum_AT_IPF.Uni-Stuttgart.de} added support for
      complex filled paths for the xfig backend.
 
-  \item Bernhard Herzog (\Email{herzog@online.de}) contributed the backend for
+  \item Bernhard Herzog \Email{herzog_AT_online.de} contributed the backend for
      sketch ( \URL{http://sketch.sourceforge.net/} )
 
-  \item Rolf Niepraschk (\Email{niepraschk@ptb.de}) converted the HTML man page
+  \item Rolf Niepraschk (\Email{niepraschk_AT_ptb.de}) converted the HTML man page
      to LaTeX. This allows to generate the UNIX style and the HTML manual from this
      base format.
 
   \item Several others sent smaller bug fixed and bug reports. Sorry if I don't
      mention them all here.
 
-  \item Gisbert W. Selke (\Email{gisbert@tapirsoft.de}) for the Java 2 backend.
+  \item Gisbert W. Selke (\Email{gisbert_AT_tapirsoft.de}) for the Java 2 backend.
      
-  \item Robert S. Maier (\Email{rsm@math.arizona.edu}) for many improvements on
+  \item Robert S. Maier (\Email{rsm_AT_math.arizona.edu}) for many improvements on
 	the libplot backend and for libplot itself.
-  \item The authors of pstotext (\Email{mcjones@pa.dec.com} and \Email{birrell@pa.dec.com}) 
+  \item The authors of pstotext (\Email{mcjones_AT_pa.dec.com} and \Email{birrell_AT_pa.dec.com}) 
 	for giving me the permission to use their simple PostScript code for 
 	performing rotation.
-  \item  Daniel Gehriger \Email{gehriger@linkcad.com} for his help concerning the handling of Splines in the DXF format. 
-  \item Allen Barnett \Email{libemf@lignumcomputing.com} for his work on the libEMF which allows to create WMF/EMF files under *nix systems.
-  \item Dave \Email{dave@opaque.net} for providing the libming which is a multiplatform library for generating SWF files.
+  \item  Daniel Gehriger \Email{gehriger_AT_linkcad.com} for his help concerning the handling of Splines in the DXF format. 
+  \item Allen Barnett \Email{libemf_AT_lignumcomputing.com} for his work on the libEMF which allows to create WMF/EMF files under *nix systems.
+  \item Dave \Email{dave_AT_opaque.net} for providing the libming which is a multiplatform library for generating SWF files.
   \item Masatake Yamoto for the introduction of autoconf, automake and libtool into pstoedit
   \item Bob Friesenhahn for his help and the building of the Magick++ API to ImageMagick.
-  \item But most important: Peter Deutsch \Email{ghost@aladdin.com} and Russell
-     Lang \Email{gsview@ghostgum.com.au} for their help and answers regarding
+  \item But most important: Peter Deutsch \Email{ghost_AT_aladdin.com} and Russell
+     Lang \Email{gsview_AT_ghostgum.com.au} for their help and answers regarding
      GhostScript and gsview.
 
 \end{itemize}
 
-\subsection{LEGAL NOTICES}
+\section{LEGAL NOTICES}
 
 Trademarks mentioned are the property of their respective owners.
 
@@ -958,5 +1383,4 @@ international conventions and agreements.
 \LatexManEnd
 
 \end{document}
- 
  

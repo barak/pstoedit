@@ -22,7 +22,7 @@
 #ifdef __cplusplus
 
 #include <stdlib.h>
-//#include <unistd.h>
+// #include <unistd.h>
 
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
@@ -1371,7 +1371,7 @@ char *yytext;
    Simple parser to parse the intermediate flat PostScript and call the backend
    output routines.
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1411,7 +1411,7 @@ static int yywrap() { return 1;}
 
 static inline int toInt(const float f) { 
 	return (f > 0.0f) ? (int)(f+0.5f) : (int)(f-0.5f);
-};
+}
 
 
 
@@ -1780,7 +1780,7 @@ YY_RULE_SETUP
 								return 1;
 							} // fail
 						} // backend opens file by itself
-						backend =  driverDesc->CreateBackend(driveroptions,*outputFilePtr,errf,infilename,newname,scalefactor,globaloptions);
+						backend =  driverDesc->CreateBackend(driveroptions,*outputFilePtr,errf,infilename,newname,globaloptions);
 						delete [] newname;
 						if (!backend->driverOK()) {
 							errf << "Creation of driver for new page failed " << endl;
@@ -2080,7 +2080,7 @@ YY_RULE_SETUP
 					cerr << "handling " << yytext ;
 					pstack();
 				}
-				backend->imageInfo.ncomp = toInt(popUnScaled());
+				backend->imageInfo.ncomp = (short) toInt(popUnScaled());
 			}
 	YY_BREAK
 case 32:
@@ -2134,7 +2134,7 @@ YY_RULE_SETUP
 					cerr << "handling " << yytext ;
 					pstack();
 				}
-				backend->imageInfo.bits = toInt(popUnScaled());
+				backend->imageInfo.bits = (short) toInt(popUnScaled());
 			}
 	YY_BREAK
 case 37:
@@ -2282,11 +2282,58 @@ YY_RULE_SETUP
 			const float Y = popUnScaled();
 			const float M = popUnScaled();
 			const float C = popUnScaled();
+			const unsigned int colormodel = 3;
+			// http://www.efg2.com/Lab/Library/Color/AndComputers.htm
+			switch (colormodel) {
+			case 1: {
 			const float R = 1.0f - minf(1.0f,C+K); // according to PLRM page 307
 			const float G = 1.0f - minf(1.0f,M+K);
 			const float B = 1.0f - minf(1.0f,Y+K);
-			/* printf("%s %f %f %f\n","setting RGB to ",R,G,B); */
-			backend->setRGB(R,G,B);
+	//		printf("%s %f %f %f\n","setting RGB to ",R,G,B);
+						backend->setRGB(R,G,B);
+						}
+						break;
+			case 2: {
+			
+			/* alternative formula
+	http://research.microsoft.com/~hollasch/cgindex/color/cmyk.html
+	http://www.ghostscript.com/pipermail/gs-cvs/2002-November/002588.html
+	
+	
+	http://www.paris-pc-gis.com/MI_Enviro/Colors/color_models.htm
+			  R = (1.0 - C) * (1.0 - K), etc. 
+			*/
+
+			const float R = (1.0f - C)*(1.0f - K); 
+			const float G = (1.0f - M)*(1.0f - K);
+			const float B = (1.0f - Y)*(1.0f - K);
+	//		printf("%s %f %f %f\n","setting RGB to ",R,G,B);
+						backend->setRGB(R,G,B);
+			}
+			break;
+			case 3: {
+			
+/*
+
+	http://www.neuro.sfc.keio.ac.jp/~aly/polygon/info/color-space-faq.html
+
+RGB -> CMYK				            | CMYK -> RGB
+Black=minimum(1-Red,1-Green,1-Blue)	| Red=1-minimum(1,Cyan*(1-Black)+Black)
+Cyan=(1-Red-Black)/(1-Black)	    | Green=1-minimum(1,Magenta*(1-Black)+Black)
+Magenta=(1-Green-Black)/(1-Black)	| Blue=1-minimum(1,Yellow*(1-Black)+Black)
+Yellow=(1-Blue-Black)/(1-Black)	    |
+*/
+
+			const float R = 1.0f - minf(1.0f,C*(1-K)+K); 
+			const float G = 1.0f - minf(1.0f,M*(1-K)+K);
+			const float B = 1.0f - minf(1.0f,Y*(1-K)+K);
+	//		printf("%s %f %f %f\n","setting RGB to ",R,G,B);
+						backend->setRGB(R,G,B);
+				}
+			break;
+			default: break;
+			}
+			
 			}
 	YY_BREAK
 case 46:
@@ -2334,6 +2381,7 @@ YY_RULE_SETUP
 			float width  = pop(); 
 			if (width < 1.0 ) { width = 612 * backend->getScale() ; }
 			backend->setCurrentDeviceWidth(width);
+			if (backend->verbose) errf << "handling setPageSize " << height << " " << width << endl;
 			}
 	YY_BREAK
 case 52:
@@ -2361,7 +2409,7 @@ YY_RULE_SETUP
 			const float y = pop(); /* just the last moveto (0 0 in case of makefont) */
 			const float x = pop(); /* just the last moveto (0 0 in case of makefont) */
 			/* backend->dumpText(start_of_text,x,y); */
-			backend->dumpHEXText(start_of_text,x + backend->getCurrentFontMatrix()[4],y + backend->getCurrentFontMatrix()[5]);
+			backend->pushHEXText(start_of_text,x + backend->getCurrentFontMatrix()[4],y + backend->getCurrentFontMatrix()[5]);
 			}
 	YY_BREAK
 case 54:
@@ -2374,7 +2422,7 @@ YY_RULE_SETUP
 			const float y = pop(); /* just the last moveto (0 0 in case of makefont) */
 			const float x = pop(); /* just the last moveto (0 0 in case of makefont) */
 			/* backend->dumpText(start_of_text,x,y); */
-			backend->dumpText(start_of_text,x + backend->getCurrentFontMatrix()[4],y + backend->getCurrentFontMatrix()[5]);
+			backend->pushText(start_of_text,x + backend->getCurrentFontMatrix()[4],y + backend->getCurrentFontMatrix()[5]);
 			}
 	YY_BREAK
 case 55:
@@ -2420,7 +2468,7 @@ YY_RULE_SETUP
 				// this is an intermediate moveto
 				// if backend supports subpaths add it
 				// else dump last path and start a new one
-				if (backend->simulateSubPaths || backend->Pdriverdesc->backendSupportsSubPathes) {
+				if (backend->globaloptions.simulateSubPaths || backend->Pdriverdesc->backendSupportsSubPathes) {
 //					Point p(origx,origy);
 					backend->addtopath(new Moveto(origx,origy));  
 				} else {
@@ -2491,9 +2539,13 @@ YY_RULE_SETUP
 			// check for last == first. Then no additional
 			// lineto is needed. and isPolygon can be set to true
 			 if  ( (lastelem.getType() == lineto) && (lastelem.getPoint(0) == startPoint) ) {
+				// remove last lineto - 
+				// a closepath is sometimes nicer than a lineto (see closevsline.ps)
+				if (backend->verbose) errf << "removing obsolete lineto " << endl; 
+				backend->removeFromElementFromPath();
 				// no need to close the path, it's already closed
-			 } else {
-				if (backend->simulateSubPaths || backend->Pdriverdesc->backendSupportsSubPathes) {
+			 } /* else */ {
+				if (backend->globaloptions.simulateSubPaths || backend->Pdriverdesc->backendSupportsSubPathes) {
 			 		backend->addtopath(new Closepath()); 
 				} else {
 			 		backend->addtopath(new Lineto(origx,origy)); // pass p as array
@@ -3490,14 +3542,14 @@ unsigned int PSFrontEnd::readBBoxes(BBox * bboxes)
 	yylexcleanup();
 	return currentPageNumber;
 }
-void PSFrontEnd::run(bool merge)
+void PSFrontEnd::run(bool mergelines)
 {
 	BEGIN(INITIAL);
 	bblexmode = false;
 	currentPageNumber = 1;
 	nextFreeNumber=0;
 	yy_init = 1;
-	backend->startup(merge);
+	backend->startup(mergelines);
 	if (!yylex()) {
 		// yylex returns 0 on normal EOF
 		// 1 in case of errors
@@ -3522,10 +3574,9 @@ void PSFrontEnd::addNumber(float a_number)
 
 PSFrontEnd::PSFrontEnd(ostream& outfile_p, 
 		ostream & errstream,
+		const PsToEditOptions & globaloptions_p,
 		const char * infilename_p,
 		const char * outfilename_p,
-		const float scalefactor_p,
-		const PsToEditOptions & globaloptions_p,
 		const DriverDescription * driverDesc_p,
 		const char * driveroptions_p,
 		const bool splitpages_p, 
@@ -3534,7 +3585,6 @@ PSFrontEnd::PSFrontEnd(ostream& outfile_p,
 	  errf(errstream),
 	  infilename(infilename_p),
 	  outfilename(outfilename_p),
-	  scalefactor(scalefactor_p),
 	  globaloptions(globaloptions_p),
 	  driverDesc(driverDesc_p),
 	  driveroptions(driveroptions_p),
@@ -3596,4 +3646,3 @@ void PSFrontEnd::pstack()  const {
 		cerr << "[" << i << "] " << numbers[i] << " " << numbers[i]* backend->getScale() << endl;
 	}
 }
- 

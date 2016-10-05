@@ -2,7 +2,7 @@
    drvPDF.cpp : This file is part of pstoedit
    Backend for PDF(TM) format
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -164,6 +164,8 @@ bb_llx(largeint), bb_lly(largeint), bb_urx(-largeint), bb_ury(-largeint)
 			encodingName = d_argv[i + 1];
 		}
 	}
+
+	errf << "Info: This PDF driver is not very elaborated - consider using -f gs:pdfwrite instead." << endl;
 
 }
 
@@ -429,7 +431,7 @@ drvPDF::~drvPDF()
 		<< setw(2) << setfill('0') << localt->tm_hour
 		<< setw(2) << setfill('0') << localt->tm_min
 		<< setw(2) << setfill('0') << localt->tm_sec << ")" << endl;
-	outf << "/Producer (pstoedit by wglunz@pstoedit.net)" << endl;
+	outf << "/Producer (pstoedit by wglunz34_AT_pstoedit.net)" << endl;
 	outf << ">>" << endl;
 	endobject();
 
@@ -514,7 +516,7 @@ void drvPDF::open_page()
 	unused(&currentpage);
 	pagenr++;
 	// provide a temp stream
-	tempFile.asOutput();
+	(void)tempFile.asOutput();
 }
 
 void drvPDF::close_page()
@@ -692,7 +694,7 @@ void drvPDF::show_path()
 	buffer << drawingop << endl;
 }
 
-static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document Format", "pdf", true,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document Format", "","pdf", true,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
 										   // moveto (start of subpath)
@@ -710,6 +712,5 @@ static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document For
 										   true,	// if backend supports text, else 0
 										   DriverDescription::memoryeps,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-										   false, /*clipping */
-										   nodriverspecificoptions);
- 
+										   false  /*clipping */
+										   );

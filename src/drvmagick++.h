@@ -6,7 +6,7 @@
    Class declaration for a MAGICK++ output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,12 @@
 // wogltest #define _IOSFWD_
 
 #include "drvbase.h"
+#ifdef _WIN32
+// Magic++ needs WIN32
+#ifndef WIN32
+#define WIN32
+#endif
+#endif
 #include <Magick++.h>
 using namespace std;
 using namespace Magick;
@@ -37,9 +43,15 @@ public:
 	derivedConstructor(drvMAGICK);
 
 	~drvMAGICK(); // Destructor
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
 
 #include "drvfuncs.h"
-	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+//	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
 	void show_text(const TextInfo & textInfo);
 
 public:
@@ -47,7 +59,7 @@ public:
 	virtual void    show_image(const PSImage & imageinfo); 
 
 private:
-	void create_vpath(std::list<Magick::VPath>& vpath);
+	void create_vpath(VPathList & vpath);
 	int	      imgcount;
 
 	Image * imageptr; //Magick::Image meant here
@@ -55,6 +67,5 @@ private:
 };
 
 #endif
- 
  
  

@@ -3,7 +3,7 @@
    Skeleton for the implementation of text based backends
    for example this could be extended towards an HTML backend.
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,20 +28,13 @@
 // sizes in terms of lines and characters
 
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-height", "number", "page height in terms of characters"),
-	OptionDescription("-width", "number", "page width in terms of characters"),
-	OptionDescription("-dump", 0, "dump text pieces"),
-	endofoptions
-};
-
-
 
 drvTEXT::derivedConstructor(drvTEXT):
-constructBase, charpage(0), dumptextpieces(false), pageheight(200), pagewidth(120)
+constructBase, charpage(0)
+// , dumptextpieces(false), pageheight(200), pagewidth(120)
 {
 // driver specific initializations
-
+#if 0
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
 		if (Verbose())
@@ -56,21 +49,21 @@ constructBase, charpage(0), dumptextpieces(false), pageheight(200), pagewidth(12
 			i++;
 		}
 	}
+#endif
 
-
-	if (!dumptextpieces) {
+	if (!options->dumptextpieces) {
 #if 0
-		charpage = new char[pageheight * pagewidth];
-		for (unsigned int ii = 0; ii < pageheight; ii++) {
-			//charpage[i] = new char[pagewidth];
-			for (unsigned int j = 0; j < pageheight; j++)
+		charpage = new char[options->pageheight * options->pagewidth];
+		for (unsigned int ii = 0; ii < options->pageheight; ii++) {
+			//charpage[i] = new char[options->pagewidth];
+			for (unsigned int j = 0; j < options->pageheight; j++)
 				(charpage[ii])[j] = ' ';
 		}
 #else
-		charpage = new char *[pageheight];
-		for (unsigned int ii = 0; ii < pageheight; ii++) {
-			charpage[ii] = new char[pagewidth];
-			for (unsigned int j = 0; j < pagewidth; j++)
+		charpage = new char *[options->pageheight];
+		for (unsigned int ii = 0; ii < (unsigned int) options->pageheight; ii++) {
+			charpage[ii] = new char[options->pagewidth];
+			for (unsigned int j = 0; j < (unsigned int) options->pagewidth; j++)
 				(charpage[ii])[j] = ' ';
 		}
 #endif
@@ -86,11 +79,11 @@ drvTEXT::~drvTEXT()
 {
 // driver specific deallocations
 // and writing of trailer to output file
-	if (dumptextpieces) {
+	if (options->dumptextpieces) {
 		outf << "Sample trailer \n";
 	} else {
 		if (charpage) {
-			for (unsigned int i = 0; i < pageheight; i++) {
+			for (unsigned int i = 0; i < (unsigned int) options->pageheight; i++) {
 				delete[]charpage[i];
 				charpage[i] = 0;
 			}
@@ -102,13 +95,13 @@ drvTEXT::~drvTEXT()
 
 void drvTEXT::open_page()
 {
-	if (dumptextpieces)
+	if (options->dumptextpieces)
 		outf << "Opening page: " << currentPageNumber << endl;
 }
 
 void drvTEXT::close_page()
 {
-	if (dumptextpieces) {
+	if (options->dumptextpieces) {
 		outf << "Closing page: " << (currentPageNumber) << endl;
 		unsigned int nroflines = page.size();
 		for (unsigned int i = 0; i < nroflines; i++) {
@@ -141,8 +134,8 @@ void drvTEXT::close_page()
 		}
 		page.clear();
 	} else {
-		for (unsigned int i = 0; i < pageheight; i++) {
-			for (unsigned int j = 0; j < pagewidth; j++) {
+		for (unsigned int i = 0; i < (unsigned int) options->pageheight; i++) {
+			for (unsigned int j = 0; j < (unsigned int) options->pagewidth; j++) {
 				outf << (charpage[i])[j];
 				(charpage[i])[j] = ' ';
 			}
@@ -154,7 +147,7 @@ void drvTEXT::close_page()
 
 void drvTEXT::show_text(const TextInfo & textinfo)
 {
-	if (dumptextpieces) {
+	if (options->dumptextpieces) {
 		// check which line this piece of text fits in.
 		//
 		unsigned int nroflines = page.size();
@@ -175,9 +168,9 @@ void drvTEXT::show_text(const TextInfo & textinfo)
 			newline->textpieces.insert(textinfo);
 		}
 	} else {
-		int x = (int) (pagewidth * (textinfo.x / 700.0f));
-		int y = (int) (pageheight * ((currentDeviceHeight + y_offset - textinfo.y) / 800.0f));
-		if ((x >= 0) && (y >= 0) && (x < pagewidth) && (y < pageheight)) {
+		int x = (int) (options->pagewidth * (textinfo.x / 700.0f));
+		int y = (int) (options->pageheight * ((currentDeviceHeight + y_offset - textinfo.y) / 800.0f));
+		if ((x >= 0) && (y >= 0) && (x < options->pagewidth) && (y < options->pageheight)) {
 			if (((charpage[y])[x] != ' ')) {
 				cerr << "character " << (charpage[y])[x] << " overwritten with " << textinfo.
 					thetext.
@@ -202,7 +195,7 @@ void drvTEXT::show_image(const PSImage & imageinfo)
 	unused(&imageinfo);
 }
 
-static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ", "txt", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ", "","txt", false,	// if backend supports subpathes, else 0
 											 // if subpathes are supported, the backend must deal with
 											 // sequences of the following form
 											 // moveto (start of subpath)
@@ -220,6 +213,5 @@ static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ",
 											 true,	// if backend supports text, else 0
 											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-											 false,	/*clipping */
-											 driveroptions);
- 
+											 false 	/*clipping */
+											 );

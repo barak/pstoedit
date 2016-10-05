@@ -60,7 +60,7 @@ static void getini(int verbose,ostream & errstream, char* szIniFile,const char *
 //			cout << "cbdata" << (int) cbData << endl;
 			keytype =  REG_SZ;
 			rc = RegQueryValueEx(hkey, "ProfileDirectory", 0, &keytype, (LPBYTE)szIniFile, &cbData);
-			RegCloseKey(hkey);
+			(void)RegCloseKey(hkey);
 	    }
 	    if (rc == ERROR_SUCCESS) {
 			if (verbose) { 

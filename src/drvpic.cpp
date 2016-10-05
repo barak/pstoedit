@@ -4,7 +4,7 @@
    Driver for PIC troff/groff drawing format
    NOTE: primitve version, only supports lines and text
 
-   Copyright (C) 1999 Egil Kvaleberg, egil@kvaleberg.no
+   Copyright (C) 1999 Egil Kvaleberg, egil_AT_kvaleberg.no
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ const float PIC_SCALE = 72.0f;	/* convert from points to inches */
  *  fonts supported by groff
  *  NOTE: could have been made dynamic
  */
-static struct fx {
+static const struct fx {
 	const char *f_name;
 	const char *f_groff;
 } fontxlate[] = {
@@ -83,18 +83,11 @@ static struct fx {
  *
  */
 
-const char * const driveroptions=
-	"-groff\n"
-	"-troff\n"
-	"-landscape\n"
-	"-portrait\n"
-	"-keep\n"
-	"-text\n"
-	"-debug";
 
 
-drvPIC::derivedConstructor(drvPIC):constructBase,
-troff_mode(0), landscape(0), keep_font(0), text_as_text(0), debug(0)
+
+drvPIC::derivedConstructor(drvPIC):constructBase
+// troff_mode(0), landscape(0), keep_font(0), text_as_text(0), debug(0)
 {
 // driver specific initializations
 // and writing of header to output file
@@ -103,7 +96,7 @@ troff_mode(0), landscape(0), keep_font(0), text_as_text(0), debug(0)
 	withinPS = 0;
 	pageheight = 10.5;			/* BUG: silly default */
 	largest_y = 0.0;
-
+#if 0
 	if (d_argc > 0) {
 		if (Verbose())
 			errf << ".\\\" Driver options:" << endl;
@@ -131,6 +124,9 @@ troff_mode(0), landscape(0), keep_font(0), text_as_text(0), debug(0)
 			}
 		}
 	}
+
+#endif
+
 //      float           scale;
 }
 
@@ -143,7 +139,7 @@ drvPIC::~drvPIC()
 
 float drvPIC::x_coord(float x, float y)
 {
-	if (landscape)
+	if (options->landscape)
 		return (y + y_offset) / PIC_SCALE;
 	else
 		return (x + x_offset) / PIC_SCALE;
@@ -151,7 +147,7 @@ float drvPIC::x_coord(float x, float y)
 
 float drvPIC::y_coord(float x, float y)
 {
-	if (landscape)
+	if (options->landscape)
 		return pageheight - (x + x_offset) / PIC_SCALE;
 	else
 		return (y + y_offset) / PIC_SCALE;
@@ -167,7 +163,7 @@ void drvPIC::print_coords()
 
 	ps_begin();
 
-	if (debug) {
+	if (options->debug) {
 		outf << ".\\\" xoffs,yoffs,height: "
 			<< x_offset << "," << y_offset << "," << currentDeviceHeight << endl;
 	}
@@ -275,15 +271,15 @@ void drvPIC::show_text(const TextInfo & textinfo)
 	static int is_text = 0;		// ...
 
 	/* translate font to groff/troff style */
-	if (!troff_mode) {
-		for (struct fx * fp = fontxlate; fp->f_name; ++fp) {
+	if (!options->troff_mode) {
+		for (const struct fx * fp = fontxlate; fp->f_name; ++fp) {
 			if (strcmp(fontname, fp->f_name) == 0) {
 				tfont = fp->f_groff;
 				break;
 			}
 		}
 	}
-	if (keep_font && !tfont) {
+	if (options->keepFont && !tfont) {
 		tfont = fontname;
 	}
 
@@ -296,7 +292,7 @@ void drvPIC::show_text(const TextInfo & textinfo)
 	}
 
 	/* this is veeery ad-hoc: make assumption about text mode */
-	if (text_as_text) {
+	if (options->textAsText) {
 		if (!withinPS) {
 			/* we assume drawing does not start with text */
 			is_text = 1;
@@ -338,6 +334,7 @@ void drvPIC::show_text(const TextInfo & textinfo)
 					outf << "\\&";
 				}
 				/* drop through */
+				//lint -fallthrough
 			default:
 				outf << *p;
 				break;
@@ -347,7 +344,7 @@ void drvPIC::show_text(const TextInfo & textinfo)
 	} else {
 		ps_begin();
 
-		if (debug) {
+		if (options->debug) {
 			outf << endl;
 			outf << ".\\\" currentFontName: " << textinfo.currentFontName.value() << endl;
 			outf << ".\\\" currentFontFamilyName: " << textinfo.
@@ -393,7 +390,7 @@ void drvPIC::show_text(const TextInfo & textinfo)
 void drvPIC::show_path()
 {
 	// BUG:
-	if (debug) {
+	if (options->debug) {
 		outf << endl << ".\\\" Path # " << currentNr();
 		if (isPolygon())
 			outf << " (polygon): " << endl;
@@ -425,9 +422,9 @@ void drvPIC::show_path()
 		outf << ".\\\" dashPattern: " << dashPattern() << endl;
 	}
 	print_coords();
-};
+}
 
-static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.", "pic", true,	// backend supports subpathes
+static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.","", "pic", true,	// backend supports subpathes
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
 										   // moveto (start of subpath)
@@ -445,6 +442,5 @@ static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.",
 										   true,	// backend supports text
 										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file (wogl? ? ?)
-										   false ,/*clipping */
-										   nodriverspecificoptions);
- 
+										   false  /*clipping */
+										   );

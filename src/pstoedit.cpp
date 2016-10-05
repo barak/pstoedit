@@ -2,7 +2,7 @@
    pstoedit.cpp : This file is part of pstoedit
    main control procedure 
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,6 +52,12 @@
 
 #include "psfront.h"
 
+static pstoeditDialog_func* RunDialog = 0;
+extern "C" DLLEXPORT void setPstoeditDialogFunction(pstoeditDialog_func* p)
+{
+	RunDialog = p;
+}
+
 extern const char *defaultPIoptions(ostream & errstream, int verbose);	// in callgs.cpp
 
 static void writeFileName(ostream & outstream, const char *const filename)
@@ -65,6 +71,7 @@ static void writeFileName(ostream & outstream, const char *const filename)
 		}
 	}
 }
+
 
 
 #if 0
@@ -173,6 +180,13 @@ public:
 	~drvNOBACKEND() {
 	} // Destructor   
 	
+	class DriverOptions : public ProgramOptions {
+	public:
+		DriverOptions() 
+		{
+		}
+	}*options;
+	
 	bool withbackend() const {
 		return false;
 	}
@@ -197,28 +211,31 @@ drvNOBACKEND::derivedConstructor(drvNOBACKEND):constructBase
 }
 
 static DriverDescriptionT < drvNOBACKEND > D_psf("psf", "Flattened PostScript (no curves)",
-												 "fps", 1, 0, 1, 1,  DriverDescription::memoryeps,
-												 DriverDescription::normalopen, true, true,nodriverspecificoptions,false);
-static DriverDescriptionT < drvNOBACKEND > D_ps("ps", "Simplified PostScript with curves", "spsc", 1, 1, 1, 1, 
-												DriverDescription::memoryeps, DriverDescription::normalopen, true, true,nodriverspecificoptions,false);
-static DriverDescriptionT < drvNOBACKEND > D_debug("debug", "for test purposes", "dbg", 1, 1,
+												 "","fps", 1, 0, 1, 1,  DriverDescription::memoryeps,
+												 DriverDescription::normalopen, true, true,false);
+static DriverDescriptionT < drvNOBACKEND > D_ps("ps", "Simplified PostScript with curves", "","spsc", 1, 1, 1, 1, 
+												DriverDescription::memoryeps, DriverDescription::normalopen, true, true,false);
+static DriverDescriptionT < drvNOBACKEND > D_debug("debug", "for test purposes", "","dbg", 1, 1,
 												   1, 1, DriverDescription::memoryeps, DriverDescription::normalopen,
-												   true, true,nodriverspecificoptions,false);
+												   true, true,false);
 static DriverDescriptionT < drvNOBACKEND > D_dump("dump", "for test purposes (same as debug)",
-												  "dbg", 1, 1, 1, 1, DriverDescription::memoryeps,
-												  DriverDescription::normalopen, true, true,nodriverspecificoptions,false);
+												  "","dbg", 1, 1, 1, 1, DriverDescription::memoryeps,
+												  DriverDescription::normalopen, true, true,false);
 static DriverDescriptionT < drvNOBACKEND > D_gs("gs",
 												"any device that GhostScript provides - use gs:format, e.g. gs:pdfwrite",
-												"gs", 1, 1, 1, 1, DriverDescription::noimage,
-												DriverDescription::normalopen, true, true,nodriverspecificoptions,false);
+												"","gs", 1, 1, 1, 1, DriverDescription::noimage,
+												DriverDescription::normalopen, true, true,false);
+#if 0
+// -88 no longer supported - too lazy to create an own class for the moment.
 static const OptionDescription driveroptionsAI[] = {
 	OptionDescription("-88",0,"generate AI88 format"),
 	endofoptions};
+#endif
 static DriverDescriptionT < drvNOBACKEND > D_ps2ai("ps2ai",
 												   "Adobe Illustrator via ps2ai.ps of GhostScript",
-												   "ai", 1, 1, 1, 1, DriverDescription::noimage,
+												   "","ai", 1, 1, 1, 1, DriverDescription::noimage,
 												   DriverDescription::normalopen, false, true,
-												   driveroptionsAI,false);
+												   false);
 
 class Closer {
 public:
@@ -286,11 +303,30 @@ extern FILE *yyin;				// used by lexer
 						// otherwise we could declare it locally where it is used
 
 
-static void usage(ostream & errstream)
+static void usage(ostream & errstream, bool forTeX, bool withdetails, bool withcategories = false)
 {
 	PsToEditOptions dummy;
-	dummy.showhelp(errstream);
-	errstream << "[ inputfile [outputfile] ] " << endl;
+	if (withcategories) {
+		const char * const propSheetNames[] = {
+		"General options",
+		"Text and font handling related options",
+		"About",
+		"Debug options",
+		"Drawing related options",
+		"Hidden options",
+		0};
+		// PropSheetEnum {g_t, t_t, a_t, b_t, d_t, h_t };
+		for (unsigned int sheet = PsToEditOptions::g_t ; sheet <= PsToEditOptions::d_t ; sheet++ ) {
+			if (sheet == PsToEditOptions::a_t) continue; // skip "about"
+			errstream << "\\subsection{"  << propSheetNames[sheet] << "}" << endl;
+			dummy.showhelp(errstream,forTeX,withdetails,sheet);
+		} 
+		errstream << "\\subsection{Input and outfile file arguments}" << endl;
+		errstream << "[ inputfile [outputfile] ] " << endl;
+	} else {
+		dummy.showhelp(errstream,forTeX,withdetails);
+		errstream << "[ inputfile [outputfile] ] " << endl;
+	}
 }
 
 extern "C" DLLEXPORT
@@ -319,7 +355,7 @@ extern "C" DLLEXPORT
 #endif
 	errstream << "pstoedit: version " << version << " / DLL interface " <<
 		drvbaseVersion << " (build " << __DATE__ << " - " << buildtype<< ")" 
-		" : Copyright (C) 1993 - 2003 Wolfgang Glunz\n";
+		" : Copyright (C) 1993 - 2005 Wolfgang Glunz\n";
 	// int arg = 1;
 	drvbase::SetVerbose( false );	// init
 
@@ -327,7 +363,7 @@ extern "C" DLLEXPORT
 	const unsigned int remaining = options.parseoptions(errstream,argc,argv);
 	//  handling of derived parameters
 	drvbase::SetVerbose(options.verbose);
-	closerObject.fromgui = options.fromgui;
+	closerObject.fromgui = (bool) options.fromgui;
 	if (options.ptioption) options.precisiontext = 1;
 	if (options.ptaoption) options.precisiontext = 2;
 
@@ -346,11 +382,14 @@ extern "C" DLLEXPORT
 			}
 	default:{
 		errstream << "more than two file arguments " << endl;
-		usage(errstream);
+		usage(errstream,false,false);
 		return 1;
 			}
 	}
 
+	if (options.showdialog && RunDialog) {
+		RunDialog(&options);
+	}
 
 	// options.showvalues(cout);
 
@@ -371,7 +410,7 @@ extern "C" DLLEXPORT
 		options.nameOfOutputFile = 0;
 	}
 
-	if (options.loadplugins) {
+	if (!options.dontloadplugins) {
 		loadpstoeditplugins(argv[0], errstream, options.verbose);	// load the driver plugins
 	}
 
@@ -379,8 +418,23 @@ extern "C" DLLEXPORT
 		getglobalRp()->mergeRegister(errstream, *pushinsPtr, "push-ins");
 	}
 
+	if (options.showdocu_short) {
+		// show general options
+		usage(cout,true,false);
+		return 1;
+	}
+	if (options.showdocu_long) {
+		// show general options
+		usage(cout,true,true,true);
+		return 1;
+	}
+	if (options.dumphelp) {
+		// show driver specific options
+		getglobalRp()->explainformats(cout,true);
+		return 1;
+	}
 	if (options.showdrvhelp) {
-		usage(cout);
+		usage(cout,false,false);
 		const char *gstocall = whichPI(cout, options.verbose);
 		if (gstocall != 0) {
 			cout << "Default interpreter is " << gstocall << endl;
@@ -388,10 +442,7 @@ extern "C" DLLEXPORT
 		getglobalRp()->explainformats(cout);
 		return 1;
 	}
-	if (options.dumphelp) {
-		getglobalRp()->explainformats(cout,true);
-		return 1;
-	}
+
 	if (options.justgstest) {
 		const char *gstocall = whichPI(errstream, options.verbose);
 		if (gstocall == 0) {
@@ -433,6 +484,14 @@ extern "C" DLLEXPORT
 		} else {
 			commandline.addarg("-dNODISPLAY");
 		}
+		commandline.addarg("-dNOEPS"); // otherwise EPSF files create implicit showpages and a save/restore pair which disturbs the setPageSize handling
+// from the gs (8.0) news:
+/*
+Ghostscript now automatically encapsulates EPS files, so that EPS files will display and print/convert correctly. Previously EPS files without a showpage would display, but no output file would be written when converting to a bitmap. 
+To set the page size to match the EPS bounding box, use -dEPSCrop. To scale an EPS to fit the current page size, use -dEPSFitPage. If neither of these options are used and the EPS file does not fit within the current page, a warning will be generated. 
+To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename) (r) file cvs exec not (filename) run. 
+*/
+
 
 		for (unsigned int psi = 0; psi < options.psArgs().argc; psi++) {
 			commandline.addarg(options.psArgs().argv[psi]);
@@ -446,24 +505,51 @@ extern "C" DLLEXPORT
 		errstream << "now calling the interpreter via: " << commandline << endl;
 		// gsresult = system(commandline);
 		const int gsresult = call_PI(commandline.argc, commandline.argv);
-		errstream << "Interpreter finished. Return status " << gsresult << endl;
-
+		if (gsresult != 0) {
+			errstream << "PostScript/PDF Interpreter finished. Return status " << gsresult 
+				<< " executed command : " << commandline << endl;
+		}
 		return gsresult;
 	}
-
-	if (options.drivername == 0) {
-		errstream << "No backend specified" << endl;
-		usage(errstream);
-		return 1;
-	} else {
-		char *driveroptions = strchr(options.drivername, ':');
+	if (options.drivername.value.value() == 0) {
+		// try to find driver according to suffix of input file
+		const char * suffixOfInputFile = 0;
+		if (!options.nameOfOutputFile) {
+			errstream << "No backend specified and backend could not be deduced from suffix of output file since no output file name was given" << endl;
+			usage(errstream,false,false);
+			return 1;
+		} else {
+			suffixOfInputFile = strrchr(options.nameOfOutputFile,'.');
+			if (!suffixOfInputFile) {
+				errstream << "No backend specified and backend could not be deduced from suffix of output file since no suffix was found" << endl;
+				usage(errstream,false,false);
+				return 1;
+			} else {
+				const DriverDescription *suffixDriverDesc = getglobalRp()->getDriverDescForSuffix((suffixOfInputFile+1)); // +1 == skip "."
+				if (suffixDriverDesc) {
+					errstream << "No explicit backend specified - using " << suffixDriverDesc->symbolicname << " as derived from suffix of output file" << endl;
+					options.drivername = suffixDriverDesc->symbolicname;
+				} else {
+					errstream << "No backend specified and backend could not be uniquely deduced from suffix " << suffixOfInputFile << " of output file" << endl;
+					// usage(errstream);
+					getglobalRp()->explainformats(cout); // ,true);
+					return 1;
+				}
+			}
+		}
+	}
+	// from here on options.drivername is != 0
+	{
+		auto_ptr<char> driveroptionscopy (cppstrdup(options.drivername.value.value()) );
+		char *driveroptions = strchr(driveroptionscopy.operator->(), ':');
 		if (driveroptions) {
 			*driveroptions = '\0';	// replace : with 0 to separate drivername
+			options.drivername = driveroptionscopy.operator->();
 			driveroptions++;
 		}
-		const DriverDescription *currentDriverDesc = getglobalRp()->getdriverdesc(options.drivername);
+		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.value());
 		if (currentDriverDesc == 0) {
-			errstream << "Unsupported driver " << options.drivername << endl;
+			errstream << "Unsupported driver " << options.drivername.value.value() << endl;
 			getglobalRp()->explainformats(errstream);
 			return 1;
 		}
@@ -475,18 +561,15 @@ extern "C" DLLEXPORT
 
 
 		if (driveroptions && (strcmp(driveroptions, "-help") == 0)) {
-			errstream << "This driver supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
-			const OptionDescription * iter = currentDriverDesc->optionDescription;
-			while (iter && (iter->Name != 0)) {
-				errstream << iter->Name;
-				if (iter->Parameter!=0) errstream << " " << iter->Parameter;
-				if (iter->Description!=0) errstream << " //" << iter->Description;
-				errstream << endl;
-				iter++;
+			ProgramOptions* dummy = currentDriverDesc->createDriverOptions();
+			if (dummy->numberOfOptions() ) {
+				errstream << "This driver supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
+				dummy->showhelp(errstream,false,false);
 			}
+			delete dummy;
 			return 1;
 		}
-		if (strcmp(options.drivername, "gs") == 0) {
+		if (strcmp(options.drivername.value.value(), "gs") == 0) {
 // TODO:
 			// Check for input file (exists, or stdin) stdout handling
 			if (!options.nameOfInputFile) {
@@ -565,7 +648,10 @@ extern "C" DLLEXPORT
 				errstream << "Now calling the interpreter via: " << commandline << endl;
 			// gsresult = system(commandline);
 			const int gsresult = call_PI(commandline.argc, commandline.argv);
-			errstream << "Interpreter finished. Return status " << gsresult << endl;
+			if (gsresult != 0) {
+				errstream << "PostScript/PDF Interpreter finished. Return status " << gsresult 
+					<< " executed command : " << commandline << endl;
+			}
 			return gsresult;
 		} else {
 			//istream *inputFilePtr = 0;
@@ -656,7 +742,7 @@ extern "C" DLLEXPORT
 													 *outputFilePtr,
 													 errstream,
 													 options.nameOfInputFile,
-													 nameOfOutputFilewithoutpercentD, (float)options.magnification,
+													 nameOfOutputFilewithoutpercentD,
 													 options);
 			} else {
 				if (options.splitpages) {
@@ -668,7 +754,7 @@ extern "C" DLLEXPORT
 						currentDriverDesc->CreateBackend(driveroptions,
 														 cout, errstream,
 														 options.nameOfInputFile,
-														 0, (float)options.magnification, options);
+														 0, options);
 				}
 			}
 
@@ -678,15 +764,24 @@ extern "C" DLLEXPORT
 			}
 
 
-			if (options.explicitFontMapFile) {
-				if (fileExists(options.explicitFontMapFile)) {
+			if (options.explicitFontMapFile.value.value()) {
+				if (fileExists(options.explicitFontMapFile.value.value())) {
 					if (options.verbose) {
-						errstream << "Loading fontmap from " << options.explicitFontMapFile << endl;
+						errstream << "Loading fontmap from " << options.explicitFontMapFile.value << endl;
 					}
-					drvbase::theFontMapper().readMappingTable(errstream, options.explicitFontMapFile);
+					drvbase::theFontMapper().readMappingTable(errstream, options.explicitFontMapFile.value.value());
 				} else {
-					errstream << "Warning: Fontmap file " <<
-						options.explicitFontMapFile << " not found. Option ignored." << endl;
+					RSString extendedFontMapFile = options.explicitFontMapFile.value;
+					extendedFontMapFile += ".fmp";
+					if (fileExists(extendedFontMapFile.value())) {
+						if (options.verbose) {
+							errstream << "Loading fontmap from " << extendedFontMapFile << endl;
+						}
+						drvbase::theFontMapper().readMappingTable(errstream, options.explicitFontMapFile.value.value());
+					} else {
+						errstream << "Warning: Couldn't open fontmap file. Neither " <<
+						options.explicitFontMapFile.value << " nor " << extendedFontMapFile << ". Option ignored." << endl;
+					}
 				}
 			} else {
 				// look for a driver specific fontmap 
@@ -734,8 +829,11 @@ extern "C" DLLEXPORT
 				const char *successstring;	// string that indicated success of .pro
 				ofstream inFileStream(gsin.value());
 				inFileStream << "/pagetoextract " << options.pagetoextract << " def" << endl;
-				if (!options.maptoisolatin1) {
+				if (options.nomaptoisolatin1) {
 					inFileStream << "/maptoisolatin1 false def" << endl;
+				}
+				if (options.usePlainStrings) {
+					inFileStream << "/pstoedit.ashexstring false def" << endl;
 				}
 				if (options.t2fontsast1) {
 					inFileStream << "/t2fontsast1 true def" << endl;
@@ -777,9 +875,9 @@ extern "C" DLLEXPORT
 				if (options.correctdefinefont) {
 					inFileStream << "/pstoedit.correctdefinefont true def" << endl;
 				}
-				if (options.unmappablecharstring && strlen(options.unmappablecharstring)) {
+				if (options.unmappablecharstring.value.value() && strlen(options.unmappablecharstring.value.value())) {
 					inFileStream << "/globalunmappablecharacter (" <<
-						options.unmappablecharstring[0] << ") def" << endl;
+						options.unmappablecharstring.value.value()[0] << ") def" << endl;
 				}
 				inFileStream << "/precisiontext " << options.precisiontext << " def" << endl;
 
@@ -787,11 +885,15 @@ extern "C" DLLEXPORT
 					inFileStream << "/simulateclipping true def" << endl;
 				}
 				inFileStream << "/pstoedit.rotation " << options.rotation << " def" << endl;
-				if (strequal(options.drivername, "ps")
-					|| strequal(options.drivername, "psf")) {
+				inFileStream << "/pstoedit.xscale " << options.xscale << " def" << endl;
+				inFileStream << "/pstoedit.yscale " << options.yscale << " def" << endl;
+
+
+				if (strequal(options.drivername.value.value(), "ps")
+					|| strequal(options.drivername.value.value(), "psf")) {
 					inFileStream << "/escapetext true def" << endl;
 				}
-				if ((strequal(options.drivername, "debug")) || (strequal(options.drivername, "pdf"))) {
+				if ((strequal(options.drivername.value.value(), "debug")) || (strequal(options.drivername.value.value(), "pdf"))) {
 					inFileStream << "/usepdfmark true def" << endl;
 				}
  
@@ -822,8 +924,8 @@ extern "C" DLLEXPORT
 				writeFileName(inFileStream, options.nameOfInputFile);
 				inFileStream << ") def" << endl;
 
-				if (options.nameOfIncludeFile) {
-					ifstream filetest(options.nameOfIncludeFile);
+				if (options.nameOfIncludeFile.value.value()) {
+					ifstream filetest(options.nameOfIncludeFile.value.value());
 					if (!filetest) {
 						errstream << "Could not open file " <<
 							options.nameOfIncludeFile << " for inclusion" << endl;
@@ -831,7 +933,7 @@ extern "C" DLLEXPORT
 					}
 					filetest.close();
 					inFileStream << "/nameOfIncludeFile  (";
-					writeFileName(inFileStream, options.nameOfIncludeFile);
+					writeFileName(inFileStream, options.nameOfIncludeFile.value.value());
 					inFileStream << ") def" << endl;
 				}
 
@@ -867,7 +969,7 @@ extern "C" DLLEXPORT
 				} else {
 					inFileStream << "/doflatten true def" << endl;
 				}
-				if (options.doquit) {
+				if (!options.noquit) {
 					inFileStream << "/pstoedit.quitprog { quit } def" << endl;
 				} else {
 					inFileStream << "/pstoedit.quitprog { } def" << endl;
@@ -895,7 +997,7 @@ extern "C" DLLEXPORT
 					}
 					inFileStream << "end" << endl;
 				}
-				if (strcmp(options.drivername, "ps2ai") == 0) {
+				if (strcmp(options.drivername.value.value(), "ps2ai") == 0) {
 					successstring = "%EOF";	// This is written by the ps2ai.ps 
 					// showpage in ps2ai does quit !!!
 					// ps2ai needs special headers
@@ -956,7 +1058,7 @@ extern "C" DLLEXPORT
 				}
 				if (!options.verbose)
 					commandline.addarg("-q");
-				if (strcmp(options.drivername, "ps2ai") != 0) {	// not for ps2ai
+				if (strcmp(options.drivername.value.value(), "ps2ai") != 0) {	// not for ps2ai
 					if (options.nobindversion) {
 						// NOBIND disables bind in, e.g, gs_init.ps
 						// these files are loaded before pstoedit.pro
@@ -978,10 +1080,11 @@ extern "C" DLLEXPORT
 				} else {
 					commandline.addarg("-dNODISPLAY");
 				}
+				commandline.addarg("-dNOEPS"); // otherwise EPSF files create implicit showpages and a save/restore pair which disturbs the setPageSize handling
 				for (unsigned int psi = 0; psi < options.psArgs().argc; psi++) {
 					commandline.addarg(options.psArgs().argv[psi]);
 				}
-				if (strcmp(options.drivername, "ps2ai") == 0) {
+				if (strcmp(options.drivername.value.value(), "ps2ai") == 0) {
 					// ps2ai needs special headers
 					commandline.addarg(gsin.value());	// the first time to set the paramters for ps2ai.ps
 					commandline.addarg("ps2ai.ps");
@@ -993,7 +1096,10 @@ extern "C" DLLEXPORT
 					errstream << "now calling the interpreter via: " << commandline << endl;
 				// gsresult = system(commandline);
 				gsresult = call_PI(commandline.argc, commandline.argv);
-				errstream << "Interpreter finished. Return status " << gsresult << endl;
+				if (gsresult != 0) {
+					errstream << "PostScript/PDF Interpreter finished. Return status " << gsresult 
+					<< " executed command : " << commandline << endl;
+				}
 				// ghostscript seems to return always 0, so
 				// check whether the normal end was reached by pstoedit.pro
 				if (!options.keepinternalfiles)
@@ -1027,49 +1133,57 @@ extern "C" DLLEXPORT
 						copy_file(cin, copyofstdin);
 					}
 
-					yyin = fopen(gsout.value(), "rb");	// ios::binary | ios::nocreate
-					if (!yyin) {
-						errstream << "Error opening file " << gsout << endl;
-						return 1;
-					}
-
 					{
 						// local scope to force delete before delete of driver
-						outputdriver->setdefaultFontName(options.replacementfont);
+						outputdriver->setdefaultFontName(options.replacementfont.value.value());
 						//      if (nosubpathes) ((DriverDescription*) outputdriver->Pdriverdesc)->backendSupportsSubPathes=false;
-						outputdriver->simulateSubPaths = options.simulateSubPaths;
+//						outputdriver->simulateSubPaths = (bool) options.simulateSubPaths;
+
+						const char * bbfilename = 0;
+						if (options.useBBfrominput) {
+							// read BB from original input file
+							bbfilename = options.nameOfInputFile;
+						} else {
+							bbfilename = gsout.value();
+						}
+                            
+						yyin = fopen(bbfilename, "rb");	// ios::binary | ios::nocreate
+						if (!yyin) {
+								errstream << "Error opening file " << bbfilename << endl;
+								return 1;
+						}
+						
 						PSFrontEnd fe(outFile,
 									  errstream,
+									  options,
 									  options.nameOfInputFile,
 									  options.nameOfOutputFile,
-									  (float)options.magnification,
-									  options,
 									  currentDriverDesc, driveroptions, options.splitpages, outputdriver);
 						if (options.verbose)
-							errstream << "now reading BoundingBoxes" << endl;
+							errstream << "now reading BoundingBoxes from file " << bbfilename << endl;
 						/* outputdriver-> */ drvbase::totalNumberOfPages =
-							fe.readBBoxes( /* outputdriver-> */ drvbase::bboxes());
+						fe.readBBoxes( /* outputdriver-> */ drvbase::bboxes());
+						fclose(yyin);
 						if (options.verbose) {
-							errstream << " got " <<	/* outputdriver-> */
-								drvbase::totalNumberOfPages << " page(s)" << endl;
-							for (unsigned int i = 0;
-								 i < /* outputdriver-> */ drvbase::totalNumberOfPages; i++) {
-								errstream << /* outputdriver-> */ drvbase::bboxes()[i].
-									ll << " " << /* outputdriver-> */ drvbase::bboxes()[i].ur << endl;
+							errstream << " got " <<	drvbase::totalNumberOfPages << " page(s)" << endl;
+							for (unsigned int i = 0;  i < drvbase::totalNumberOfPages; i++) {
+								errstream <<  drvbase::bboxes()[i].ll << " " <<  drvbase::bboxes()[i].ur << endl;
 							}
 						}
-						fclose(yyin);
-						yyin = fopen(gsout.value(), "rb");
+
 						if (options.verbose)
 							errstream << "now postprocessing the interpreter output" << endl;
-						fe.run(options.merge);
+						
+						yyin = fopen(gsout.value(), "rb");
+						fe.run(options.mergelines);
+						// now we can close it in any case - since we took a copy
+						fclose(yyin);
 					}
 					if (options.verbose)
 						errstream << "postprocessing the interpreter output finished" << endl;
 // now delete is done in fe.run                 delete outputdriver;
 
-					// now we can close it in any case - since we took a copy
-					fclose(yyin);
+
 					if (options.backendonly && (strcmp(options.nameOfInputFile, stdinFileName) == 0)) {
 						(void) remove(gsout.value());
 					}
@@ -1167,22 +1281,23 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
 	DriverDescription_S *result =
 		(DriverDescription_S *) malloc((dCount + 1) * sizeof(DriverDescription_S));
 	DriverDescription_S *curR = result;
+	assert(curR);
 	const DriverDescription *const *dd = getglobalRp()->rp;
 	while (dd && (*dd)) {
 		const DriverDescription *currentDD = *dd;
 		assert(currentDD);
 		if (currentDD->nativedriver || withgsdrivers) {
-		curR->symbolicname = (char *) currentDD->symbolicname;
-		curR->explanation = (char *) currentDD->explanation;
-		curR->suffix = (char *) currentDD->suffix;
-		curR->additionalInfo = (char *) currentDD->additionalInfo;
-		curR->backendSupportsSubPathes = (int) currentDD->backendSupportsSubPathes;
-		curR->backendSupportsCurveto = (int) currentDD->backendSupportsCurveto;
-		curR->backendSupportsMerging = (int) currentDD->backendSupportsMerging;
-		curR->backendSupportsText = (int) currentDD->backendSupportsText;
-		curR->backendSupportsImages = (int) currentDD->backendDesiredImageFormat != DriverDescription::noimage;
-		curR->backendSupportsMultiplePages = (int) currentDD->backendSupportsMultiplePages;
-		curR++;
+			curR->symbolicname =  currentDD->symbolicname;
+			curR->explanation =  currentDD->short_explanation;
+			curR->suffix =  currentDD->suffix;
+			curR->additionalInfo =  currentDD->additionalInfo;
+			curR->backendSupportsSubPathes = (int) currentDD->backendSupportsSubPathes;
+			curR->backendSupportsCurveto = (int) currentDD->backendSupportsCurveto;
+			curR->backendSupportsMerging = (int) currentDD->backendSupportsMerging;
+			curR->backendSupportsText = (int) currentDD->backendSupportsText;
+			curR->backendSupportsImages = (int) currentDD->backendDesiredImageFormat != DriverDescription::noimage;
+			curR->backendSupportsMultiplePages = (int) currentDD->backendSupportsMultiplePages;
+			curR++;
 		}
 		dd++;
 	}
@@ -1232,6 +1347,5 @@ extern "C" DLLEXPORT void setPstoeditOutputFunction(void *cbData, write_callback
 }
 
 #endif
- 
  
  

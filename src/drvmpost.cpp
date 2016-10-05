@@ -1,9 +1,9 @@
 /*
    drvMPOST.cpp : This file is part of pstoedit
    Backend for MetaPost files
-   Contributed by: Scott Pakin <pakin@uiuc.edu>
+   Contributed by: Scott Pakin <pakin_AT_uiuc.edu>
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,14 +55,14 @@ constructBase,
 	// Output copyright information
 	outf << "% Converted from PostScript(TM) to MetaPost by pstoedit\n"
 		<<
-		"% MetaPost backend contributed by Scott Pakin <pakin@uiuc.edu>\n"
-		<< "% pstoedit is Copyright (C) 1993 - 2003 Wolfgang Glunz" <<
-		" <wglunz@pstoedit.net>\n\n";
+		"% MetaPost backend contributed by Scott Pakin <pakin_AT_uiuc.edu>\n"
+		<< "% pstoedit is Copyright (C) 1993 - 2005 Wolfgang Glunz" <<
+		" <wglunz34_AT_pstoedit.net>\n\n";
 
 	/*
 	 * Output some useful assignments and macro defintions
 	 *
-	 * Thanks to S.J.Henriksen <eesjh@ee.newcastle.edu.au> for the showtext
+	 * Thanks to S.J.Henriksen <eesjh_AT_ee.newcastle.edu.au> for the showtext
 	 * macro
 	 */
 	outf << "% Generate structured PostScript\n"
@@ -171,9 +171,9 @@ void drvMPOST::print_coords()
 			case lineto:
 				{
 					const Point & p = elem.getPoint(0);
-					if (withinpath)
+					if (withinpath) {
 						outf << "--";
-					else {
+					} else {
 						cerr << "lineto without a moveto; ignoring" << endl;
 						break;
 					}
@@ -185,10 +185,11 @@ void drvMPOST::print_coords()
 				break;
 
 			case closepath:
-				if (prevDashPattern == "")
+				if (prevDashPattern == "") {
 					outf << "--cycle;" << endl;
-				else
+				} else {
 					outf << "--cycle " << prevDashPattern << ';' << endl;
+				}
 				withinpath = false;
 				pointsOnLine = 0;
 				break;
@@ -222,8 +223,9 @@ void drvMPOST::print_coords()
 				pointsOnLine = 0;
 			}
 		}
-		if (withinpath)			// Finish the final path
+		if (withinpath)	{		// Finish the final path
 			outf << prevDashPattern << ';' << endl;
+		}
 	}
 }
 
@@ -401,9 +403,9 @@ void drvMPOST::show_path()
 	}
 	// Draw the path
 	print_coords();
-};
+}
 
-static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost Format", "mp", true,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost Format", "","mp", true,	// if backend supports subpathes, else 0
 											   // if subpathes are supported, the backend must deal with
 											   // sequences of the following form
 											   // moveto (start of subpath)
@@ -421,6 +423,5 @@ static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost Format", "mp",
 											   true,	// if backend supports text, else 0
 											   DriverDescription::noimage,	// no support for PNG file images
 											   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-											   false, /*clipping */ 
-											   nodriverspecificoptions);
- 
+											   false  /*clipping */ 
+											   );

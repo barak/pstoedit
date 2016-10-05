@@ -66,27 +66,14 @@ public:
   void new_points();
   
   ~sub_path() {
-    delete [] children;
-    delete [] path;
-    delete [] points;
-    delete [] parents;
+    delete [] children; children = 0;
+    delete [] path; path = 0;
+    delete [] points; points = 0;
+    delete [] parents; parents = 0;
   };
 
-
-  sub_path() {
-    flags = 0;
-    num_elements = 0;
-    num_points = 0;
-    num_children = 0;
-    num_outside = 0;
-
-    // pointers
-    children = 0;
-    path = 0;
-    points = 0;
-    parents = 0;
-  }
-
+  sub_path();
+    
   // Replace every moveto by a lineto in a child path
   
   void clean();
@@ -103,7 +90,7 @@ class sub_path_list
   unsigned int num_paths;     // Number of subpaths
 public:
 
-  sub_path_list() : paths((sub_path*)0) {}
+  sub_path_list() : paths((sub_path*)0), num_paths(0) {}
   ~sub_path_list()
     {
     if(paths)
@@ -118,7 +105,6 @@ public:
   NOCOPYANDASSIGN(sub_path_list)
 };
 
- 
  
  
  

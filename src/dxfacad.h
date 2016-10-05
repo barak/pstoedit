@@ -1,4 +1,4 @@
-static const char  dxf14acadheader [] =
+static const char  dxf14acadheader_prelayer1 [] =
 "  0\n"
 "SECTION\n"
 "  2\n"
@@ -27,10 +27,11 @@ static const char  dxf14acadheader [] =
 "$HANDSEED\n"
 "  5\n"
 "56\n"
-"  9\n"
-"$MEASUREMENT\n"
-" 70\n"
-"     1\n"
+"  9\n";
+
+// in between here comes the MEASUREMENT entry - but that depends on the command line options (-mm)
+
+static const char  dxf14acadheader_prelayer2 [] =
 "  0\n"
 "ENDSEC\n"
 "  0\n"
@@ -221,8 +222,11 @@ static const char  dxf14acadheader [] =
 "0\n"
 "100\n"
 "AcDbSymbolTable\n"
-" 70\n"
-"     1\n"
+" 70\n" ;
+// "   5000\n"  // number of layers 
+
+static const char layer0def[] =
+// begin layer "0"
 "  0\n"
 "LAYER\n"
 "  5\n"
@@ -240,7 +244,9 @@ static const char  dxf14acadheader [] =
 " 62\n"
 "     7\n"
 "  6\n"
-"CONTINUOUS\n"
+"CONTINUOUS\n";
+
+static const char dummy[] =
 "1001\n"
 "URBANX\n"
 "1000\n"
@@ -252,7 +258,31 @@ static const char  dxf14acadheader [] =
 "1000\n"
 "m\n"
 "1000\n"
-"GRSEE\n"
+"GRSEE\n";
+// end layer 0
+
+#if 0
+-----------
+  0
+LAYER
+  5
+2E
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+NEWLAYER1  // layername
+ 70
+           0  // unfrozen
+ 62
+           1	// color
+  6
+CONTINUOUS		// linestyle
+------------
+#endif
+
+static const char  dxf14acadheader_postlayer [] =
 "  0\n"
 "ENDTAB\n"
 "  0\n"
@@ -1719,4 +1749,3 @@ static const char  dxf14acadtrailer [] =
 "ENDSEC\n"
 "  0\n"
 "EOF\n";
- 

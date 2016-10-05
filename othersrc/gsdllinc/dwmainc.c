@@ -102,7 +102,7 @@ GSDLL gsdll;
 typedef int  (gs_write_callback_func) (void * cb_data, const char* text, unsigned long length);
 
 static int
-default_gs_addmess(void * cb_data, const char* text, unsigned long length)
+default_gs_addmess(void * /* cb_data */ , const char* text, unsigned long length)
 {
     //fputs(text, stdout);
 	fwrite(text,1,length,stdout);
@@ -164,7 +164,7 @@ BOOL flag;
 BOOL
 gs_load_dll_cleanup(void)
 {
-    gs_free_dll();
+    (void) gs_free_dll();
     return FALSE;
 }
 
@@ -343,16 +343,16 @@ read_stdin(char FAR *str, int len)
 {
 int ch;
 int count = 0;
-    while (count < len) {
+while (count < len) {
 	ch = fgetc(stdin);
 	if (ch == EOF)
 	    return count;
-	*str++ = ch;
+	*str++ = (char) ch;
 	count++;
 	if (ch == '\n')
 	    return count;
-    }
-    return count;
+}
+return count;
 }
 
 int 
@@ -407,9 +407,9 @@ Select a different device using -sDEVICE= as described in use.txt.\n\
 int
 main(int argc, char *argv[])
 {
-int code;
+	int code;
 #if defined(_WIN32)
-    setmode(fileno(stdin), O_BINARY);
+    (void) setmode(fileno(stdin), O_BINARY);
 #endif
     if (!gs_load_dll()) {
 		fprintf(stderr, "Can't load %s\n", szDllName);
@@ -427,7 +427,7 @@ int code;
 		} else
 			code = gsdll.exit();
     }
-    gs_free_dll();
+    (void) gs_free_dll();
     if (code == GSDLL_INIT_QUIT) return 0;
     return code;
 }

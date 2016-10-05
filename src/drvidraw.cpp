@@ -1,10 +1,10 @@
 /*
    drvIDRAW.cpp : This file is part of pstoedit
    Backend for idraw files
-   Contributed by: Scott Pakin <pakin@uiuc.edu>
+   Contributed by: Scott Pakin <pakin_AT_uiuc.edu>
    Image Support added by Scott Johnston
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ drvIDRAW::derivedConstructor(drvIDRAW):
 //(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
 constructBase,  buffer(tempFile.asOutput()), imgcount(1)
 {
-	IDRAW_SCALING = 0.799705f * scalefactor_p;
+	IDRAW_SCALING = 0.799705f ;
 	// Initialize the color table
 	color[0].red = 0;
 	color[0].green = 0;
@@ -107,529 +107,528 @@ constructBase,  buffer(tempFile.asOutput()), imgcount(1)
 
 
 	// Write idraw PostScript header
-	outf << "%!PS-Adobe-2.0 EPSF-1.2\n";
-	outf << "%%Creator: idraw\n";
-	outf << "%%DocumentFonts: Times-Roman Times-Bold Times-Italic\n";
-	outf << "%%+ Helvetica Helvetica-Bold Helvetica-Oblique Helvetica-BoldOblique\n";
-	outf << "%%+ Courier Courier-Bold Courier-Oblique Courier-BoldOblique\n";
-	outf << "%%+ Symbol\n";
-	outf << "%%Pages: 1\n";
-	outf << "%%BoundingBox: 0 0 612 792\n";	// Assume full page
-	outf << "%%EndComments\n";
-	outf << "\n";
-	outf << "/arrowHeight 10 def\n";
-	outf << "/arrowWidth 5 def\n";
-	outf << "\n";
-	outf << "/IdrawDict 51 dict def\n";
-	outf << "IdrawDict begin\n";
-	outf << "\n";
-	outf << "/reencodeISO {\n";
-	outf << "dup dup findfont dup length dict begin\n";
-	outf << "{ 1 index /FID ne { def }{ pop pop } ifelse } forall\n";
-	outf << "/Encoding ISOLatin1Encoding def\n";
-	outf << "currentdict end definefont\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/ISOLatin1Encoding [\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/space/exclam/quotedbl/numbersign/dollar/percent/ampersand/quoteright\n";
-	outf << "/parenleft/parenright/asterisk/plus/comma/minus/period/slash\n";
-	outf << "/zero/one/two/three/four/five/six/seven/eight/nine/colon/semicolon\n";
-	outf << "/less/equal/greater/question/at/A/B/C/D/E/F/G/H/I/J/K/L/M/N\n";
-	outf << "/O/P/Q/R/S/T/U/V/W/X/Y/Z/bracketleft/backslash/bracketright\n";
-	outf << "/asciicircum/underscore/quoteleft/a/b/c/d/e/f/g/h/i/j/k/l/m\n";
-	outf << "/n/o/p/q/r/s/t/u/v/w/x/y/z/braceleft/bar/braceright/asciitilde\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n";
-	outf << "/.notdef/dotlessi/grave/acute/circumflex/tilde/macron/breve\n";
-	outf << "/dotaccent/dieresis/.notdef/ring/cedilla/.notdef/hungarumlaut\n";
-	outf << "/ogonek/caron/space/exclamdown/cent/sterling/currency/yen/brokenbar\n";
-	outf << "/section/dieresis/copyright/ordfeminine/guillemotleft/logicalnot\n";
-	outf << "/hyphen/registered/macron/degree/plusminus/twosuperior/threesuperior\n";
-	outf << "/acute/mu/paragraph/periodcentered/cedilla/onesuperior/ordmasculine\n";
-	outf << "/guillemotright/onequarter/onehalf/threequarters/questiondown\n";
-	outf << "/Agrave/Aacute/Acircumflex/Atilde/Adieresis/Aring/AE/Ccedilla\n";
-	outf << "/Egrave/Eacute/Ecircumflex/Edieresis/Igrave/Iacute/Icircumflex\n";
-	outf << "/Idieresis/Eth/Ntilde/Ograve/Oacute/Ocircumflex/Otilde/Odieresis\n";
-	outf << "/multiply/Oslash/Ugrave/Uacute/Ucircumflex/Udieresis/Yacute\n";
-	outf << "/Thorn/germandbls/agrave/aacute/acircumflex/atilde/adieresis\n";
-	outf << "/aring/ae/ccedilla/egrave/eacute/ecircumflex/edieresis/igrave\n";
-	outf << "/iacute/icircumflex/idieresis/eth/ntilde/ograve/oacute/ocircumflex\n";
-	outf << "/otilde/odieresis/divide/oslash/ugrave/uacute/ucircumflex/udieresis\n";
-	outf << "/yacute/thorn/ydieresis\n";
-	outf << "] def\n";
-	outf << "/Times-Roman reencodeISO def\n";
-	outf << "/Times-Bold reencodeISO def\n";
-	outf << "/Times-Italic reencodeISO def\n";
-	outf << "/Times-BoldItalic reencodeISO def\n";
-	outf << "/Helvetica reencodeISO def\n";
-	outf << "/Helvetica-Bold reencodeISO def\n";
-	outf << "/Helvetica-Oblique reencodeISO def\n";
-	outf << "/Helvetica-BoldOblique reencodeISO def\n";
-	outf << "/Courier reencodeISO def\n";
-	outf << "/Courier-Bold reencodeISO def\n";
-	outf << "/Courier-Oblique reencodeISO def\n";
-	outf << "/Courier-BoldOblique reencodeISO def\n";
-	outf << "/Symbol reencodeISO def\n";
-	outf << "\n";
-	outf << "/none null def\n";
-	outf << "/numGraphicParameters 17 def\n";
-	outf << "/stringLimit 65535 def\n";
-	outf << "\n";
-	outf << "/Begin {\n";
-	outf << "save\n";
-	outf << "numGraphicParameters dict begin\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/End {\n";
-	outf << "end\n";
-	outf << "restore\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SetB {\n";
-	outf << "dup type /nulltype eq {\n";
-	outf << "pop\n";
-	outf << "false /brushRightArrow idef\n";
-	outf << "false /brushLeftArrow idef\n";
-	outf << "true /brushNone idef\n";
-	outf << "} {\n";
-	outf << "/brushDashOffset idef\n";
-	outf << "/brushDashArray idef\n";
-	outf << "0 ne /brushRightArrow idef\n";
-	outf << "0 ne /brushLeftArrow idef\n";
-	outf << "/brushWidth idef\n";
-	outf << "false /brushNone idef\n";
-	outf << "} ifelse\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SetCFg {\n";
-	outf << "/fgblue idef\n";
-	outf << "/fggreen idef\n";
-	outf << "/fgred idef\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SetCBg {\n";
-	outf << "/bgblue idef\n";
-	outf << "/bggreen idef\n";
-	outf << "/bgred idef\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SetF {\n";
-	outf << "/printSize idef\n";
-	outf << "/printFont idef\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SetP {\n";
-	outf << "dup type /nulltype eq {\n";
-	outf << "pop true /patternNone idef\n";
-	outf << "} {\n";
-	outf << "dup -1 eq {\n";
-	outf << "/patternGrayLevel idef\n";
-	outf << "/patternString idef\n";
-	outf << "} {\n";
-	outf << "/patternGrayLevel idef\n";
-	outf << "} ifelse\n";
-	outf << "false /patternNone idef\n";
-	outf << "} ifelse\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/BSpl {\n";
-	outf << "0 begin\n";
-	outf << "storexyn\n";
-	outf << "newpath\n";
-	outf << "n 1 gt {\n";
-	outf << "0 0 0 0 0 0 1 1 true subspline\n";
-	outf << "n 2 gt {\n";
-	outf << "0 0 0 0 1 1 2 2 false subspline\n";
-	outf << "1 1 n 3 sub {\n";
-	outf << "/i exch def\n";
-	outf << "i 1 sub dup i dup i 1 add dup i 2 add dup false subspline\n";
-	outf << "} for\n";
-	outf << "n 3 sub dup n 2 sub dup n 1 sub dup 2 copy false subspline\n";
-	outf << "} if\n";
-	outf << "n 2 sub dup n 1 sub dup 2 copy 2 copy false subspline\n";
-	outf << "patternNone not brushLeftArrow not brushRightArrow not and and { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "0 0 1 1 leftarrow\n";
-	outf << "n 2 sub dup n 1 sub dup rightarrow\n";
-	outf << "} if\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/Circ {\n";
-	outf << "newpath\n";
-	outf << "0 360 arc\n";
-	outf << "closepath\n";
-	outf << "patternNone not { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/CBSpl {\n";
-	outf << "0 begin\n";
-	outf << "dup 2 gt {\n";
-	outf << "storexyn\n";
-	outf << "newpath\n";
-	outf << "n 1 sub dup 0 0 1 1 2 2 true subspline\n";
-	outf << "1 1 n 3 sub {\n";
-	outf << "/i exch def\n";
-	outf << "i 1 sub dup i dup i 1 add dup i 2 add dup false subspline\n";
-	outf << "} for\n";
-	outf << "n 3 sub dup n 2 sub dup n 1 sub dup 0 0 false subspline\n";
-	outf << "n 2 sub dup n 1 sub dup 0 0 1 1 false subspline\n";
-	outf << "patternNone not { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "} {\n";
-	outf << "Poly\n";
-	outf << "} ifelse\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/Elli {\n";
-	outf << "0 begin\n";
-	outf << "newpath\n";
-	outf << "4 2 roll\n";
-	outf << "translate\n";
-	outf << "scale\n";
-	outf << "0 0 1 0 360 arc\n";
-	outf << "closepath\n";
-	outf << "patternNone not { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "end\n";
-	outf << "} dup 0 1 dict put def\n";
-	outf << "\n";
-	outf << "/Line {\n";
-	outf << "0 begin\n";
-	outf << "2 storexyn\n";
-	outf << "newpath\n";
-	outf << "x 0 get y 0 get moveto\n";
-	outf << "x 1 get y 1 get lineto\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "0 0 1 1 leftarrow\n";
-	outf << "0 0 1 1 rightarrow\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/MLine {\n";
-	outf << "0 begin\n";
-	outf << "storexyn\n";
-	outf << "newpath\n";
-	outf << "n 1 gt {\n";
-	outf << "x 0 get y 0 get moveto\n";
-	outf << "1 1 n 1 sub {\n";
-	outf << "/i exch def\n";
-	outf << "x i get y i get lineto\n";
-	outf << "} for\n";
-	outf << "patternNone not brushLeftArrow not brushRightArrow not and and { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "0 0 1 1 leftarrow\n";
-	outf << "n 2 sub dup n 1 sub dup rightarrow\n";
-	outf << "} if\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/Poly {\n";
-	outf << "3 1 roll\n";
-	outf << "newpath\n";
-	outf << "moveto\n";
-	outf << "-1 add\n";
-	outf << "{ lineto } repeat\n";
-	outf << "closepath\n";
-	outf << "patternNone not { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/Rect {\n";
-	outf << "0 begin\n";
-	outf << "/t exch def\n";
-	outf << "/r exch def\n";
-	outf << "/b exch def\n";
-	outf << "/l exch def\n";
-	outf << "newpath\n";
-	outf << "l b moveto\n";
-	outf << "l t lineto\n";
-	outf << "r t lineto\n";
-	outf << "r b lineto\n";
-	outf << "closepath\n";
-	outf << "patternNone not { ifill } if\n";
-	outf << "brushNone not { istroke } if\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/Text {\n";
-	outf << "ishow\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/idef {\n";
-	outf << "dup where { pop pop pop } { exch def } ifelse\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/ifill {\n";
-	outf << "0 begin\n";
-	outf << "gsave\n";
-	outf << "patternGrayLevel -1 ne {\n";
-	outf << "fgred bgred fgred sub patternGrayLevel mul add\n";
-	outf << "fggreen bggreen fggreen sub patternGrayLevel mul add\n";
-	outf << "fgblue bgblue fgblue sub patternGrayLevel mul add setrgbcolor\n";
-	outf << "eofill\n";
-	outf << "} {\n";
-	outf << "eoclip\n";
-	outf << "originalCTM setmatrix\n";
-	outf << "pathbbox /t exch def /r exch def /b exch def /l exch def\n";
-	outf << "/w r l sub ceiling cvi def\n";
-	outf << "/h t b sub ceiling cvi def\n";
-	outf << "/imageByteWidth w 8 div ceiling cvi def\n";
-	outf << "/imageHeight h def\n";
-	outf << "bgred bggreen bgblue setrgbcolor\n";
-	outf << "eofill\n";
-	outf << "fgred fggreen fgblue setrgbcolor\n";
-	outf << "w 0 gt h 0 gt and {\n";
-	outf << "l b translate w h scale\n";
-	outf << "w h true [w 0 0 h neg 0 h] { patternproc } imagemask\n";
-	outf << "} if\n";
-	outf << "} ifelse\n";
-	outf << "grestore\n";
-	outf << "end\n";
-	outf << "} dup 0 8 dict put def\n";
-	outf << "\n";
-	outf << "/istroke {\n";
-	outf << "gsave\n";
-	outf << "brushDashOffset -1 eq {\n";
-	outf << "[] 0 setdash\n";
-	outf << "1 setgray\n";
-	outf << "} {\n";
-	outf << "brushDashArray brushDashOffset setdash\n";
-	outf << "fgred fggreen fgblue setrgbcolor\n";
-	outf << "} ifelse\n";
-	outf << "brushWidth setlinewidth\n";
-	outf << "originalCTM setmatrix\n";
-	outf << "stroke\n";
-	outf << "grestore\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/ishow {\n";
-	outf << "0 begin\n";
-	outf << "gsave\n";
-	outf << "fgred fggreen fgblue setrgbcolor\n";
-	outf << "/fontDict printFont printSize scalefont dup setfont def\n";
-	outf << "/descender fontDict begin 0 [FontBBox] 1 get FontMatrix end\n";
-	outf << "transform exch pop def\n";
-	outf << "/vertoffset 1 printSize sub descender sub def {\n";
-	outf << "0 vertoffset moveto show\n";
-	outf << "/vertoffset vertoffset printSize sub def\n";
-	outf << "} forall\n";
-	outf << "grestore\n";
-	outf << "end\n";
-	outf << "} dup 0 3 dict put def\n";
-	outf << "/patternproc {\n";
-	outf << "0 begin\n";
-	outf << "/patternByteLength patternString length def\n";
-	outf << "/patternHeight patternByteLength 8 mul sqrt cvi def\n";
-	outf << "/patternWidth patternHeight def\n";
-	outf << "/patternByteWidth patternWidth 8 idiv def\n";
-	outf << "/imageByteMaxLength imageByteWidth imageHeight mul\n";
-	outf << "stringLimit patternByteWidth sub min def\n";
-	outf << "/imageMaxHeight imageByteMaxLength imageByteWidth idiv patternHeight idiv\n";
-	outf << "patternHeight mul patternHeight max def\n";
-	outf << "/imageHeight imageHeight imageMaxHeight sub store\n";
-	outf << "/imageString imageByteWidth imageMaxHeight mul patternByteWidth add string def\n";
-	outf << "0 1 imageMaxHeight 1 sub {\n";
-	outf << "/y exch def\n";
-	outf << "/patternRow y patternByteWidth mul patternByteLength mod def\n";
-	outf << "/patternRowString patternString patternRow patternByteWidth getinterval def\n";
-	outf << "/imageRow y imageByteWidth mul def\n";
-	outf << "0 patternByteWidth imageByteWidth 1 sub {\n";
-	outf << "/x exch def\n";
-	outf << "imageString imageRow x add patternRowString putinterval\n";
-	outf << "} for\n";
-	outf << "} for\n";
-	outf << "imageString\n";
-	outf << "end\n";
-	outf << "} dup 0 12 dict put def\n";
-	outf << "\n";
-	outf << "/min {\n";
-	outf << "dup 3 2 roll dup 4 3 roll lt { exch } if pop\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/max {\n";
-	outf << "dup 3 2 roll dup 4 3 roll gt { exch } if pop\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/midpoint {\n";
-	outf << "0 begin\n";
-	outf << "/y1 exch def\n";
-	outf << "/x1 exch def\n";
-	outf << "/y0 exch def\n";
-	outf << "/x0 exch def\n";
-	outf << "x0 x1 add 2 div\n";
-	outf << "y0 y1 add 2 div\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/thirdpoint {\n";
-	outf << "0 begin\n";
-	outf << "/y1 exch def\n";
-	outf << "/x1 exch def\n";
-	outf << "/y0 exch def\n";
-	outf << "/x0 exch def\n";
-	outf << "x0 2 mul x1 add 3 div\n";
-	outf << "y0 2 mul y1 add 3 div\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/subspline {\n";
-	outf << "0 begin\n";
-	outf << "/movetoNeeded exch def\n";
-	outf << "y exch get /y3 exch def\n";
-	outf << "x exch get /x3 exch def\n";
-	outf << "y exch get /y2 exch def\n";
-	outf << "x exch get /x2 exch def\n";
-	outf << "y exch get /y1 exch def\n";
-	outf << "x exch get /x1 exch def\n";
-	outf << "y exch get /y0 exch def\n";
-	outf << "x exch get /x0 exch def\n";
-	outf << "x1 y1 x2 y2 thirdpoint\n";
-	outf << "/p1y exch def\n";
-	outf << "/p1x exch def\n";
-	outf << "x2 y2 x1 y1 thirdpoint\n";
-	outf << "/p2y exch def\n";
-	outf << "/p2x exch def\n";
-	outf << "x1 y1 x0 y0 thirdpoint\n";
-	outf << "p1x p1y midpoint\n";
-	outf << "/p0y exch def\n";
-	outf << "/p0x exch def\n";
-	outf << "x2 y2 x3 y3 thirdpoint\n";
-	outf << "p2x p2y midpoint\n";
-	outf << "/p3y exch def\n";
-	outf << "/p3x exch def\n";
-	outf << "movetoNeeded { p0x p0y moveto } if\n";
-	outf << "p1x p1y p2x p2y p3x p3y curveto\n";
-	outf << "end\n";
-	outf << "} dup 0 17 dict put def\n";
-	outf << "\n";
-	outf << "/storexyn {\n";
-	outf << "/n exch def\n";
-	outf << "/y n array def\n";
-	outf << "/x n array def\n";
-	outf << "n 1 sub -1 0 {\n";
-	outf << "/i exch def\n";
-	outf << "y i 3 2 roll put\n";
-	outf << "x i 3 2 roll put\n";
-	outf << "} for\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/SSten {\n";
-	outf << "fgred fggreen fgblue setrgbcolor\n";
-	outf << "dup true exch 1 0 0 -1 0 6 -1 roll matrix astore\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/FSten {\n";
-	outf << "dup 3 -1 roll dup 4 1 roll exch\n";
-	outf << "newpath\n";
-	outf << "0 0 moveto\n";
-	outf << "dup 0 exch lineto\n";
-	outf << "exch dup 3 1 roll exch lineto\n";
-	outf << "0 lineto\n";
-	outf << "closepath\n";
-	outf << "bgred bggreen bgblue setrgbcolor\n";
-	outf << "eofill\n";
-	outf << "SSten\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/Rast {\n";
-	outf << "exch dup 3 1 roll 1 0 0 -1 0 6 -1 roll matrix astore\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "%%EndProlog\n";
-	outf << "\n";
-	outf << "%%BeginIdrawPrologue\n";
-	outf << "/arrowhead {\n";
-	outf << "0 begin\n";
-	outf << "transform originalCTM itransform\n";
-	outf << "/taily exch def\n";
-	outf << "/tailx exch def\n";
-	outf << "transform originalCTM itransform\n";
-	outf << "/tipy exch def\n";
-	outf << "/tipx exch def\n";
-	outf << "/dy tipy taily sub def\n";
-	outf << "/dx tipx tailx sub def\n";
-	outf << "/angle dx 0 ne dy 0 ne or { dy dx atan } { 90 } ifelse def\n";
-	outf << "gsave\n";
-	outf << "originalCTM setmatrix\n";
-	outf << "tipx tipy translate\n";
-	outf << "angle rotate\n";
-	outf << "newpath\n";
-	outf << "arrowHeight neg arrowWidth 2 div moveto\n";
-	outf << "0 0 lineto\n";
-	outf << "arrowHeight neg arrowWidth 2 div neg lineto\n";
-	outf << "patternNone not {\n";
-	outf << "originalCTM setmatrix\n";
-	outf << "/padtip arrowHeight 2 exp 0.25 arrowWidth 2 exp mul add sqrt brushWidth mul\n";
-	outf << "arrowWidth div def\n";
-	outf << "/padtail brushWidth 2 div def\n";
-	outf << "tipx tipy translate\n";
-	outf << "angle rotate\n";
-	outf << "padtip 0 translate\n";
-	outf << "arrowHeight padtip add padtail add arrowHeight div dup scale\n";
-	outf << "arrowheadpath\n";
-	outf << "ifill\n";
-	outf << "} if\n";
-	outf << "brushNone not {\n";
-	outf << "originalCTM setmatrix\n";
-	outf << "tipx tipy translate\n";
-	outf << "angle rotate\n";
-	outf << "arrowheadpath\n";
-	outf << "istroke\n";
-	outf << "} if\n";
-	outf << "grestore\n";
-	outf << "end\n";
-	outf << "} dup 0 9 dict put def\n";
-	outf << "\n";
-	outf << "/arrowheadpath {\n";
-	outf << "newpath\n";
-	outf << "arrowHeight neg arrowWidth 2 div moveto\n";
-	outf << "0 0 lineto\n";
-	outf << "arrowHeight neg arrowWidth 2 div neg lineto\n";
-	outf << "} def\n";
-	outf << "\n";
-	outf << "/leftarrow {\n";
-	outf << "0 begin\n";
-	outf << "y exch get /taily exch def\n";
-	outf << "x exch get /tailx exch def\n";
-	outf << "y exch get /tipy exch def\n";
-	outf << "x exch get /tipx exch def\n";
-	outf << "brushLeftArrow { tipx tipy tailx taily arrowhead } if\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "/rightarrow {\n";
-	outf << "0 begin\n";
-	outf << "y exch get /tipy exch def\n";
-	outf << "x exch get /tipx exch def\n";
-	outf << "y exch get /taily exch def\n";
-	outf << "x exch get /tailx exch def\n";
-	outf << "brushRightArrow { tipx tipy tailx taily arrowhead } if\n";
-	outf << "end\n";
-	outf << "} dup 0 4 dict put def\n";
-	outf << "\n";
-	outf << "%%EndIdrawPrologue\n";
-	outf << "\n";
-	outf << "%I Idraw 10 Grid 8 8 \n";
-	outf << "\n";
-	outf << "%%Page: 1 1\n";
-	outf << "\n";
-	outf << "Begin\n";
-	outf << "%I b u\n";
-	outf << "%I cfg u\n";
-	outf << "%I cbg u\n";
-	outf << "%I f u\n";
-	outf << "%I p u\n";
-	outf << "%I t\n";
-	outf << "[ " << IDRAW_SCALING << " 0 0 " << IDRAW_SCALING << " 0 0 ] concat\n";
-	outf << "/originalCTM matrix currentmatrix def\n";
-	outf << "\n";
+	outf << "%!PS-Adobe-2.0 EPSF-1.2\n"
+	     << "%%Creator: idraw\n"
+	     << "%%DocumentFonts: Times-Roman Times-Bold Times-Italic\n"
+	     << "%%+ Helvetica Helvetica-Bold Helvetica-Oblique Helvetica-BoldOblique\n"
+	     << "%%+ Courier Courier-Bold Courier-Oblique Courier-BoldOblique\n"
+	     << "%%+ Symbol\n"
+	     << "%%Pages: 1\n"
+	     << "%%BoundingBox: 0 0 612 792\n"  // Assume full page
+	     << "%%EndComments\n"
+	     << "\n"
+	     << "%%BeginIdrawPrologue\n"
+	     << "/arrowhead {\n"
+	     << "0 begin\n"
+	     << "transform originalCTM itransform\n"
+	     << "/taily exch def\n"
+	     << "/tailx exch def\n"
+	     << "transform originalCTM itransform\n"
+	     << "/tipy exch def\n"
+	     << "/tipx exch def\n"
+	     << "/dy tipy taily sub def\n"
+	     << "/dx tipx tailx sub def\n"
+	     << "/angle dx 0 ne dy 0 ne or { dy dx atan } { 90 } ifelse def\n"
+	     << "gsave\n"
+	     << "originalCTM setmatrix\n"
+	     << "tipx tipy translate\n"
+	     << "angle rotate\n"
+	     << "newpath\n"
+	     << "arrowHeight neg arrowWidth 2 div moveto\n"
+	     << "0 0 lineto\n"
+	     << "arrowHeight neg arrowWidth 2 div neg lineto\n"
+	     << "patternNone not {\n"
+	     << "originalCTM setmatrix\n"
+	     << "/padtip arrowHeight 2 exp 0.25 arrowWidth 2 exp mul add sqrt brushWidth mul\n"
+	     << "arrowWidth div def\n"
+	     << "/padtail brushWidth 2 div def\n"
+	     << "tipx tipy translate\n"
+	     << "angle rotate\n"
+	     << "padtip 0 translate\n"
+	     << "arrowHeight padtip add padtail add arrowHeight div dup scale\n"
+	     << "arrowheadpath\n"
+	     << "ifill\n"
+	     << "} if\n"
+	     << "brushNone not {\n"
+	     << "originalCTM setmatrix\n"
+	     << "tipx tipy translate\n"
+	     << "angle rotate\n"
+	     << "arrowheadpath\n"
+	     << "istroke\n"
+	     << "} if\n"
+	     << "grestore\n"
+	     << "end\n"
+	     << "} dup 0 9 dict put def\n"
+	     << "\n"
+	     << "/arrowheadpath {\n"
+	     << "newpath\n"
+	     << "arrowHeight neg arrowWidth 2 div moveto\n"
+	     << "0 0 lineto\n"
+	     << "arrowHeight neg arrowWidth 2 div neg lineto\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/leftarrow {\n"
+	     << "0 begin\n"
+	     << "y exch get /taily exch def\n"
+	     << "x exch get /tailx exch def\n"
+	     << "y exch get /tipy exch def\n"
+	     << "x exch get /tipx exch def\n"
+	     << "brushLeftArrow { tipx tipy tailx taily arrowhead } if\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/rightarrow {\n"
+	     << "0 begin\n"
+	     << "y exch get /tipy exch def\n"
+	     << "x exch get /tipx exch def\n"
+	     << "y exch get /taily exch def\n"
+	     << "x exch get /tailx exch def\n"
+	     << "brushRightArrow { tipx tipy tailx taily arrowhead } if\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "%%EndIdrawPrologue\n"
+	     << "\n"
+	     << "/arrowHeight 10 def\n"
+	     << "/arrowWidth 5 def\n"
+	     << "\n"
+	     << "/IdrawDict 100 dict def\n"
+	     << "IdrawDict begin\n"
+	     << "\n"
+	     << "/reencodeISO {\n"
+	     << "dup dup findfont dup length dict begin\n"
+	     << "{ 1 index /FID ne { def }{ pop pop } ifelse } forall\n"
+	     << "/Encoding ISOLatin1Encoding def\n"
+	     << "currentdict end definefont\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/ISOLatin1Encoding [\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/space/exclam/quotedbl/numbersign/dollar/percent/ampersand/quoteright\n"
+	     << "/parenleft/parenright/asterisk/plus/comma/minus/period/slash\n"
+	     << "/zero/one/two/three/four/five/six/seven/eight/nine/colon/semicolon\n"
+	     << "/less/equal/greater/question/at/A/B/C/D/E/F/G/H/I/J/K/L/M/N\n"
+	     << "/O/P/Q/R/S/T/U/V/W/X/Y/Z/bracketleft/backslash/bracketright\n"
+	     << "/asciicircum/underscore/quoteleft/a/b/c/d/e/f/g/h/i/j/k/l/m\n"
+	     << "/n/o/p/q/r/s/t/u/v/w/x/y/z/braceleft/bar/braceright/asciitilde\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef\n"
+	     << "/.notdef/dotlessi/grave/acute/circumflex/tilde/macron/breve\n"
+	     << "/dotaccent/dieresis/.notdef/ring/cedilla/.notdef/hungarumlaut\n"
+	     << "/ogonek/caron/space/exclamdown/cent/sterling/currency/yen/brokenbar\n"
+	     << "/section/dieresis/copyright/ordfeminine/guillemotleft/logicalnot\n"
+	     << "/hyphen/registered/macron/degree/plusminus/twosuperior/threesuperior\n"
+	     << "/acute/mu/paragraph/periodcentered/cedilla/onesuperior/ordmasculine\n"
+	     << "/guillemotright/onequarter/onehalf/threequarters/questiondown\n"
+	     << "/Agrave/Aacute/Acircumflex/Atilde/Adieresis/Aring/AE/Ccedilla\n"
+	     << "/Egrave/Eacute/Ecircumflex/Edieresis/Igrave/Iacute/Icircumflex\n"
+	     << "/Idieresis/Eth/Ntilde/Ograve/Oacute/Ocircumflex/Otilde/Odieresis\n"
+	     << "/multiply/Oslash/Ugrave/Uacute/Ucircumflex/Udieresis/Yacute\n"
+	     << "/Thorn/germandbls/agrave/aacute/acircumflex/atilde/adieresis\n"
+	     << "/aring/ae/ccedilla/egrave/eacute/ecircumflex/edieresis/igrave\n"
+	     << "/iacute/icircumflex/idieresis/eth/ntilde/ograve/oacute/ocircumflex\n"
+	     << "/otilde/odieresis/divide/oslash/ugrave/uacute/ucircumflex/udieresis\n"
+	     << "/yacute/thorn/ydieresis\n"
+	     << "] def\n"
+	     << "/Times-Roman reencodeISO def\n"
+	     << "/Times-Bold reencodeISO def\n"
+	     << "/Times-Italic reencodeISO def\n"
+	     << "/Helvetica reencodeISO def\n"
+	     << "/Helvetica-Bold reencodeISO def\n"
+	     << "/Helvetica-Oblique reencodeISO def\n"
+	     << "/Helvetica-BoldOblique reencodeISO def\n"
+	     << "/Courier reencodeISO def\n"
+	     << "/Courier-Bold reencodeISO def\n"
+	     << "/Courier-Oblique reencodeISO def\n"
+	     << "/Courier-BoldOblique reencodeISO def\n"
+	     << "/Symbol reencodeISO def\n"
+	     << "\n"
+	     << "/none null def\n"
+	     << "/numGraphicParameters 17 def\n"
+	     << "/stringLimit 65535 def\n"
+	     << "\n"
+	     << "/Begin {\n"
+	     << "save\n"
+	     << "numGraphicParameters dict begin\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/End {\n"
+	     << "end\n"
+	     << "restore\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SetB {\n"
+	     << "dup type /nulltype eq {\n"
+	     << "pop\n"
+	     << "false /brushRightArrow idef\n"
+	     << "false /brushLeftArrow idef\n"
+	     << "true /brushNone idef\n"
+	     << "} {\n"
+	     << "/brushDashOffset idef\n"
+	     << "/brushDashArray idef\n"
+	     << "0 ne /brushRightArrow idef\n"
+	     << "0 ne /brushLeftArrow idef\n"
+	     << "/brushWidth idef\n"
+	     << "false /brushNone idef\n"
+	     << "} ifelse\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SetCFg {\n"
+	     << "/fgblue idef\n"
+	     << "/fggreen idef\n"
+	     << "/fgred idef\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SetCBg {\n"
+	     << "/bgblue idef\n"
+	     << "/bggreen idef\n"
+	     << "/bgred idef\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SetF {\n"
+	     << "/printSize idef\n"
+	     << "/printFont idef\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SetP {\n"
+	     << "dup type /nulltype eq {\n"
+	     << "pop true /patternNone idef\n"
+	     << "} {\n"
+	     << "dup -1 eq {\n"
+	     << "/patternGrayLevel idef\n"
+	     << "/patternString idef\n"
+	     << "} {\n"
+	     << "/patternGrayLevel idef\n"
+	     << "} ifelse\n"
+	     << "false /patternNone idef\n"
+	     << "} ifelse\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/BSpl {\n"
+	     << "0 begin\n"
+	     << "storexyn\n"
+	     << "newpath\n"
+	     << "n 1 gt {\n"
+	     << "0 0 0 0 0 0 1 1 true subspline\n"
+	     << "n 2 gt {\n"
+	     << "0 0 0 0 1 1 2 2 false subspline\n"
+	     << "1 1 n 3 sub {\n"
+	     << "/i exch def\n"
+	     << "i 1 sub dup i dup i 1 add dup i 2 add dup false subspline\n"
+	     << "} for\n"
+	     << "n 3 sub dup n 2 sub dup n 1 sub dup 2 copy false subspline\n"
+	     << "} if\n"
+	     << "n 2 sub dup n 1 sub dup 2 copy 2 copy false subspline\n"
+	     << "patternNone not brushLeftArrow not brushRightArrow not and and { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "0 0 1 1 leftarrow\n"
+	     << "n 2 sub dup n 1 sub dup rightarrow\n"
+	     << "} if\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/Circ {\n"
+	     << "newpath\n"
+	     << "0 360 arc\n"
+	     << "closepath\n"
+	     << "patternNone not { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/CBSpl {\n"
+	     << "0 begin\n"
+	     << "dup 2 gt {\n"
+	     << "storexyn\n"
+	     << "newpath\n"
+	     << "n 1 sub dup 0 0 1 1 2 2 true subspline\n"
+	     << "1 1 n 3 sub {\n"
+	     << "/i exch def\n"
+	     << "i 1 sub dup i dup i 1 add dup i 2 add dup false subspline\n"
+	     << "} for\n"
+	     << "n 3 sub dup n 2 sub dup n 1 sub dup 0 0 false subspline\n"
+	     << "n 2 sub dup n 1 sub dup 0 0 1 1 false subspline\n"
+	     << "patternNone not { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "} {\n"
+	     << "Poly\n"
+	     << "} ifelse\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/Elli {\n"
+	     << "0 begin\n"
+	     << "newpath\n"
+	     << "4 2 roll\n"
+	     << "translate\n"
+	     << "scale\n"
+	     << "0 0 1 0 360 arc\n"
+	     << "closepath\n"
+	     << "patternNone not { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "end\n"
+	     << "} dup 0 1 dict put def\n"
+	     << "\n"
+	     << "/Line {\n"
+	     << "0 begin\n"
+	     << "2 storexyn\n"
+	     << "newpath\n"
+	     << "x 0 get y 0 get moveto\n"
+	     << "x 1 get y 1 get lineto\n"
+	     << "brushNone not { istroke } if\n"
+	     << "0 0 1 1 leftarrow\n"
+	     << "0 0 1 1 rightarrow\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/MLine {\n"
+	     << "0 begin\n"
+	     << "storexyn\n"
+	     << "newpath\n"
+	     << "n 1 gt {\n"
+	     << "x 0 get y 0 get moveto\n"
+	     << "1 1 n 1 sub {\n"
+	     << "/i exch def\n"
+	     << "x i get y i get lineto\n"
+	     << "} for\n"
+	     << "patternNone not brushLeftArrow not brushRightArrow not and and { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "0 0 1 1 leftarrow\n"
+	     << "n 2 sub dup n 1 sub dup rightarrow\n"
+	     << "} if\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/Poly {\n"
+	     << "3 1 roll\n"
+	     << "newpath\n"
+	     << "moveto\n"
+	     << "-1 add\n"
+	     << "{ lineto } repeat\n"
+	     << "closepath\n"
+	     << "patternNone not { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/Rect {\n"
+	     << "0 begin\n"
+	     << "/t exch def\n"
+	     << "/r exch def\n"
+	     << "/b exch def\n"
+	     << "/l exch def\n"
+	     << "newpath\n"
+	     << "l b moveto\n"
+	     << "l t lineto\n"
+	     << "r t lineto\n"
+	     << "r b lineto\n"
+	     << "closepath\n"
+	     << "patternNone not { ifill } if\n"
+	     << "brushNone not { istroke } if\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/Text {\n"
+	     << "ishow\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/idef {\n"
+	     << "dup where { pop pop pop } { exch def } ifelse\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/ifill {\n"
+	     << "0 begin\n"
+	     << "gsave\n"
+	     << "patternGrayLevel -1 ne {\n"
+	     << "fgred bgred fgred sub patternGrayLevel mul add\n"
+	     << "fggreen bggreen fggreen sub patternGrayLevel mul add\n"
+	     << "fgblue bgblue fgblue sub patternGrayLevel mul add setrgbcolor\n"
+	     << "eofill\n"
+	     << "} {\n"
+	     << "eoclip\n"
+	     << "originalCTM setmatrix\n"
+	     << "pathbbox /t exch def /r exch def /b exch def /l exch def\n"
+	     << "/w r l sub ceiling cvi def\n"
+	     << "/h t b sub ceiling cvi def\n"
+	     << "/imageByteWidth w 8 div ceiling cvi def\n"
+	     << "/imageHeight h def\n"
+	     << "bgred bggreen bgblue setrgbcolor\n"
+	     << "eofill\n"
+	     << "fgred fggreen fgblue setrgbcolor\n"
+	     << "w 0 gt h 0 gt and {\n"
+	     << "l w add b translate w neg h scale\n"
+	     << "w h true [w 0 0 h neg 0 h] { patternproc } imagemask\n"
+	     << "} if\n"
+	     << "} ifelse\n"
+	     << "grestore\n"
+	     << "end\n"
+	     << "} dup 0 8 dict put def\n"
+	     << "\n"
+	     << "/istroke {\n"
+	     << "gsave\n"
+	     << "brushDashOffset -1 eq {\n"
+	     << "[] 0 setdash\n"
+	     << "1 setgray\n"
+	     << "} {\n"
+	     << "brushDashArray brushDashOffset setdash\n"
+	     << "fgred fggreen fgblue setrgbcolor\n"
+	     << "} ifelse\n"
+	     << "brushWidth setlinewidth\n"
+	     << "originalCTM setmatrix\n"
+	     << "stroke\n"
+	     << "grestore\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/ishow {\n"
+	     << "0 begin\n"
+	     << "gsave\n"
+	     << "fgred fggreen fgblue setrgbcolor\n"
+	     << "/fontDict printFont printSize scalefont dup setfont def\n"
+	     << "/descender fontDict begin 0 /FontBBox load 1 get FontMatrix end\n"
+	     << "transform exch pop def\n"
+	     << "/vertoffset 1 printSize sub descender sub def {\n"
+	     << "0 vertoffset moveto show\n"
+	     << "/vertoffset vertoffset printSize sub def\n"
+	     << "} forall\n"
+	     << "grestore\n"
+	     << "end\n"
+	     << "} dup 0 3 dict put def\n"
+	     << "/patternproc {\n"
+	     << "0 begin\n"
+	     << "/patternByteLength patternString length def\n"
+	     << "/patternHeight patternByteLength 8 mul sqrt cvi def\n"
+	     << "/patternWidth patternHeight def\n"
+	     << "/patternByteWidth patternWidth 8 idiv def\n"
+	     << "/imageByteMaxLength imageByteWidth imageHeight mul\n"
+	     << "stringLimit patternByteWidth sub min def\n"
+	     << "/imageMaxHeight imageByteMaxLength imageByteWidth idiv patternHeight idiv\n"
+	     << "patternHeight mul patternHeight max def\n"
+	     << "/imageHeight imageHeight imageMaxHeight sub store\n"
+	     << "/imageString imageByteWidth imageMaxHeight mul patternByteWidth add string def\n"
+	     << "0 1 imageMaxHeight 1 sub {\n"
+	     << "/y exch def\n"
+	     << "/patternRow y patternByteWidth mul patternByteLength mod def\n"
+	     << "/patternRowString patternString patternRow patternByteWidth getinterval def\n"
+	     << "/imageRow y imageByteWidth mul def\n"
+	     << "0 patternByteWidth imageByteWidth 1 sub {\n"
+	     << "/x exch def\n"
+	     << "imageString imageRow x add patternRowString putinterval\n"
+	     << "} for\n"
+	     << "} for\n"
+	     << "imageString\n"
+	     << "end\n"
+	     << "} dup 0 12 dict put def\n"
+	     << "\n"
+	     << "/min {\n"
+	     << "dup 3 2 roll dup 4 3 roll lt { exch } if pop\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/max {\n"
+	     << "dup 3 2 roll dup 4 3 roll gt { exch } if pop\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/midpoint {\n"
+	     << "0 begin\n"
+	     << "/y1 exch def\n"
+	     << "/x1 exch def\n"
+	     << "/y0 exch def\n"
+	     << "/x0 exch def\n"
+	     << "x0 x1 add 2 div\n"
+	     << "y0 y1 add 2 div\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/thirdpoint {\n"
+	     << "0 begin\n"
+	     << "/y1 exch def\n"
+	     << "/x1 exch def\n"
+	     << "/y0 exch def\n"
+	     << "/x0 exch def\n"
+	     << "x0 2 mul x1 add 3 div\n"
+	     << "y0 2 mul y1 add 3 div\n"
+	     << "end\n"
+	     << "} dup 0 4 dict put def\n"
+	     << "\n"
+	     << "/subspline {\n"
+	     << "0 begin\n"
+	     << "/movetoNeeded exch def\n"
+	     << "y exch get /y3 exch def\n"
+	     << "x exch get /x3 exch def\n"
+	     << "y exch get /y2 exch def\n"
+	     << "x exch get /x2 exch def\n"
+	     << "y exch get /y1 exch def\n"
+	     << "x exch get /x1 exch def\n"
+	     << "y exch get /y0 exch def\n"
+	     << "x exch get /x0 exch def\n"
+	     << "x1 y1 x2 y2 thirdpoint\n"
+	     << "/p1y exch def\n"
+	     << "/p1x exch def\n"
+	     << "x2 y2 x1 y1 thirdpoint\n"
+	     << "/p2y exch def\n"
+	     << "/p2x exch def\n"
+	     << "x1 y1 x0 y0 thirdpoint\n"
+	     << "p1x p1y midpoint\n"
+	     << "/p0y exch def\n"
+	     << "/p0x exch def\n"
+	     << "x2 y2 x3 y3 thirdpoint\n"
+	     << "p2x p2y midpoint\n"
+	     << "/p3y exch def\n"
+	     << "/p3x exch def\n"
+	     << "movetoNeeded { p0x p0y moveto } if\n"
+	     << "p1x p1y p2x p2y p3x p3y curveto\n"
+	     << "end\n"
+	     << "} dup 0 17 dict put def\n"
+	     << "\n"
+	     << "/storexyn {\n"
+	     << "/n exch def\n"
+	     << "/y n array def\n"
+	     << "/x n array def\n"
+	     << "n 1 sub -1 0 {\n"
+	     << "/i exch def\n"
+	     << "y i 3 2 roll put\n"
+	     << "x i 3 2 roll put\n"
+	     << "} for\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/SSten {\n"
+	     << "fgred fggreen fgblue setrgbcolor\n"
+	     << "dup true exch 1 0 0 -1 0 6 -1 roll matrix astore\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/FSten {\n"
+	     << "dup 3 -1 roll dup 4 1 roll exch\n"
+	     << "newpath\n"
+	     << "0 0 moveto\n"
+	     << "dup 0 exch lineto\n"
+	     << "exch dup 3 1 roll exch lineto\n"
+	     << "0 lineto\n"
+	     << "closepath\n"
+	     << "bgred bggreen bgblue setrgbcolor\n"
+	     << "eofill\n"
+	     << "SSten\n"
+	     << "} def\n"
+	     << "\n"
+	     << "/Rast {\n"
+	     << "exch dup 3 1 roll 1 0 0 -1 0 6 -1 roll matrix astore\n"
+	     << "} def\n"
+	     << "\n"
+	     << "%%EndProlog\n"
+	     << "\n"
+	     << "%I Idraw 12 Grid 8 8 \n"
+	     << "\n"
+	     << "%%Page: 1 1\n"
+	     << "\n"
+	     << "Begin\n"
+	     << "%I b u\n"
+	     << "%I cfg u\n"
+	     << "%I cbg u\n"
+	     << "%I f u\n"
+	     << "%I p u\n"
+	     << "%I t\n"
+	     << "[ 0.834861 0 0 0.834861 0 0 ] concat\n"
+	     << "/originalCTM matrix currentmatrix def\n"
+	     << "\n";
 }
 
 drvIDRAW::~drvIDRAW()
@@ -884,8 +883,14 @@ void drvIDRAW::print_coords()
 			if (pointlist)
 				for (unsigned int pindex = 0; pindex < totalpoints; pindex++) {
 					//cout << "pindex / totalpoints " << pindex  << " " << totalpoints << " " << pointlist[pindex]->x_ << " " << pointlist[pindex]->y_ << " " << pointlist[pindex]<< endl;
-					delete 	 (Point *) 	(pointlist[pindex]);	// MSVC needs cast here
+#if defined (_MSC_VER) && (_MSC_VER < 1100)
+					// MSVC < 6 needs cast here
+					delete (Point *)	(pointlist[pindex]);	
+#else
+					delete				(pointlist[pindex]);	
+#endif
 				}
+
 		}
 	}
 	delete[]pointlist;
@@ -995,7 +1000,7 @@ void drvIDRAW::show_text(const TextInfo & textinfo)
 void drvIDRAW::show_path()
 {
 	print_coords();
-};
+}
 
 
 void drvIDRAW::show_image(const PSImage & imageinfo)
@@ -1008,7 +1013,7 @@ void drvIDRAW::show_image(const PSImage & imageinfo)
 	imageinfo.writeIdrawImage(outf, 1.0f / IDRAW_SCALING);
 }
 
-static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format (EPS)", "idraw", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format (EPS)", "", "idraw", false,	// if backend supports subpathes, else 0
 											   // if subpathes are supported, the backend must deal with
 											   // sequences of the following form
 											   // moveto (start of subpath)
@@ -1026,5 +1031,5 @@ static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format 
 											   true,	// if backend supports text, else 0
 											   DriverDescription::memoryeps,	// no support for PNG file images
 											   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
-											   false /*clipping */ , nodriverspecificoptions);
+											   false /*clipping */ );
  

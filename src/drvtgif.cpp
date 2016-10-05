@@ -2,7 +2,7 @@
    drvTGIF.cpp : This file is part of pstoedit
    Backend for TGIF
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,27 +38,26 @@ static const char *colorstring(float r, float g, float b)
 	return buffer;
 }
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("-ta",0,"text as attribute"),
-	endofoptions};
-
 const float tgifscale = 128.0f / 72.0f;
+
 drvTGIF::derivedConstructor(drvTGIF):
-constructBase, buffer(tempFile.asOutput()), objectId(1), textAsAttribute(false)
-//  magnification(1.0f) // scalefactor_p /* 1.0f */)
+constructBase, buffer(tempFile.asOutput()), objectId(1)
 {
 //  magnification(theMagnification)
 	// set tgif specific values
-	scale = tgifscale * scale;	/* tgif internal scale factor */
-	currentDeviceHeight = 792.0f * scale;
+//no longer 	scale = tgifscale * scale;	/* tgif internal scale factor */
+
+//no more it will be overwritten by makeedit.l 
+//	currentDeviceHeight = 792.0f * tgifscale; 
 
 	x_offset = 0.0f;			/* set to fit to tgif page    */
-	y_offset = 89.61f;			/*          "                 */
+	y_offset = 89.61f;      	/*          "                 */
 
 	// cannot write any header part, since we need the total number of pages
 	// in the header
 	if (Verbose())
 		errf << "% Driver options:" << endl;
+#if 0
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
 		if (Verbose())
@@ -67,6 +66,7 @@ constructBase, buffer(tempFile.asOutput()), objectId(1), textAsAttribute(false)
 			textAsAttribute = true;
 		}
 	}
+#endif
 }
 
 drvTGIF::~drvTGIF()
@@ -91,8 +91,8 @@ void drvTGIF::print_coords()
 		case lineto:
 		case moveto:{
 				const Point & p = pathElement(n).getPoint(0);
-				buffer << p.x_ + x_offset;
-				buffer << ',' << currentDeviceHeight - p.y_ + y_offset;
+				buffer << p.x_*tgifscale + x_offset;
+				buffer << "," << currentDeviceHeight* tgifscale - p.y_*tgifscale + y_offset;
 				if (n != numberOfElementsInPath() - 1) {
 					// it is not the last point, so add a ,
 					buffer << ',';
@@ -105,8 +105,8 @@ void drvTGIF::print_coords()
 			break;
 		case closepath:{
 				const Point & p = pathElement(0).getPoint(0);
-				buffer << p.x_ + x_offset;
-				buffer << ',' << currentDeviceHeight - p.y_ + y_offset;
+				buffer << p.x_*tgifscale + x_offset;
+				buffer << "," << currentDeviceHeight* tgifscale - p.y_*tgifscale + y_offset;
 				if (n != numberOfElementsInPath() - 1) {
 					// it is not the last point, so add a ,
 					buffer << ',';
@@ -139,14 +139,14 @@ static const int Fill = 1;
 static const int noFill = 0;
 void drvTGIF::show_text(const TextInfo & textinfo)
 {
-	if (textAsAttribute) {
+	if (options->textAsAttribute) {
 //  buffer << "box('magenta',150,50,250,100,0,1,1,22,0,0,0,0,0,'1',[\n"
 		buffer << "box('" << colorstring(textinfo.currentR,
 										 textinfo.currentG, textinfo.currentB) << "'";
-		buffer << "," << (textinfo.x) + x_offset;	// llx
-		buffer << "," << currentDeviceHeight - (textinfo.y_end) + y_offset - textinfo.currentFontSize;	// lly
-		buffer << "," << textinfo.x_end + x_offset;	//urx
-		buffer << "," << currentDeviceHeight - textinfo.y + y_offset;	//ury
+		buffer << "," << (textinfo.x*tgifscale) + x_offset;	// llx
+		buffer << "," << currentDeviceHeight* tgifscale - (textinfo.y_end*tgifscale) + y_offset - textinfo.currentFontSize*tgifscale;	// lly
+		buffer << "," << textinfo.x_end*tgifscale + x_offset;	//urx
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y*tgifscale + y_offset;	//ury
 		const int fillpat = noFill;
 		buffer << "," << fillpat << "," << 1	// currentLineWidth() 
 			<< "," << Fill << "," << objectId++ << ",0,0,0,0,0,'1',[\n" << "attr(\"href=\", \"";
@@ -162,13 +162,13 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 	}
 	buffer << "text('" << colorstring(textinfo.currentR, textinfo.currentG,
 									  textinfo.currentB) << "'";
-	buffer << "," << textinfo.x + x_offset;
+	buffer << "," << textinfo.x*tgifscale + x_offset;
 #ifdef OLDTGIF
 // for version 3
-	buffer << "," << currentDeviceHeight - textinfo.y + y_offset - textinfo.currentFontSize;
+	buffer << "," << currentDeviceHeight* tgifscale - textinfo.y + y_offset - textinfo.currentFontSize;
 	// TGIF's origin of text is at the top line, pstoedit's at the bottom
 #else
-	buffer << "," << currentDeviceHeight - textinfo.y + y_offset - textinfo.currentFontSize;
+	buffer << "," << currentDeviceHeight* tgifscale - textinfo.y*tgifscale + y_offset - textinfo.currentFontSize*tgifscale;
 #endif
 	buffer << ",'" << textinfo.currentFontName.value() << "'";
 	const bool boldfont = (strstr(textinfo.currentFontName.value(), "Bold") != NIL);
@@ -186,7 +186,7 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 		else
 			fonttype = 0;
 	}
-	const float fontSize = textinfo.currentFontSize;
+	const float fontSize = textinfo.currentFontSize * tgifscale ;
 	buffer << "," << fonttype << "," << (int) (fontSize +
 											   0.5) << ",1,0,0,1,70," <<
 		fontSize << "," << objectId++ << ",0,14,3,0,0,0,0,0,0,0,0,0,0,\"\",0,";
@@ -205,9 +205,9 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 	if (fontSize != 0.0) {
 		const float *CTM = getCurrentFontMatrix();
 
-		if (fabs(CTM[0] - fontSize) < (1.0e-5) &&
+		if (fabs(CTM[0]*tgifscale - fontSize) < (1.0e-5) &&
 			fabs(CTM[1]) < (1.0e-5) &&
-			fabs(CTM[2]) < (1.0e-5) && fabs(CTM[3] - fontSize) < (1.0e-5)) {
+			fabs(CTM[2]) < (1.0e-5) && fabs(CTM[3]*tgifscale - fontSize) < (1.0e-5)) {
 			// no rotation and no shear
 			transformed = false;
 		} else {
@@ -233,15 +233,15 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 //  const int len = strlen(textinfo.thetext.value());
 // if we use the tx of CTM  buffer << '\t'<< 0.0 ;
 // if we use the ty of CTM  buffer << "," << 0.0 ;
-		buffer << '\t' << textinfo.x + x_offset;
-		buffer << "," << currentDeviceHeight - textinfo.y + y_offset;
+		buffer << '\t' << textinfo.x*tgifscale + x_offset;
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y*tgifscale + y_offset;
 
 		// the obbox stuff
 #ifdef OLDTGIF
 		buffer << "," << textinfo.x + x_offset;
-		buffer << "," << currentDeviceHeight - textinfo.y + y_offset;
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y + y_offset;
 		buffer << "," << textinfo.x + x_offset + len * textinfo.currentFontSize;
-		buffer << "," << currentDeviceHeight - textinfo.y + textinfo.currentFontSize + y_offset;
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y + textinfo.currentFontSize + y_offset;
 #else
 		// starting with tgif 3.0 pl 7. an all 0 bounding box causes tgif to recalculate it
 		buffer << "," << 0;
@@ -261,10 +261,10 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 		buffer << " SY " << SY << endl;
 #endif
 		// the CTM stuff 
-		buffer << "," << (CTM[0] / fontSize) * 1000;
-		buffer << "," << (-1.0 * CTM[1] / fontSize) * 1000;
-		buffer << "," << (-1.0 * CTM[2] / fontSize) * 1000;
-		buffer << "," << (CTM[3] / fontSize) * 1000;
+		buffer << "," << (CTM[0]*tgifscale / fontSize) * 1000;
+		buffer << "," << (-1.0 * CTM[1]*tgifscale / fontSize) * 1000;
+		buffer << "," << (-1.0 * CTM[2]*tgifscale / fontSize) * 1000;
+		buffer << "," << (CTM[3]*tgifscale / fontSize) * 1000;
 
 #ifdef TGIFDEBUG
 		buffer << "," << cosphi * 1000;
@@ -273,16 +273,16 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 		buffer << "," << cosphi * 1000;
 #endif
 //  buffer << "," << (CTM[4] +x_offset  ) * 1;
-//  buffer << "," << (currentDeviceHeight - CTM[5] +y_offset ) * 1;
+//  buffer << "," << (currentDeviceHeight* tgifscale - CTM[5] +y_offset ) * 1;
 		buffer << "," << 0;		// no translate
 		buffer << "," << 0;		// no translate
 
 		// the bbox stuff
 #ifdef OLDTGIF
 		buffer << "," << textinfo.x + x_offset;
-		buffer << "," << currentDeviceHeight - textinfo.y + y_offset;
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y*tgifscale + y_offset;
 		buffer << "," << textinfo.x + x_offset + len * textinfo.currentFontSize;
-		buffer << "," << currentDeviceHeight - textinfo.y + y_offset +
+		buffer << "," << currentDeviceHeight* tgifscale - textinfo.y + y_offset +
 			textinfo.currentFontSize + y_offset;
 #else
 		// starting with tgif 3.0 pl 7. an all 0 bounding box causes tgif to recalculate it
@@ -303,7 +303,7 @@ void drvTGIF::show_text(const TextInfo & textinfo)
 		buffer << *cp;
 		cp++;
 	}
-	if (textAsAttribute) {
+	if (options->textAsAttribute) {
 		buffer << "\"]))\n]).\n";
 	} else {
 		buffer << "\"]).\n";
@@ -319,7 +319,7 @@ void drvTGIF::show_path()
 			<< "'," << numberOfElementsInPath()
 			<< ",[" << endl << "\t";
 		print_coords();
-		buffer << "]," << fillpat << "," << currentLineWidth()
+		buffer << "]," << fillpat << "," << currentLineWidth()* tgifscale
 			<< "," << Fill << ",0," << objectId++ << ",0,0,0,0,0,'";
 //   << ",0,0,0,0,0,'1"; // bug fix 
 /*	I think the 1 at the end has to be deleted.
@@ -330,7 +330,7 @@ This was however not visible in tgif, because (i think) tgif
 doesn't allow lines to be wider than 7.
 It became visible after printing in tgif to postscript or eps.
 */
-		buffer << (int) (currentLineWidth() + 0.5);
+		buffer << (int) (currentLineWidth()* tgifscale + 0.5);
 		buffer << "',\n    \"";
 		for (unsigned int i = 0; i < numberOfElementsInPath(); i = i + 4) {
 			if ((i > 0) && ((i) % 256) == 0) {
@@ -344,9 +344,9 @@ It became visible after printing in tgif to postscript or eps.
 			<< "'," << numberOfElementsInPath()
 			<< ",[" << endl << "\t";
 		print_coords();
-		buffer << "],0," << currentLineWidth()
+		buffer << "],0," << currentLineWidth()* tgifscale
 			<< "," << Fill << "," << objectId++ << ",0," << fillpat << ",0,0,0,3,0,0,0,'";
-		buffer << (int) (currentLineWidth() + 0.5);
+		buffer << (int) (currentLineWidth()* tgifscale + 0.5);
 		buffer << "','8','3',\n    \"";
 		for (unsigned int i = 0; i < numberOfElementsInPath(); i = i + 4) {
 			if ((i > 0) && ((i) % 256) == 0) {
@@ -356,21 +356,21 @@ It became visible after printing in tgif to postscript or eps.
 		}
 		buffer << "\",[" << endl << "])." << endl;
 	}
-};
+}
 
 void drvTGIF::show_rectangle(const float llx, const float lly, const float urx, const float ury)
 {
 	buffer << "box('" << colorstring(currentR(), currentG(), currentB()) << "'";
-	buffer << "," << llx + x_offset;
-	buffer << "," << currentDeviceHeight - lly + y_offset;
-	buffer << "," << urx + x_offset;
-	buffer << "," << currentDeviceHeight - ury + y_offset;
+	buffer << "," << llx*tgifscale + x_offset;
+	buffer << "," << currentDeviceHeight* tgifscale - lly*tgifscale + y_offset;
+	buffer << "," << urx*tgifscale + x_offset;
+	buffer << "," << currentDeviceHeight* tgifscale - ury*tgifscale + y_offset;
 	const int fillpat = (currentShowType() == drvbase::stroke) ? noFill : Fill;
-	buffer << "," << fillpat << "," << currentLineWidth()
+	buffer << "," << fillpat << "," << currentLineWidth()*tgifscale
 		<< "," << Fill << "," << objectId++ << ",0,0,0,0,0,'1',[" << endl << "])." << endl;
 }
 
-static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format (for tgif version >= 3)", "obj", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format", "","obj", false,	// if backend supports subpathes, else 0
 											 // if subpathes are supported, the backend must deal with
 											 // sequences of the following form
 											 // moveto (start of subpath)
@@ -388,6 +388,5 @@ static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format (for tgif
 											 true,	// if backend supports text, else 0
 											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
-											 false, /*clipping */ 
-											 driveroptions);
- 
+											 false  /*clipping */ 
+											 );

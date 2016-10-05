@@ -1,13 +1,13 @@
 /* 
    drvlwo.cpp - Driver to output LightWave 3D Objects (LWO)
-             - written by Glenn M. Lewis <glenn@gmlewis.com> - 6/18/96
+             - written by Glenn M. Lewis <glenn_AT_gmlewis.com> - 6/18/96
 	       http://www.gmlewis.com/>
 	       Based on... 
 
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 
 struct LWO_POLY {
 public:
-	LWO_POLY():r(0), g(0), b(0), num(0L), x(0), y(0) {
-	} ~LWO_POLY() {
+	LWO_POLY(): next(0), r(0), g(0), b(0), num(0L), x(0), y(0) {} 
+	~LWO_POLY() {
 		delete[]x;
 		x = 0;
 		delete[]y;
@@ -174,10 +174,10 @@ void drvLWO::close_page()
 void drvLWO::show_path()
 {
 	print_coords();
-};
+}
 
 
-static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D Object Format", "lwo", false,	// if backend supports subpathes, else 0
+static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D Object Format", "","lwo", false,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
 										   // moveto (start of subpath)
@@ -195,7 +195,5 @@ static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D Object Format", 
 										   false,	// backend supports text
 										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::binaryopen, false,	// backend supports multiple pages
-										   false, /*clipping */ 
-										   nodriverspecificoptions
+										   false  /*clipping */ 
 										   );
- 

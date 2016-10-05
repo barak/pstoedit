@@ -3,8 +3,8 @@
          Reaggangement of paths for backends which
          don't support subpaths
 
-   Copyright (C) 1999 Burkhard Plaum plaum@ipf.uni-stuttgart.de
-   Copyright (C) 1999 - 2003  Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1999 Burkhard Plaum plaum_AT_ipf.uni-stuttgart.de
+   Copyright (C) 1999 - 2005  Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,6 +69,26 @@ static void write(const drvbase::PathInfo & p)
 }
 
 #endif
+
+sub_path::sub_path() {
+    flags = 0;
+    num_elements = 0;
+    num_points = 0;
+    num_children = 0;
+    num_outside = 0;
+
+    // pointers
+    children = 0;
+    path = 0;
+    points = 0;
+    parents = 0;
+	parent = 0;
+
+	llx = FLT_MAX;
+	lly = FLT_MAX;
+	urx = -FLT_MAX;
+	ury = -FLT_MAX;
+  }
 
 void sub_path::clean()
 {
@@ -519,9 +539,9 @@ void drvbase::PathInfo::rearrange()
 	for (i = 0; i + 1 < numberOfElementsInPath; i++) {
 		if ((path[i]->getType() == lineto)
 			&& (path[i + 1]->getType() == lineto)) {
-			const Point & p1 = path[i]->getPoint(0);
-			const Point & p2 = path[i + 1]->getPoint(0);
-			if ((p1.x_ == p2.x_) && (p1.y_ == p2.y_)) {
+			const Point & pp1 = path[i]->getPoint(0);
+			const Point & pp2 = path[i + 1]->getPoint(0);
+			if ((pp1.x_ == pp2.x_) && (pp1.y_ == pp2.y_)) {
 				delete path[i];
 				for (j = i; j + 1 < numberOfElementsInPath; j++)
 					path[j] = path[j + 1];
@@ -531,4 +551,3 @@ void drvbase::PathInfo::rearrange()
 	}
 	//  write(*this);
 }
- 

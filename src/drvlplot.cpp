@@ -127,8 +127,8 @@
    NOTE: If your version of libplotter has no X Window System support, you
    should specify "-DNO_LIBPLOTTER_X_SUPPORT" when compiling.
 
-   Written by Robert S. Maier <rsm@math.arizona.edu> and Wolfgang Glunz
-   <wglunz@pstoedit.net>.
+   Written by Robert S. Maier <rsm_AT_math.arizona.edu> and Wolfgang Glunz
+   <wglunz34_AT_pstoedit.net>.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -156,8 +156,9 @@
 #define NO_LIBPLOTTER_CGM_SUPPORT
 #endif
 
-#if ! (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix)  || defined (NetBSD) )
+#if ! (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix)  || defined (NetBSD) ) && ( ! (defined(_AIX)) )
 // just under Unix we have X11 support
+// AIX is treated as Unix - except here
 #define X_DISPLAY_MISSING
 #define NO_LIBPLOTTER_X_SUPPORT
 // also the following two plotters are not available in libplot outside Unix
@@ -197,7 +198,7 @@
 #define DEFAULT_PAGE_TYPE PAGE_ANSI_A
 
 // page types that libplot/libplotter recognizes
-enum { PAGE_ANSI_A, PAGE_ANSI_B, PAGE_ANSI_C, PAGE_ANSI_D, PAGE_ANSI_E,
+enum page_types { PAGE_ANSI_A, PAGE_ANSI_B, PAGE_ANSI_C, PAGE_ANSI_D, PAGE_ANSI_E,
 	PAGE_ISO_A4, PAGE_ISO_A3, PAGE_ISO_A2, PAGE_ISO_A1, PAGE_ISO_A0,
 	PAGE_JIS_B5, PAGE_LEGAL, PAGE_LEDGER
 };
@@ -312,7 +313,7 @@ private:
 	inline void emit_terminator(void);
 
 	// define op codes for graphics operations (only the ones we'll need)
-	enum {
+	enum op_codes {
 		O_BEZIER3 = 'y',
 		O_BOX = 'B',
 		O_CAPMOD = 'K',
@@ -747,37 +748,19 @@ int dummy_warning_handler(const char *)
 #endif
 
 
-static const OptionDescription driveroptions[] = {
-	OptionDescription("plotformat","string","plotutil format to generate"),
-	OptionDescription("-pagesize","string","page size, e.g. a4"),
-	endofoptions};
 
 // driver specific initializations
 drvplot::derivedConstructor(drvplot):constructBase
 {
-	const char *type = "meta";	// default
-	bool portable_metafile = false;
+//	const char *type = "meta";	// default - now in options in .h file
+ 	bool portable_metafile = false;  // binary is not portable - ascii is
 
 	if (strcmp(Pdriverdesc->symbolicname, "gmfa") == 0) {
-		char t[] = "yes";
-
-		/* 
-		   char *t;           // temporary string
-
-		   t = (char *)malloc (strlen ("yes") + 1);
-		   if (!t)
-		   {
-		   errf << "ERROR: Can't allocate memory " << endl;
-		   ctorOK = false;
-		   return;
-		   }
-		   strcpy (t, "yes");
-		 */
+		const char t[] = "yes";
 		Plotter::parampl("META_PORTABLE", (void *) t);
-		/* free (t); */
-
 		portable_metafile = true;	// won't need to reopen outf in binary mode
 	}
+
 	// defaults (will try to determine page type from pagesize option)
 	page_type = (int) DEFAULT_PAGE_TYPE;
 	physical_page = false;
@@ -816,10 +799,11 @@ drvplot::derivedConstructor(drvplot):constructBase
 				errf << "unknown page size" << endl;
 		}
 	}
-	for (unsigned int i = 0; i < d_argc;) {
-		assert(d_argv && d_argv[i]);
+#if 0
+
 		if (strcmp(d_argv[i], "page-size") == 0) {
 #ifdef OLDPAGESIZE
+			bla bla bla;
 			if ((i + 1) < d_argc) {
 				bool matched = false;
 				unsigned int j;
@@ -862,7 +846,10 @@ drvplot::derivedConstructor(drvplot):constructBase
 #endif
 		}
 
-		else if (strcmp(Pdriverdesc->symbolicname, "plot") == 0) {
+	for (unsigned int i = 0; i < d_argc;) {
+		assert(d_argv && d_argv[i]);
+
+		if (strcmp(Pdriverdesc->symbolicname, "plot") == 0) {
 			if ((i + 1) < d_argc) {
 				if (strcmp(d_argv[i], "type") == 0)
 					type = d_argv[i + 1];
@@ -887,6 +874,25 @@ drvplot::derivedConstructor(drvplot):constructBase
 		}
 	}
 
+#endif
+
+	// parse remaining args 
+	if (d_argc) {
+		const unsigned int remaining = DOptions_ptr->parseoptions(errf,d_argc,d_argv);
+		if (Verbose()) { errf << "remaining options " << remaining << endl; }
+		for (unsigned int i = 1; i < d_argc; i++) {
+			if (strcmp(d_argv[i], "META_PORTABLE") == 0
+						&& strcmp(d_argv[i + 1], "yes") == 0)
+						portable_metafile = true;
+					// set Plotter parameter
+			if (Verbose()) {
+				errf << "adding Plotter parameter " << d_argv[i] << ":" << d_argv[i + 1] << endl;
+			}
+			Plotter::parampl(d_argv[i], (void*)d_argv[i + 1]);
+			i++;
+		}
+	}
+
 #ifdef HAVE_LIBPLOTTER
 #ifdef OLD_LIBPLOTTER
 	// turn off all warning messages, to work around the plotutils-2.2
@@ -906,61 +912,61 @@ drvplot::derivedConstructor(drvplot):constructBase
 		) {
 #ifdef WITHSHORTCUTS
 		if (strncmp(Pdriverdesc->symbolicname, "plot-", 5) == 0) {
-			type = Pdriverdesc->symbolicname + 5;
+			options->type.value = Pdriverdesc->symbolicname + 5;
 			// cout << "type : " << type << endl;
 		}
 #endif
 		if (false) {
 		}
 #ifndef NO_LIBPLOTTER_PNM_SUPPORT
-		else if (strcmp(type, "pnm") == 0) {
+		else if (options->type.value == "pnm") {
 			plotter = new PNMPlotter(cin, outf, errf);
 		}
 #endif
 #ifndef NO_LIBPLOTTER_GIF_SUPPORT
-		else if (strcmp(type, "gif") == 0) {
+		else if (options->type.value == "gif") {
 			ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new GIFPlotter(cin, outf, errf);
 		}
 #endif
 #ifndef NO_LIBPLOTTER_CGM_SUPPORT
-		else if (strcmp(type, "cgm") == 0) {
+		else if (options->type.value == "cgm") {
 			ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new CGMPlotter(cin, outf, errf);
 			physical_page = false;
 		}
 #endif
-		else if (strcmp(type, "ai") == 0) {
+		else if (options->type.value == "ai") {
 			plotter = new AIPlotter(cin, outf, errf);
 			physical_page = true;
 #if defined(PL_LIBPLOT_VER) &&  (PL_LIBPLOT_VER > 400)
-		} else if (strcmp(type, "svg") == 0) {
+		} else if (options->type.value == "svg") {
 			plotter = new SVGPlotter(cin, outf, errf);
 			physical_page = true;
 #endif
-		} else if (strcmp(type, "ps") == 0) {
+		} else if (options->type.value == "ps") {
 			plotter = new PSPlotter(cin, outf, errf);
 			physical_page = true;
-		} else if (strcmp(type, "fig") == 0) {
+		} else if (options->type.value == "fig") {
 			plotter = new FigPlotter(cin, outf, errf);
 			physical_page = true;
-		} else if (strcmp(type, "pcl") == 0) {
+		} else if (options->type.value == "pcl") {
 			ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new PCLPlotter(cin, outf, errf);
 			physical_page = true;
-		} else if (strcmp(type, "hpgl") == 0) {
+		} else if (options->type.value == "hpgl") {
 			ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new HPGLPlotter(cin, outf, errf);
 			physical_page = false;	// unknown viewport position on page
-		} else if (strcmp(type, "tek") == 0) {
+		} else if (options->type.value == "tek") {
 			ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new TekPlotter(cin, outf, errf);
 		}
 #ifndef NO_LIBPLOTTER_X_SUPPORT
-		else if (strcmp(type, "X") == 0)
+		else if (options->type.value == "X"0)
 			plotter = new XPlotter(cin, outf, errf);
 #endif
-		else if (strcmp(type, "meta") == 0) {
+		else if (options->type.value == "meta") {
 			if (portable_metafile == false)
 				ctorOK &= close_output_file_and_reopen_in_binary_mode();
 			plotter = new MetaPlotter(cin, outf, errf);
@@ -1244,41 +1250,41 @@ void drvplot::show_image(const PSImage &)
 	// not implemented
 }
 
-static DriverDescriptionT < drvplot > D_plot_meta_a("gmfa", "ASCII GNU metafile ", "meta", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plot_meta_a("gmfa", "ASCII GNU metafile ", "", "meta", false,	// backend does not support subpaths
 													true,	// backend supports curves
 													true,	// backend supports filled elements with edges 
 													true,	// backend supports text
 													DriverDescription::noimage,
 													DriverDescription::normalopen, true,	// format supports multiple pages in one file
-													false, /*clipping */
-													driveroptions);
+													false  /*clipping */
+													);
 
-static DriverDescriptionT < drvplot > D_plot_meta_b("gmfb", "binary GNU metafile ", "meta", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plot_meta_b("gmfb", "binary GNU metafile ", "", "meta", false,	// backend does not support subpaths
 													true,	// backend supports curves
 													true,	// backend supports filled elements with edges 
 													true,	// backend supports text
 													DriverDescription::noimage,
 													DriverDescription::binaryopen, true,	// format supports multiple pages in one file
-													false, /*clipping */
-													driveroptions);
+													false  /*clipping */
+													);
 
 #ifdef HAVE_LIBPLOTTER
-static DriverDescriptionT < drvplot > D_plot("plot", "GNU libplot output types, e.g. plot:type X", "plot", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plot("plot", "GNU libplot output types, e.g. plot:type X", "", "plot", false,	// backend does not support subpaths
 											 true,	// backend supports curves
 											 true,	// backend supports filled elements with edges 
 											 true,	// backend supports text
 											 DriverDescription::noimage,
 											 DriverDescription::normalopen,	// may close, reopen as binary
 											 true,	// format supports multiple pages in one file
-											 false, /*clipping */
-											 driveroptions);
+											 false  /*clipping */
+											 );
 
 #ifdef WITHSHORTCUTS
 // create shortcuts to the libplot drivers. So instead of -f "plot:type xxx" 
 // one can say -f plot-xxx.
 
 #ifndef NO_LIBPLOTTER_PNM_SUPPORT
-static DriverDescriptionT < drvplot > D_plotpnm("plot-pnm", "pnm  via GNU libplot", "pnm", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotpnm("plot-pnm", "pnm  via GNU libplot", "", "pnm", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
@@ -1293,91 +1299,91 @@ static DriverDescriptionT < drvplot > D_plotpnm("plot-pnm", "pnm  via GNU libplo
 
 //#endif
 #ifndef NO_LIBPLOTTER_CGM_SUPPORT
-static DriverDescriptionT < drvplot > D_plotcgm("plot-cgm", "cgm  via GNU libplot", "cgm", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotcgm("plot-cgm", "cgm  via GNU libplot", "", "cgm", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
 												DriverDescription::noimage,
 												DriverDescription::normalopen,	// may close, reopen as binary
 												true,	// format supports multiple pages in one file
-												false, /*clipping */
-												driveroptions);
+												false  /*clipping */
+												);
 #endif
 
-static DriverDescriptionT < drvplot > D_plotai("plot-ai", "ai   via GNU libplot", "ai", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotai("plot-ai", "ai   via GNU libplot","",  "ai", false,	// backend does not support subpaths
 											   true,	// backend supports curves
 											   true,	// backend supports filled elements with edges 
 											   true,	// backend supports text
 											   DriverDescription::noimage,
 											   DriverDescription::normalopen,	// may close, reopen as binary
 											   true,	// format supports multiple pages in one file
-											   false, /*clipping */
-											   driveroptions);
+											   false   /*clipping */
+											   );
 
 #if defined(PL_LIBPLOT_VER) &&  (PL_LIBPLOT_VER > 400)
-static DriverDescriptionT < drvplot > D_plotsvg("plot-svg", "svg  via GNU libplot", "svg", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotsvg("plot-svg", "svg  via GNU libplot", "", "svg", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
 												DriverDescription::noimage,
 												DriverDescription::normalopen,	// may close, reopen as binary
 												true,	// format supports multiple pages in one file
-												false, /*clipping */
-												driveroptions);
+												false  /*clipping */
+												);
 #endif
 
-static DriverDescriptionT < drvplot > D_plotps("plot-ps", "ps   via GNU libplot", "ps", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotps("plot-ps", "ps   via GNU libplot", "", "ps", false,	// backend does not support subpaths
 											   true,	// backend supports curves
 											   true,	// backend supports filled elements with edges 
 											   true,	// backend supports text
 											   DriverDescription::noimage,
 											   DriverDescription::normalopen,	// may close, reopen as binary
 											   true,	// format supports multiple pages in one file
-											   false, /*clipping */ 
-											   driveroptions);
+											   false /*clipping */ 
+											   );
 
-static DriverDescriptionT < drvplot > D_plotfig("plot-fig", "fig  via GNU libplot", "fig", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotfig("plot-fig", "fig  via GNU libplot", "", "fig", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
 												DriverDescription::noimage,
 												DriverDescription::normalopen,	// may close, reopen as binary
 												true,	// format supports multiple pages in one file
-												false, /*clipping */
-												driveroptions);
+												false  /*clipping */
+												);
 
-static DriverDescriptionT < drvplot > D_plotpcl("plot-pcl", "pcl  via GNU libplot", "pcl", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotpcl("plot-pcl", "pcl  via GNU libplot", "", "pcl", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
 												DriverDescription::noimage,
 												DriverDescription::normalopen,	// may close, reopen as binary
 												true,	// format supports multiple pages in one file
-												false ,/*clipping */
-												driveroptions);
+												false  /*clipping */
+												);
 
-static DriverDescriptionT < drvplot > D_plothpgl("plot-hpgl", "hpgl via GNU libplot", "hpgl", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plothpgl("plot-hpgl", "hpgl via GNU libplot", "", "hpgl", false,	// backend does not support subpaths
 												 true,	// backend supports curves
 												 true,	// backend supports filled elements with edges 
 												 true,	// backend supports text
 												 DriverDescription::noimage,
 												 DriverDescription::normalopen,	// may close, reopen as binary
 												 true,	// format supports multiple pages in one file
-												 false, /*clipping */ 
-												 driveroptions);
+												 false  /*clipping */ 
+												 );
 
-static DriverDescriptionT < drvplot > D_plottek("plot-tek", "tek  via GNU libplot", "tek", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plottek("plot-tek", "tek  via GNU libplot","",  "tek", false,	// backend does not support subpaths
 												true,	// backend supports curves
 												true,	// backend supports filled elements with edges 
 												true,	// backend supports text
 												DriverDescription::noimage,
 												DriverDescription::normalopen,	// may close, reopen as binary
 												true,	// format supports multiple pages in one file
-												false, /*clipping */ 
-												driveroptions);
+												false /*clipping */ 
+												);
 
 #ifndef NO_LIBPLOTTER_X_SUPPORT
-static DriverDescriptionT < drvplot > D_plotX("plot-X", "X    via GNU libplot", "X", false,	// backend does not support subpaths
+static DriverDescriptionT < drvplot > D_plotX("plot-X", "X    via GNU libplot", "", "X", false,	// backend does not support subpaths
 											  true,	// backend supports curves
 											  true,	// backend supports filled elements with edges 
 											  true,	// backend supports text
@@ -1391,6 +1397,5 @@ static DriverDescriptionT < drvplot > D_plotX("plot-X", "X    via GNU libplot", 
 #endif							// WITHSHORTCUTS
 
 #endif							// HAVE_LIBPLOTTER
- 
  
  

@@ -6,7 +6,7 @@
    Class declaration for a LaTeX2e output driver
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2005 Wolfgang Glunz, wglunz34_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,9 +37,6 @@ typedef RSString string;
 #endif
 
 
-//#include <queue>
-//#include <string>
-#include I_strstream
 #include I_iostream
 
 USESTD
@@ -57,6 +54,17 @@ public:
   //(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 
   ~drvLATEX2E(); // Destructor
+	class DriverOptions : public ProgramOptions { 
+	public:
+		Option < bool, BoolTrueExtractor> integersonly;
+
+		DriverOptions():
+			integersonly(true,"-integers","",0,"round all coordinates to the nearest integer",0,false)
+		{
+			ADD(integersonly);
+		}
+	
+	}*options;
 
 #include "drvfuncs.h"
   void show_rectangle(const float llx, const float lly, const float urx, const float ury);
@@ -108,6 +116,5 @@ private:
 //#endif // HAVE STL
 
 #endif
- 
  
  
