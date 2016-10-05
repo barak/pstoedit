@@ -129,6 +129,7 @@ LTLIBOBJS = @LTLIBOBJS@
 MAGICK_CONFIG = @MAGICK_CONFIG@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 MKSTEMP_CFLAGS = @MKSTEMP_CFLAGS@
 NM = @NM@
@@ -161,6 +162,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
@@ -207,13 +209,12 @@ srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-to_host_path_cmd = @to_host_path_cmd@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = swffonts
-EXTRA_DIST = latex2e.fmp mpost.fmp safer.ps svg.fmp wemf.fmp examplefigmap.fmp
-pkgdata_DATA = latex2e.fmp mpost.fmp safer.ps svg.fmp wemf.fmp examplefigmap.fmp
+EXTRA_DIST = drvhpgl.pencolors latex2e.fmp mpost.fmp safer.ps svg.fmp wemf.fmp examplefigmap.fmp
+pkgdata_DATA = drvhpgl.pencolors latex2e.fmp mpost.fmp safer.ps svg.fmp wemf.fmp examplefigmap.fmp
 all: all-recursive
 
 .SUFFIXES:

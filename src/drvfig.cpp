@@ -2,7 +2,7 @@
    drvFIG.cpp : This file is part of pstoedit
    Based on the skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -954,9 +954,9 @@ void drvFIG::show_image(const PSImage & imageinfo)
 
 
 	} else {
-	const unsigned int filenamelen = strlen(outBaseName.value()) + 21;
+	const size_t filenamelen = strlen(outBaseName.value()) + 21;
 	char *EPSoutFileName = new char[filenamelen];
-	const unsigned int fullfilenamelen = strlen(outDirName.value()) + strlen(outBaseName.value()) + 21;
+	const size_t fullfilenamelen = strlen(outDirName.value()) + strlen(outBaseName.value()) + 21;
 	char *EPSoutFullFileName = new char[fullfilenamelen];
 
 	sprintf_s(TARGETWITHLEN(EPSoutFileName,filenamelen), "%s%02d.eps", outBaseName.value(), imgcount++);

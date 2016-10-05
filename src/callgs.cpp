@@ -2,7 +2,7 @@
    callgs.cpp : This file is part of pstoedit
    interface to GhostScript
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
    
    Proposal for a "cleaned up" version: removed (IMHO) dead/old code,
    e.g., WIN32 is "dll only" now, because gs32 comes w/DLL 
@@ -188,7 +188,7 @@ int callgs(int argc, const char * const argv[]) {
 
 			exename += "gswin32c.exe";
 			if (verbose) {
-				cerr << "loading DLL: " << argv[0] << " failed - reverting to call gs as exe via: " << exename << endl;
+				cerr << "loading DLL: " << argv[0] << " failed (possibly due to 32/64 bit mix - reverting to call gs as exe via: " << exename << endl;
 			}
 			newargv[0] = exename.value();
 			result = callgsEXE(argc,newargv);

@@ -4,7 +4,7 @@
 
    Copyright (C) 1996,1997 Jens Weber, rz47b7_AT_PostAG.DE
    Copyright (C) 1998 Thorsten Behrens and Bjoern Petersen
-   Copyright (C) 1998 - 2010 Wolfgang Glunz
+   Copyright (C) 1998 - 2011 Wolfgang Glunz
    Copyright (C) 2000 Thorsten Behrens
 
     This program is free software; you can redistribute it and/or modify
@@ -1078,7 +1078,7 @@ void drvWMF::show_text(const TextInfo & textinfo)
 		maxStatus = 1;
 	}
 
-	unsigned int textLen = strlen(textinfo.thetext.value());
+	size_t textLen = strlen(textinfo.thetext.value());
 	if (options->pruneLineEnds) {
 		/* check for '#' at lineend */
 		if (textLen > 0 && textinfo.thetext.value()[textLen - 1] == '#') {

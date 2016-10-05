@@ -5,7 +5,7 @@
    pstoeditoptions.h : This file is part of pstoedit
    definition of program options 
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -128,78 +128,78 @@ public:
 	char *nameOfInputFile  ; //= 0;
 	char *nameOfOutputFile ; //= 0;	// can contain %d for page splitting
 
-	Option < RSString, RSStringValueExtractor> nameOfIncludeFile ;// = 0;	// name of an option include file
-	Option < RSString, RSStringValueExtractor> replacementfont;// = "Courier";
- 	Option < bool, BoolTrueExtractor > nomaptoisolatin1 ;//= false;
-	Option < bool, BoolTrueExtractor > withdisplay ;//= false;
-	Option < bool, BoolTrueExtractor > quiet ;//= false;
-	Option < bool, BoolTrueExtractor > noquit ;//= false;
-	Option < bool, BoolTrueExtractor > nocurves ;//= false;		// normally curves are shown as curves if backend supports
-	Option < bool, BoolTrueExtractor > nosubpathes ;//= false;	// normally we use subpathes if the backend support them
-	Option < bool, BoolTrueExtractor > mergelines ;//= false;
-	Option < bool, BoolTrueExtractor > convertFilledRectToStroke; //= false;
-	Option < bool, BoolTrueExtractor > mergetext ;//= false;
-	Option < bool, BoolTrueExtractor > drawtext ;//= false;
-	Option < bool, BoolTrueExtractor > autodrawtext ;//= false;
-	Option < bool, BoolTrueExtractor > disabledrawtext ;//= false;
-	Option < bool, BoolTrueExtractor > correctdefinefont ;//= false;
+	OptionT < RSString, RSStringValueExtractor> nameOfIncludeFile ;// = 0;	// name of an option include file
+	OptionT < RSString, RSStringValueExtractor> replacementfont;// = "Courier";
+ 	OptionT < bool, BoolTrueExtractor > nomaptoisolatin1 ;//= false;
+	OptionT < bool, BoolTrueExtractor > withdisplay ;//= false;
+	OptionT < bool, BoolTrueExtractor > quiet ;//= false;
+	OptionT < bool, BoolTrueExtractor > noquit ;//= false;
+	OptionT < bool, BoolTrueExtractor > nocurves ;//= false;		// normally curves are shown as curves if backend supports
+	OptionT < bool, BoolTrueExtractor > nosubpathes ;//= false;	// normally we use subpathes if the backend support them
+	OptionT < bool, BoolTrueExtractor > mergelines ;//= false;
+	OptionT < bool, BoolTrueExtractor > convertFilledRectToStroke; //= false;
+	OptionT < bool, BoolTrueExtractor > mergetext ;//= false;
+	OptionT < bool, BoolTrueExtractor > drawtext ;//= false;
+	OptionT < bool, BoolTrueExtractor > autodrawtext ;//= false;
+	OptionT < bool, BoolTrueExtractor > disabledrawtext ;//= false;
+	OptionT < bool, BoolTrueExtractor > correctdefinefont ;//= false;
 
-	Option < bool, BoolTrueExtractor > ptioption;
-	Option < bool, BoolTrueExtractor > ptaoption;
+	OptionT < bool, BoolTrueExtractor > ptioption;
+	OptionT < bool, BoolTrueExtractor > ptaoption;
 	unsigned int precisiontext ;//= 0; // derived from the above pti ->1 pta -> 2 sonst 0
 
-	Option < double, DoubleValueExtractor > xscale;
-	Option < double, DoubleValueExtractor > yscale;
-	Option < double, DoubleValueExtractor > xshift;
-	Option < double, DoubleValueExtractor > yshift;
-	Option < bool, BoolTrueExtractor > centered ;
-	Option < double, DoubleValueExtractor > minlinewidth;
+	OptionT < double, DoubleValueExtractor > xscale;
+	OptionT < double, DoubleValueExtractor > yscale;
+	OptionT < double, DoubleValueExtractor > xshift;
+	OptionT < double, DoubleValueExtractor > yshift;
+	OptionT < bool, BoolTrueExtractor > centered ;
+	OptionT < double, DoubleValueExtractor > minlinewidth;
 
 
-	Option < bool, BoolTrueExtractor > splitpages ;//= false;
-	Option < bool, BoolTrueExtractor > verbose ;//= false;
-	Option < bool, BoolTrueExtractor > useBBfrominput; //= false;
-	Option < bool, BoolTrueExtractor > simulateSubPaths ;//= false;
-	Option < RSString, RSStringValueExtractor> unmappablecharstring ;//= 0;
-	Option < bool, BoolTrueExtractor > dontloadplugins ;//= false;
-	Option < bool, BoolTrueExtractor > nobindversion ;//= false;	// use old NOBIND instead of DELAYBIND
-	Option < int, IntValueExtractor > pagetoextract ;//= 0;		// 0 stands for all pages
-	Option < double, DoubleValueExtractor > flatness ;//= 1.0f;		// used for setflat
-	Option < bool, BoolTrueExtractor > simulateClipping ;//= false;	// simulate clipping most useful in combination with -dt
-	Option < bool, BoolTrueExtractor > usePlainStrings; //= false;
-	Option < bool, BoolTrueExtractor > useRGBcolors ;//= false;
-	Option < bool, BoolTrueExtractor > useAGL ;//= false;
-	Option < bool, BoolTrueExtractor > noclip ;//= false;
-	Option < bool, BoolTrueExtractor > t2fontsast1 ;//= false;	// handle T2 fonts (often come as embedded fonts in PDF files) same as T1
-	Option < bool, BoolTrueExtractor > keepinternalfiles ;//= false;
-	Option < bool, BoolTrueExtractor > justgstest ;//= false;
-	Option < bool, BoolTrueExtractor > pscover ;//= false;
-	Option < bool, BoolTrueExtractor > nofontreplacement ;//= false;
-	Option < bool, BoolTrueExtractor > passglyphnames; 
-	Option < bool, BoolTrueExtractor > useoldnormalization; 
-	Option < int, IntValueExtractor > rotation ;//= 0;
-	Option < RSString, RSStringValueExtractor> explicitFontMapFile ;//= 0;
-	Option < RSString, RSStringValueExtractor > outputPageSize;//("");
-	Option < bool, BoolTrueExtractor > fromgui;
-	Option < bool, BoolTrueExtractor > showdialog;
-	Option < RSString, RSStringValueExtractor> GSToUse ;
+	OptionT < bool, BoolTrueExtractor > splitpages ;//= false;
+	OptionT < bool, BoolTrueExtractor > verbose ;//= false;
+	OptionT < bool, BoolTrueExtractor > useBBfrominput; //= false;
+	OptionT < bool, BoolTrueExtractor > simulateSubPaths ;//= false;
+	OptionT < RSString, RSStringValueExtractor> unmappablecharstring ;//= 0;
+	OptionT < bool, BoolTrueExtractor > dontloadplugins ;//= false;
+	OptionT < bool, BoolTrueExtractor > nobindversion ;//= false;	// use old NOBIND instead of DELAYBIND
+	OptionT < int, IntValueExtractor > pagetoextract ;//= 0;		// 0 stands for all pages
+	OptionT < double, DoubleValueExtractor > flatness ;//= 1.0f;		// used for setflat
+	OptionT < bool, BoolTrueExtractor > simulateClipping ;//= false;	// simulate clipping most useful in combination with -dt
+	OptionT < bool, BoolTrueExtractor > usePlainStrings; //= false;
+	OptionT < bool, BoolTrueExtractor > useRGBcolors ;//= false;
+	OptionT < bool, BoolTrueExtractor > useAGL ;//= false;
+	OptionT < bool, BoolTrueExtractor > noclip ;//= false;
+	OptionT < bool, BoolTrueExtractor > t2fontsast1 ;//= false;	// handle T2 fonts (often come as embedded fonts in PDF files) same as T1
+	OptionT < bool, BoolTrueExtractor > keepinternalfiles ;//= false;
+	OptionT < bool, BoolTrueExtractor > justgstest ;//= false;
+	OptionT < bool, BoolTrueExtractor > pscover ;//= false;
+	OptionT < bool, BoolTrueExtractor > nofontreplacement ;//= false;
+	OptionT < bool, BoolTrueExtractor > passglyphnames; 
+	OptionT < bool, BoolTrueExtractor > useoldnormalization; 
+	OptionT < int, IntValueExtractor > rotation ;//= 0;
+	OptionT < RSString, RSStringValueExtractor> explicitFontMapFile ;//= 0;
+	OptionT < RSString, RSStringValueExtractor > outputPageSize;//("");
+	OptionT < bool, BoolTrueExtractor > fromgui;
+	OptionT < bool, BoolTrueExtractor > showdialog;
+	OptionT < RSString, RSStringValueExtractor> GSToUse ;
 
-//	Option < double, DoubleValueExtractor >  magnification ;//= 1.0f;
-	Option < bool, BoolTrueExtractor > showdrvhelp ;//= false;
-	Option < bool, BoolTrueExtractor > showdocu_long ;//= false;
-	Option < bool, BoolTrueExtractor > showdocu_short ;//= false;
-	Option < bool, BoolTrueExtractor > dumphelp ;//= false;
+//	OptionT < double, DoubleValueExtractor >  magnification ;//= 1.0f;
+	OptionT < bool, BoolTrueExtractor > showdrvhelp ;//= false;
+	OptionT < bool, BoolTrueExtractor > showdocu_long ;//= false;
+	OptionT < bool, BoolTrueExtractor > showdocu_short ;//= false;
+	OptionT < bool, BoolTrueExtractor > dumphelp ;//= false;
 
-	Option < bool, BoolTrueExtractor > backendonly ;//= false;	// used for easier debugging of backends
+	OptionT < bool, BoolTrueExtractor > backendonly ;//= false;	// used for easier debugging of backends
 	// directly read input file by backend
 	// bypass ghostscript. The input file
 	// is assumed to be produced by a
 	// previous call with -f debug
 
-	Option < Argv, ArgvExtractor > psArgs;				// Pass through arguments to PostScript interpreter
-	Option < int, IntValueExtractor > psLanguageLevel; 
-	Option < RSString, RSStringValueExtractor> drivername ;//= 0; // cannot be const char * because it is changed in pstoedit.cpp
-	Option < RSString, RSStringValueExtractor > gsregbase;
+	OptionT < Argv, ArgvExtractor > psArgs;				// Pass through arguments to PostScript interpreter
+	OptionT < int, IntValueExtractor > psLanguageLevel; 
+	OptionT < RSString, RSStringValueExtractor> drivername ;//= 0; // cannot be const char * because it is changed in pstoedit.cpp
+	OptionT < RSString, RSStringValueExtractor > gsregbase;
 	
 	PsToEditOptions() :
 

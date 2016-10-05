@@ -2,7 +2,7 @@
    dynload.h : This file is part of pstoedit
    declarations for dynamic loading of drivers
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,28 +66,45 @@ extern "C" {
 #include <dlfcn.h>
 
 #elif defined(_WIN32)
-static char dlerror()
-{
-	return ' ';
-}
 
 #include <windows.h>
 #define WINLOADLIB LoadLibrary
 #define WINFREELIB FreeLibrary
 	//  static const char * const libsuffix = ".dll";
+
+static char *dlerror()
+{
+	LPVOID lpMsgBuf;
+  //  LPVOID lpDisplayBuf;
+    DWORD dw = GetLastError(); 
+
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0, NULL );
+	return (char*)lpMsgBuf; 
+}
+
+
+
 #else
 #error "system unsupported so far"
 #endif
 
-DynLoader::DynLoader(const char *libname_P, int verbose_p):libname(0), handle(0),
-verbose(verbose_p)
+DynLoader::DynLoader(const char *libname_P, ostream & errstream_p, int verbose_p):libname(0), handle(0),
+errstream(errstream_p),verbose(verbose_p)
 {
 	if (libname_P) {
-		const unsigned int size = strlen(libname_P) + 1; 
+		const size_t size = strlen(libname_P) + 1; 
 		libname = new char[size];
 		strcpy_s(libname, size, libname_P);
 		if (verbose)
-			cerr << "creating Dynloader for " << libname << endl;
+			errstream << "creating Dynloader for " << libname << endl;
 		open(libname);
 	}
 }
@@ -95,10 +112,10 @@ verbose(verbose_p)
 void DynLoader::open(const char *libname_P)
 {
 	if (handle) {
-		cerr << "error: DynLoader has already opened a library" << endl;
+		errstream << "error: DynLoader has already opened a library" << endl;
 		exit(1);
 	}
-	const unsigned int size = strlen(libname_P) + 1; 
+	const size_t size = strlen(libname_P) + 1; 
 	char *fulllibname = new char[size];
 	strcpy_s(fulllibname, size, libname_P);
 	// not needed strcat(fulllibname_P,libsuffix);
@@ -107,26 +124,30 @@ void DynLoader::open(const char *libname_P)
 	int loadmode = RTLD_LAZY;	// RTLD_NOW
 	handle = dlopen(fulllibname, loadmode);
 #elif defined(_WIN32)
+	if (sizeof(void*) != sizeof(HMODULE)) {
+		errstream << "type of handle in dynload.cpp seems to be wrong" << endl;
+		return;
+	}
 	handle = WINLOADLIB(fulllibname);
 #else
 #error "system unsupported so far"
 #endif
 	if (handle == 0) {
-		cerr << "Problem during opening " << fulllibname << ":" << dlerror()
+		errstream << "Problem during opening " << fulllibname << ":" << dlerror()
 			<< endl;
 		delete[]fulllibname;
 		return;
 	}
 	{
 		if (verbose)
-			cerr << "loading dynamic library " << fulllibname << " completed successfully" << endl;
+			errstream << "loading dynamic library " << fulllibname << " completed successfully" << endl;
 #if defined(__hpux) && defined (__GNUG__)
 		// in HPUX g++ this is called "_GLOBAL__DI" - on other systems it may be something like "_init"
 		// under HP-UX automatic initialization of dlopened shared libs doesn't work - at least not when compiled with g++
 		initfunctype fptr = (initfunctype) dlsym(handle, "_GLOBAL__DI");
 		if (fptr) {
 			if (verbose)
-				cerr << "Found an init function for the library, so execute it " << endl;
+				errstream << "Found an init function for the library, so execute it " << endl;
 			fptr();
 		}
 #endif
@@ -138,7 +159,7 @@ void DynLoader::close()
 {
 	if (handle) {
 		if (libname && verbose)
-				cerr << "closing dynamic library " << libname << endl;
+				errstream << "closing dynamic library " << libname << endl;
 #if defined(__linux) || defined(__linux__) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__hpux) || defined(__sparc) || defined(__OS2__) || defined(_AIX) || (defined (HAVE_DLFCN_H) && (HAVE_DLFCN_H==1 ) )
 
 
@@ -150,18 +171,16 @@ void DynLoader::close()
 		// another workaround would be to link -lpthread also to pstoedit main program but that is also not nice
 		// so simpler solution is to avoid the dlclose under Linux
 		if (libname && verbose)
-				cerr << "not really closing dynamic library because of pthread problem under Linux - contact author for details or check dynload.cpp from pstoedit source code " << libname << endl;
+				errstream << "not really closing dynamic library because of pthread problem under Linux - contact author for details or check dynload.cpp from pstoedit source code " << libname << endl;
 		// dlclose(handle);
 #else
 		if (libname && verbose)
-				cerr << "closing dynamic library " << libname << endl;
+				errstream << "closing dynamic library " << libname << endl;
 		dlclose(handle);
 #endif
 
 #elif defined(_WIN32)
-		if (libname && verbose)
-				cerr << "closing dynamic library " << libname << endl;
-		(void) WINFREELIB((HINSTANCE) handle);
+	 	(void) WINFREELIB((HINSTANCE) handle);
 #else
 #error "system unsupported so far"
 #endif
@@ -173,7 +192,7 @@ DynLoader::~DynLoader()
 {
 	close();
 	if (libname && verbose)
-		cerr << "destroying Dynloader for " << libname << endl;
+		errstream << "destroying Dynloader for " << libname << endl;
 	delete[]libname;
 	libname=0;
 }
@@ -197,7 +216,7 @@ DynLoader::fptr DynLoader::getSymbol(const char *name, int check) const
 #error "system unsupported so far"
 #endif
 	if ((rfptr == 0) && check) {
-		cerr << "error during getSymbol for " << name << ":" << dlerror()
+		errstream << "error during getSymbol for " << name << ":" << dlerror()
 			<< endl;
 	}
 	return rfptr;
@@ -242,7 +261,7 @@ static void loadaPlugin(const char *filename, ostream & errstream, bool verbose)
 		errstream << "loading plugin: " << filename << endl;
 
 	DriverDescription::currentfilename = filename;
-	DynLoader *dynloader = new DynLoader(filename, verbose);
+	DynLoader *dynloader = new DynLoader(filename, errstream, verbose);
 	if (!dynloader->valid()) {
 		delete dynloader;
 		errstream << "Problem during opening of pstoedit driver plugin: " << filename <<
@@ -389,7 +408,7 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream, bool verbose)
 		WIN32_FIND_DATA finddata;
 
 		const char pattern[] = "/*.dll";
-		const unsigned int size = strlen(pluginDir) + strlen(pattern) + 1; 
+		const size_t size = strlen(pluginDir) + strlen(pattern) + 1; 
 		char *searchpattern = new char[size];
 		strcpy_s(searchpattern, size, pluginDir);
 		strcat_s(searchpattern, size, pattern);
@@ -403,11 +422,11 @@ void loadPlugInDrivers(const char *pluginDir, ostream & errstream, bool verbose)
 			while (more) {
 				// check for suffix beeing really .dll because FindFirstFile also matches
 				// files such as e.g. .dllx
-				const unsigned int len = strlen(finddata.cFileName);
+				const size_t len = strlen(finddata.cFileName);
 				// -4 means go back the length of ".dll"
 				if (STRICMP(&finddata.cFileName[len - 4], ".dll") == 0) {
 					// cout << &finddata.cFileName[len -4 ] << endl;
-					const unsigned int size_2 = strlen(pluginDir) + len + 3; 
+					const size_t size_2 = strlen(pluginDir) + len + 3; 
 					char *fullname = new char[size_2];
 					strcpy_s(fullname, size_2, pluginDir);
 					strcat_s(fullname, size_2, "\\");

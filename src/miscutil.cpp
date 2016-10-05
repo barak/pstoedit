@@ -2,7 +2,7 @@
    miscutil.cpp : This file is part of pstoedit
    misc utility functions
 
-   Copyright (C) 1998 - 2010  Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1998 - 2011  Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -483,7 +483,7 @@ void freeconst(const void *ptr)
 }
 #endif
 
-unsigned long searchinpath(const char *EnvPath, const char *name,
+size_t searchinpath(const char *EnvPath, const char *name,
 						   char *returnbuffer, unsigned long buflen)
 {
 //      const char * EnvPath = getenv("PATH");
@@ -496,7 +496,7 @@ unsigned long searchinpath(const char *EnvPath, const char *name,
 #endif
 	char *path = cppstrdup(EnvPath, 2);
 	// append a separator at the end to make the loop below easier
-	unsigned int pathlen = strlen(path);
+	const size_t pathlen = strlen(path);
 	path[pathlen] = separator;
 	path[pathlen + 1] = '\0';	// remember, we reserved one char more
 	char *colon = path;
@@ -622,8 +622,8 @@ RSString & RSString::operator += (const char* rs)
 {
 	assert(rs != 0);
 	assert(content != 0);
-	const unsigned int rslength = strlen(rs);
-	unsigned int newlen = stringlength + rslength  + 1;
+	const size_t rslength = strlen(rs);
+	const size_t newlen = stringlength + rslength  + 1;
 	char *newstring = newContent(newlen);
 //cout << ":" << content << ":" << stringlength << endl;
 //cout << ":" << rs.content << ":" << rs.stringlength << endl;

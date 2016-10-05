@@ -1,5 +1,5 @@
 
-#line 3 "f:\\pstoedit\\devbase\\src\\lexyy.cpp"
+#line 3 "F:\\pstoedit\\devbase\\Src\\lexyy.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -1510,7 +1510,7 @@ char *yytext;
    Simple parser to parse the intermediate flat PostScript and call the backend
    output routines.
 
-   Copyright (C) 1993 - 2010 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2011 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1563,7 +1563,7 @@ static void checkforlinefeed(const char * currenttext) {
 static void cleanyytext() {
 	// replaces \r or \n from the end with \0
 	char * beg = yytext;
-	char * cp = &yytext[strlen(yytext)-1];
+	char * cp = &yytext[strlen(yytext)-1]; 
 	while (cp != beg && ((*cp == '\n') || (*cp == '\r'))) {
 		*cp = '\0';
 		cp--;
@@ -1945,7 +1945,7 @@ YY_RULE_SETUP
 					} else  {
 						delete backend; backend = 0; // 
 						ofstream * outputFilePtr = (ofstream *) &outFile;
-						const unsigned int size = strlen(outfilename) + 30;
+						const size_t size = strlen(outfilename) + 30;
 						char * newname = new char[ size ];
 						sprintf_s(TARGETWITHLEN(newname,size),outfilename,currentPageNumber);
 						// not needed here since done in main program convertBackSlashes(nameOfOutputFile);
