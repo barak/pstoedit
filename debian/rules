@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 include /usr/share/dpkg/architecture.mk
 
 ifeq ($(DEB_BUILD_ARCH_OS),hurd)
@@ -38,3 +40,6 @@ override_dh_auto_install:
 		fi ; \
 		sed -i "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/$$plugin.la ; \
 	done
+
+override_dh_installchangelogs:
+	dh_installchangelogs doc/changelog.htm
