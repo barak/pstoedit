@@ -1,7 +1,7 @@
 Source: pstoedit
 Section: graphics
 Priority: optional
-Maintainer: Roland Stigge <stigge@antcom.de>
+Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends: debhelper (>= 9), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++-dev,
  libplot-dev (>= 2.4.1-14), libpng-dev, ghostscript,
