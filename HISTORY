@@ -1,0 +1,27 @@
+
+   xx.12.95 : Color support,
+	      pstoedit can now be run in a pipe (filter),
+	      inserted error checks in pstoedit for checking when gs fails,
+	      non public PDF and CGM backends
+	      escaping of () for pure PostScript backend
+	      added a debug backend
+	      added the -dis option to open a ghostscript display. 
+   xx.xx.95 : Fixed a bug with rotated text. The angle for non rotated
+	      text was never reset to 0 in the backend.
+	      Changed the data structure of the points. Now we have 
+	      the information about the segments in a compound path.
+	      Some cleanup wrt. OO/C++ .
+   06.06.95 : Fixed some font names in drvFIG (Ian MacPhedran)
+   05.05.95 : Fixed angle calculation. Pure text files were not handled correctly
+   27.04.95 : Add support for rotated text (IJMP) (Ian MacPhedran)
+   24.04.95 : Added some checks for unavailable entries in FontInfo dictionary in pstoedit.pro
+   24.03.95 : fixed fill operator in makeedit.l to sel linewidth to 0
+   24.02.95 : Some cleanup for version 2.1 (setgray, setlinewidth, ...)
+   30.09.94 : fixed some setgray problems (due to grestore)
+   10.05.94 : Port to C++ and total restructuring of the code
+   05.05.94 : support for MIF -> Verion 2.0, plus support for setgray and different fonts
+   08.09.93 : multipage support plus changes regarding tgif file version 30
+   09.06.93 : recognition of rectangles
+   20.04.93 : fix in showpath
+              suppress single point paths that some PostScript programs generate
+   19.04.93 : Version 1.0 released to comp.sources.postscript

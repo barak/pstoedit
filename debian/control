@@ -1,0 +1,17 @@
+Priority: Optional
+Section: graphics
+Priority: optional
+Maintainer: joost witteveen <joostje@debian.org>
+Standards-Version: 2.1.1.0
+
+Package: pstoedit
+Architecture: any
+Depends: ${shlibs:Depends}, gs
+Recommends: xfig,tgif
+Description: Converts ps files into edditable files for xfig/tgif,
+ pstoedit allows to convert Postscript(TM) files to a simple vector graphic
+ format, that can be edited. Currently tgif, xfig, and Framemaker(TM)
+ (MIF-format) and flat PostScript are supported.  pstoedit works by
+ redefining the basic painting operators of Postscript. Others like 
+ image are not supported.
+
