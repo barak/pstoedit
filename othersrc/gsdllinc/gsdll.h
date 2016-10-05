@@ -26,10 +26,6 @@
 #define GSDLLEXPORT
 #endif 
 
-#ifdef __WINDOWS__
-#define _Windows
-#endif
-
 /* type of exported functions */
 #ifdef _Windows
 #ifdef _WATCOM_

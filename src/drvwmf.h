@@ -7,6 +7,7 @@
    The implementation can be found in drvwmf.cpp
 
    Copyright (C) 1998 Thorsten Behrens and Bjoern Petersen
+   Copyright (C) 2000 Thorsten Behrens
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,14 +26,19 @@
 */
 
 
+#ifdef _WIN32
+
 #include <windows.h>
 #undef min		// is declared inline in drvbase... (sigh)
 #undef max
 
+#else
+
+#include <libemf.h>
+
+#endif
+
 #include "drvbase.h"
-
-
-struct WmfPrivate; // forward to the internal data
 
 
 class drvWMF : public drvbase {
@@ -46,74 +52,55 @@ public:
 #include "drvfuncs.h"
 
 	virtual void show_image(const Image & imageinfo); 
-//	virtual bool driverOK() const;
 
 private:
 
-	#define TYPE_LINES			1
-	#define TYPE_FILL			2
-	void	print_coords		(POINT*, int*, int type);
-	void	drawPoly			(int, POINT*, int);
+	enum polyType {TYPE_FILL,TYPE_LINES};
 
-	long	searchPalEntry		(float, float, float);
-	void	setColor			(float, float, float);
+	void	drawPoly			(POINT*, int*, polyType type);
 
-	int		FetchFont			(const TextInfo & textinfo, short int, short int);
+	void	setDrawAttr			();
 
-	inline int transX			(float k) 
-		{
-			return (int)((k + x_offset) + .5);	// rounded int	
-		}
-
-	inline int transY			(float k) 
-		{
-			return (int)((-1.0*k + y_offset) + .5);	// rounded int, mirrored
-
-		}
+	int		fetchFont			(const TextInfo & textinfo, short int, short int);
 
 
-// This here contains all private data of drvwmf.
+// This contains all private data of drvwmf.
 
-	HDC				MetaDC;
-	HDC				DesktopDC;
-	RECT			rect;
+	HDC				metaDC;
+	HDC				desktopDC;
 
-	LPLOGPALETTE	MyLogPalette;
-	HPALETTE		ThePalette;
-	HPALETTE		OldPalette;
+	LOGPEN			penData;
+	HPEN			coloredPen;
+	HPEN			oldColoredPen;
 
-	LOGPEN			PenData;
-	HPEN			ColoredPen;
-	HPEN			OldColoredPen;
+	LOGBRUSH		brushData;
+	HBRUSH			coloredBrush;
+	HBRUSH			oldColoredBrush;
 
-	LOGBRUSH		BrushData;
-	HBRUSH			ColoredBrush;
-	HBRUSH			OldColoredBrush;
+	LOGFONT			theFontRec;
+	HFONT			myFont;
+	HFONT			oldFont;
 
-	LOGFONT			TheFontRec;
-	HFONT			MyFont;
-	HFONT			OldFont;
-
-	long			FontsHeight, FontsWidth;
+	long			fontsHeight, fontsWidth;
 
 	long			showFontList;
-	char			lastSelectedFontName[maxFontNamesLength];
-	long			lastSelectedFontHeight;
-	long			lastSelectedFontAngle;
 	WORD			cntPalEntries;
 
-	bool			palette;	
-	long			palStart;
-	long			maxPalEntries;
-
-	long			height, width;
-	long			origin_x, origin_y;
-	long			maxstatus, minstatus;
+	long			maxX, maxY;
+	long			minX, minY;
+	long			maxStatus, minStatus;
 
 	bool			enhanced;	
+	bool			mapToArial;
+	bool			emulateNarrowFonts;	
+	bool			drawBoundingBox;
+	bool			pruneLineEnds;
 	char*			tempName;
 	FILE*			outFile;	
 };
 
 #endif /* #ifndef __drvwmf_h__ */
+ 
+ 
+
  

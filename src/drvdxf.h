@@ -5,7 +5,7 @@
    drvDXF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,9 +35,28 @@ public:
 
 private:
         int polyaslines; // dump polygons as lines
+		void drawVertex(const Point & p, bool withlinewidth, int val70 = 0);
+		void drawLine(const Point & start,const Point & end);
+		void curvetoAsOneSpline(const basedrawingelement & elem, const Point & currentpoint);
+		void curvetoAsMultiSpline(const basedrawingelement & elem, const Point & currentpoint);
+		void curvetoAsPolyLine(const basedrawingelement & elem, const Point & currentpoint);
+		void curvetoAsNurb(const basedrawingelement & elem, const Point & currentpoint);
+		void curvetoAsBSpline(const basedrawingelement & elem, const Point & currentpoint);
+		void curvetoAsBezier(const basedrawingelement & elem, const Point & currentpoint);
+		void writehandle();
+		
+		void printPoint(const Point & p, unsigned short add );
+		void writesplinetype(const unsigned short stype);
 
+		enum {aspolyline, assinglespline, asmultispline, asnurb, asbspline, asbezier} splinemode;
+		bool formatis14 ; // whether to use acad 14 format
+		unsigned int splineprecision;
+		const char * header;
+		const char * trailer;
+		long handleint;
 
 #include "drvfuncs.h"
+
 
 };
 
@@ -45,3 +64,5 @@ private:
 
 #endif
 
+ 
+ 

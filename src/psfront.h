@@ -4,7 +4,7 @@
    psfront.h : This file is part of pstoedit
    contains the class responsible for reading the dumped PostScript format
   
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,6 +52,8 @@ public:
 
 	void 		run(bool merge);	// do the conversion
 
+	unsigned int readBBoxes(BBox * bboxes);
+
 private:
 
 	void            addNumber(float value); // add a number to the current path
@@ -83,6 +85,10 @@ private:
 	unsigned int	nextFreeNumber;
 	unsigned int	pathnumber; // number of path (for debugging)
 	bool 		non_standard_font;
+	bool		constraintsChecked;
+	Point		currentpoint;
+	bool		bblexmode; // indicates whether just the scanning for the Bounding Box is needed
+	BBox *		bboxes_ptr;
 
 	// Inhibitors (declared, but not defined)
 	PSFrontEnd(const PSFrontEnd &);
@@ -91,5 +97,7 @@ private:
 
 
 #endif
+ 
+ 
  
  

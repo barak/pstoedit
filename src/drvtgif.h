@@ -5,7 +5,7 @@
    drvTGIF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,15 +34,21 @@ public:
 
 	~drvTGIF(); // Destructor
 
+#include "drvfuncs.h"
+
 private:
+	void print_coords();
 	TempFile      tempFile;
 	ofstream     &buffer;
 	int             objectId;
 	bool		textAsAttribute; // show text a HREF attribute
 //	const float     magnification;	
 
-#include "drvfuncs.h"
+
+
 
 };
 #endif
 
+ 
+ 

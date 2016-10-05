@@ -1,0 +1,112 @@
+dnl Configure a Makefile for pstoedit
+dnl By Scott Pakin <pakin@uiuc.edu>
+
+dnl ------------------------------------------------------------------------
+dnl NOTE: I have tested this only on Linux/g++, Solaris/g++, and Solaris/CC,
+dnl       as those are all the systems I have access to.
+dnl ------------------------------------------------------------------------
+
+dnl Initialize Autoconf. 
+AC_INIT(../src/pstoedit.cpp)
+dnl AC_PREFIX_PROGRAM(gs)
+dnl wogl: commented out - this would lead to prefix=/usr/bin somehow - which doesn't make sense
+AC_CANONICAL_HOST
+AC_LANG_CPLUSPLUS
+
+dnl Check for various programs the Makefile needs.
+AC_PROG_AWK
+AC_PROG_CXX
+AC_PROG_INSTALL
+AC_PATH_PROG(GS,gs,gs)
+
+dnl Look for various optional libraries.
+AC_CHECK_LIB(dl,main,[LDL=-ldl],[LDL=])
+AC_SUBST(LDL)
+AC_CHECK_LIB(ming,main,[LMING=-lming],[LMING=])
+AC_SUBST(LMING)
+AC_CHECK_LIB(plotter,main,[LPLOTTER=-lplotter],[LPLOTTER=])
+AC_SUBST(LPLOTTER)
+
+dnl If plotter.h is found, use it.
+AC_CHECK_HEADER(plotter.h,[PLOTCOMPILEFLAGS="-DHAVE_LIBPLOTTER"],[PLOTCOMPILEFLAGS=""])
+dnl AC_SUBST(PLOTCOM)
+
+dnl See if we have a 2.3 or newer lib Plot version
+AC_MSG_CHECKING(for version of "lib plot" )
+AC_TRY_COMPILE( [#include <plotter.h>
+	 	 typedef int Point; ],[ ],
+               AC_MSG_RESULT(you seem to have a newer version ),
+               [PLOTCOMPILEFLAGS="$PLOTCOMPILEFLAGS -DOLD_LIBPLOTTER";
+AC_MSG_RESULT(you seem to have a older version )])
+AC_SUBST(PLOTCOMPILEFLAGS)
+
+dnl If mingpp.h is found, use it.
+AC_CHECK_HEADER(mingpp.h,[MINGCOMPILEFLAGS="-DHAVE_LIBMING"],[MINGCOMPILEFLAGS=""])
+AC_SUBST(MINGCOMPILEFLAGS)
+
+dnl If libEMF.h is found, use it.
+AC_CHECK_HEADER(libemf.h,[EMFCOMPILEFLAGS="drvwmf.o emflib.o"],[EMFCOMPILEFLAGS=""])
+AC_SUBST(EMFCOMPILEFLAGS)
+
+
+dnl See if we need to define a "bool" type.
+AC_MSG_CHECKING(for built-in "bool" datatype)
+AC_TRY_COMPILE(,[bool testing_bool; testing_bool=true;],
+               [CXXFLAGS="$CXXFLAGS -DINTERNALBOOL"; AC_MSG_RESULT(yes)],
+               [AC_MSG_RESULT(no)])
+
+dnl See if we have libpng and zlib
+AC_MSG_CHECKING(See if we have libpng and zlib)
+AC_TRY_COMPILE( [#include <png.h>
+	 	 int i = PNG_TRANSFORM_IDENTITY; ],[ ],
+               [PNGCOMPILEFLAGS="-DHAVE_LIBPNG"; PNGLINKFLAGS="-lpng -lz ";
+               AC_MSG_RESULT(you seem to have compatible version of libpng)], [
+AC_MSG_RESULT(you either have no libpng or an old version - 1.0.8 should be ok.)])
+AC_SUBST(PNGCOMPILEFLAGS)
+AC_SUBST(PNGLINKFLAGS)
+
+dnl Add extra, platform-specific, C++ compiler options.
+AC_MSG_CHECKING(C++ compiler model)
+LINK="$CXX $LDFLAGS"
+if test "$GXX" = yes; then
+  if test "$host_os" = riscos; then
+    AC_MSG_RESULT([GNU on RiscOS])
+    SPECIAL_CXXFLAGS="-Wall -Dunix -Ilibgpp: -Ilibstdc: -Ilibio:"
+    LDLIBS="-rescan libgpp:o.libg++ libstdc:o.libstdc++ libio:o.libiostrea gcc:o.libgcc Unix:o.UnixLib"
+    LINK=link
+  else
+    AC_MSG_RESULT([GNU])
+    SPECIAL_CXXFLAGS="-DBUGGYGPP -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes"
+  fi
+elif test `echo "$CXX" | egrep -c 'xlC$'` -eq 1; then
+  AC_MSG_RESULT([AIX xlC])
+  CXXFLAGS="-D__unix__ -g -+ -I/usr/lpp/xlC/src/nihC/aixinclude"  
+elif test `echo "$CXX" | egrep -c 'cxx$'` -eq 1; then
+  AC_MSG_RESULT([OSF/1 cxx])
+  SPECIAL_CXXFLAGS=-w
+  CXXFLAGS=-define_templates
+elif test `echo "$CXX" | egrep -c 'CC$'` -eq 1; then
+  if test "$host_os" = irix5.3; then
+    AC_MSG_RESULT([Irix 5.3])
+    SPECIAL_CXXFLAGS="-O2 -mips2 -Olimit 2400"
+  elif test "$host_os" = irix6.2; then
+    AC_MSG_RESULT([Irix 6.2])
+    SPECIAL_CXXFLAGS="-mips3 -n32 -O2 -OPT:fold_arith_limit=2500"
+  elif test "$host_vendor" = sun; then
+    AC_MSG_RESULT([Sun])
+    SPECIAL_CXXFLAGS="-w"
+  fi
+else
+  AC_MSG_RESULT(unknown)
+fi
+AC_ARG_ENABLE(wrapper,
+              [  --enable-wrapper=PROGRAM
+                          Wrap (i.e. prefix) compiler invocations with PROGRAM
+                          (e.g. \"insure\" or \"purify\")],
+              [CXX="$enableval $CXX"])
+AC_SUBST(SPECIAL_CXXFLAGS)
+AC_SUBST(LDLIBS)
+AC_SUBST(LINK)
+
+dnl Write the resulting Makefile.
+AC_OUTPUT(../src/Makefile)

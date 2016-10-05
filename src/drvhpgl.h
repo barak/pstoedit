@@ -26,7 +26,8 @@
 
 #include "drvbase.h"
 
-   class drvHPGL : public drvbase {
+
+class drvHPGL : public drvbase {
    
    public:
    
@@ -35,7 +36,22 @@
    ~drvHPGL(); // Destructor
    
    #include "drvfuncs.h"
+
+   private:
+		void print_coords();
+
+	   const char * fillinstruction;
+	   bool penplotter;
+	   //  Start DA hpgl color addition
+       unsigned int prevColor;
+       unsigned int maxPen;
+       unsigned int * penColors;	
+	   unsigned int maxPenColors; // = 16;
+       //  End DA hpgl color addition
    
-   };
+};
 
 #endif 
+ 
+ 
+ 

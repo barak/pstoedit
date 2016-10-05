@@ -34,6 +34,7 @@ public:
 #include "drvfuncs.h"
 
 private:
+	void print_coords();
 	float x_coord(float x, float y);
 	float y_coord(float x, float y);
 	void ps_begin();
@@ -51,4 +52,6 @@ private:
 };
 
 #endif
+ 
+ 
  

@@ -6,7 +6,7 @@
    Class declaration for a sample output driver with no additional attributes
    and methods (minimal interface)
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,8 +37,17 @@ public:
 
 #include "drvfuncs.h"
 
+public:
+
 	virtual void    show_image(const Image & imageinfo); 
+
+private:
+	void print_coords();
+	int	      imgcount;
 
 };
 
 #endif
+ 
+ 
+ 

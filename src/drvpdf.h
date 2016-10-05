@@ -5,7 +5,7 @@
    drvPDF.h : This file is part of pstoedit
    Backend for PDF format 
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,12 @@ private:
 	int	bb_llx,bb_lly,bb_urx,bb_ury;
 
 #include "drvfuncs.h"
+private:
+
+	void print_coords();
 
 };
 #endif
 
+ 
+ 

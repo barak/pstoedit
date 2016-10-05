@@ -13,28 +13,32 @@ AWK=gawk
 
 # uncommment one of the following CCC lines for Un*x like systems
 # For users of GNU g++
-CCC=g++ -DBUGGYGPP -O2 -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes 
+GNUGPPFLAGS=-DBUGGYGPP -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes 
+#CCC=g++ -O2 $(GNUGPPFLAGS)
 # For debugging
-#CCC=g++ -DBUGGYGPP -g -ansi -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes 
+#CCC=g++ -g $(GNUGPPFLAGS)
+
 # For users of DJGPP
 #CCC=gxx -DBUGGYGPP  
+
 # For Sun's SparcCompiler or any C++ Compiler called via CC
 #CCC=CC +w 
 # SparcCompiler with source browsing option and debug support
 # CCC=CC-4.2 -xsb +w -g
+
 # For CenterLine (You may need to change clCC to CC)
 #CCC=clCC +w -ptv 
 
 # if you want to test pstoedit using insure (www.parasoft.com)
 #CCC=insure CC +w 
-#CCC=insure g++ -pedantic -Wall  -Wwrite-strings -Wcast-qual -g
+#CCC=insure g++ -g $(GNUGPPFLAGS)
 
 # rest of flags for Un*x systems
 LINK=$(CCC) $(LDFLAGS)
 CCFLAGS=-DDEFAULTGS=gs $(CXXFLAGS) 
 
 # with shared libs LDFLAGS=-lm -ldl (Solaris, Linux, ???)
-LDLIBS= $(LOCALLIBS) -lm  -ldl
+#LDLIBS= $(LOCALLIBS) -lm  -ldl
 # without shared libs use LDFLAGS=-lm 
 #LDLIBS=-lm
 
@@ -52,6 +56,25 @@ target=pstoedit
 #LOCALDEFINES = -DHAVE_LIBPLOTTER -DOLD_LIBPLOTTER -I/path/to/plotter.h
 # use -DOLD_LIBPLOTTER for libplot older than 2.3
 #LOCALLIBS = -lplotter 
+#############################################################
+
+# uncomment for Cygwin / Win32
+# WARNING: -ansi compiler option does not work (for CygWin B20)!
+GNUGPPFLAGS=-DBUGGYGPP -pedantic -Wall -Wwrite-strings -Wcast-qual -Wpointer-arith -Wstrict-prototypes
+# For the release
+#CCC=g++ -O2 $(GNUGPPFLAGS)
+# For debugging
+CCC=g++ -g $(GNUGPPFLAGS)
+CCFLAGS=-DDEFAULTGS=gswin32
+OBJEXT=o
+EXEEXT=.exe
+OUTPUT=-o pstoedit.exe
+SPECIFICDRIVERS=drvwmf.$(OBJEXT)
+MAIN=cmdmain
+target=pstoedit.exe
+LOCALDEFINES=-DHAVESTL -I. -I../othersrc/gsdllinc
+LDLIBS=-luser32 -lgdi32
+LINK=g++
 #############################################################
 
 ## IRIX 5.3
@@ -195,11 +218,13 @@ STANDARDDRIVERS=\
 	drvrpl.$(OBJEXT)  \
 	drvdxf.$(OBJEXT)  \
 	drvjava.$(OBJEXT) \
+	drvjava2.$(OBJEXT) \
 	drvlplot.$(OBJEXT) \
 	drvpdf.$(OBJEXT)  \
 	drvkillu.$(OBJEXT) \
 	drvsk.$(OBJEXT) \
 	drvmpost.$(OBJEXT) \
+	drvlatex2e.$(OBJEXT) \
 	drvpic.$(OBJEXT) \
 	drvhpgl.$(OBJEXT) \
 	drvtk.$(OBJEXT)
@@ -210,7 +235,7 @@ STANDARDDRIVERS=\
 SAMPLEDRIVER=drvsampl.$(OBJEXT) 
 
 DRIVERS=$(STANDARDDRIVERS) $(LOCALDRIVERS) $(SAMPLEDRIVER) $(SPECIFICDRIVERS)
-OBJECTS=dynload.$(OBJEXT) callgs.$(OBJEXT) $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) lexyy.$(OBJEXT) miscutil.$(OBJEXT) cbstream.$(OBJEXT) drvbase.$(OBJEXT) subpath.$(OBJEXT) $(DRIVERS)
+OBJECTS=dynload.$(OBJEXT) callgs.$(OBJEXT) $(MAIN).$(OBJEXT) pstoedit.$(OBJEXT) lexyy.$(OBJEXT) miscutil.$(OBJEXT) cbstream.$(OBJEXT) image.$(OBJEXT) drvbase.$(OBJEXT) subpath.$(OBJEXT) $(DRIVERS)
 
 # this does not work with GNU make
 #OBJECTS:sh =ls drv*.c | sed 's/\.c/\.$(OBJEXT)/'
@@ -297,6 +322,7 @@ install: pstoedit ../doc/pstoedit.1
 		$(INSTALL_DIR) $(prefix)/lib; \
 	fi
 	$(INSTALL_DATA) ../misc/mpost.fmp  $(prefix)/lib
+	$(INSTALL_DATA) ../misc/latex2e.fmp  $(prefix)/lib
 	if [ ! -d $(MANDIR) ] ; then \
 		$(INSTALL_DIR) $(MANDIR); \
 	fi
@@ -365,8 +391,11 @@ cdlib.$(OBJEXT): cdlib.cpp
 drvmdraw.$(OBJEXT): drvmdraw.cpp drvbase.h drvmdraw.h drvfuncs.h image.h drvmdraw.ph
 drvsampl.$(OBJEXT): drvsampl.cpp drvbase.h drvsampl.h drvfuncs.h image.h
 drvjava.$(OBJEXT): drvjava.cpp drvbase.h drvjava.h drvfuncs.h image.h
+drvjava2.$(OBJEXT): drvjava2.cpp drvbase.h drvjava2.h drvfuncs.h image.h
 drvwmf.$(OBJEXT): drvwmf.cpp drvbase.h drvwmf.h drvfuncs.h image.h
 pstoedit.ph: # dummy for RiscOS GNU make's screwed dependencies
+ 
+ 
  
  
  

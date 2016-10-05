@@ -5,7 +5,7 @@
    callbackBuffer : This file is part of pstoedit
    streambuf that writes the data to a user defineable call back function
 
-   Copyright (C) 1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1998 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,9 @@ The GNU C++ Iostream Library
 
 */
 
+#ifndef cppcomp_h
 #include "cppcomp.h"
+#endif
 
 #include I_iostream
 #include I_string_h
@@ -41,11 +43,12 @@ USESTD
 #if !defined(HAVESTL) && !defined(__GNUG__)
 // this should be defined for all ANSI compilers in iostream
 // but this is also already defined in old GNU compilers
-typedef long streamsize;
+typedef int streamsize; // oder long ?? MSVC likes int
 #endif
 
 typedef int (write_callback_type) (void * cb_data, const char* text, unsigned long length);
 
+//lint !e1712 // no default ctor
 class callbackBuffer : public streambuf {
 public:
 	callbackBuffer(void * cb_data_p, write_callback_type* wcb) : 
@@ -68,3 +71,5 @@ private:
 };
 
 #endif
+ 
+ 

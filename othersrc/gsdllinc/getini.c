@@ -1,6 +1,7 @@
 /* Copyright (C) 1998, Russell Lang.  All rights reserved.
   
 	Find the path to the gsview32.ini. Special version for pstoedit.
+	Merged w/ finder for gvpm.ini (OS/2).
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,6 +18,8 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
+
+#ifndef __OS2__
 
 #ifndef _WIN32
 #include <dirent.h>
@@ -119,3 +122,57 @@ static void getini(int verbose,ostream & errstream, char* szIniFile,const char *
 #endif
 	strcat(szIniFile, INIFILEname);
 }
+
+#else /*OS/2*/
+
+static void getini(int verbose,ostream & errstream, char* szIniFile,
+		   const char *INIFILEname, unsigned int sizeofIniFile)
+  /* get path to INI FILE */
+{
+  char *tail, *env;
+  FILESTATUS3  fsts3ConfigInfo = {{0}};
+  ULONG        ulBufSize     = sizeof(FILESTATUS3);
+  ULONG         inSysDir       = 0;
+  APIRET        rc;
+      
+  /* first, look in SYSTEM_INI dir */
+  if ((env = getenv("SYSTEM_INI")) != (char *)NULL) { 
+    strcpy(szIniFile, env);
+    inSysDir=1;
+    if ((tail = strrchr(szIniFile,'\\')) != (PCHAR)NULL) {
+      tail++;
+      *tail = '\0';
+    }
+  }
+  if (inSysDir) {
+    strcat(szIniFile, INIFILEname);
+    rc = DosQueryPathInfo((PSZ)szIniFile, FIL_STANDARD, &fsts3ConfigInfo, ulBufSize);
+    if (rc != 0)  inSysDir=0;
+  }
+
+  /* second, look in the dir of the executable */
+  if (!inSysDir)
+    {
+      PTIB pptib;
+      PPIB pppib;
+      char szExePath[CCHMAXPATH];
+      if ( DosGetInfoBlocks(&pptib, &pppib) == 0 ) 
+	/* get path to EXE */
+	if ( DosQueryModuleName(pppib->pib_hmte, sizeof(szExePath), szExePath) == 0 ) 
+	  {
+	    if ((tail = strrchr(szExePath,'\\')) != (PCHAR)NULL) {
+	      tail++;
+	      *tail = '\0';
+	    }
+	    strcpy(szIniFile, szExePath);
+	    strcat(szIniFile, INIFILEname);
+	    rc = DosQueryPathInfo((PSZ)szIniFile, FIL_STANDARD, &fsts3ConfigInfo, ulBufSize);
+	    if (rc != 0)
+	      strcpy(szIniFile, INIFILEname);
+	  }
+	else
+	  strcpy(szIniFile, INIFILEname);
+    }
+}
+
+#endif

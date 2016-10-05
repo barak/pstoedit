@@ -3,9 +3,10 @@
 /*
    drvMET.c : This file is part of pstoedit
    Backend for OS/2 Meta Files.
-   Contributed by : Christoph Jaeschke (jaeschke@imbe05.imbe.uni-bremen.de)
+   Contributed by : Christoph Jaeschke (JAESCHKE@de.ibm.com)
+   Modified by : Thomas Hoffmann (thoffman@zappa.sax.de)
 
-   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 
 #define INCL_WIN
 #define INCL_DOSMEMMGR
-#define INCL_WINDIALOGS
+// #define INCL_WINDIALOGS
 #define INCL_DOS
 #define INCL_DEV
 #define INCL_GPILCIDS           // Fonts
@@ -34,6 +35,7 @@
 #define INCL_GPIPATHS
 #define INCL_GPIPOLYGON
 #define INCL_GPIMETAFILES
+#define INCL_GPIBITMAPS
 #include <os2.h>
 
 #include "drvbase.h"
@@ -41,17 +43,6 @@
 class INTFONTMAP; // Just a simple forward
 
 #define maxMapEntries 255
-#define MSGBOXID    1001
-#define ID_WINDOW   256
-#define ID_COMMAND1  257
-
-#ifndef __GNUG__
-extern "OPTLINK" {
-#endif
-void OS2WIN_WM_COMMAND_THREAD(void *);
-#ifndef __GNUG__
-}
-#endif
 
 // GNU OS/2 headers looks like a bit different, so...
 
@@ -63,31 +54,6 @@ void OS2WIN_WM_COMMAND_THREAD(void *);
 #define PCXCHAR const char*
 #endif
 
-MRESULT EXPENTRY PS2MET_WinProc( HWND, ULONG, MPARAM, MPARAM);
-
-class OS2WIN {
-public:
-	OS2WIN();
-	~OS2WIN();
-	void run();
-	void abort(HWND, HWND);
-};
-
-struct DRVMETSETUP {
-	long exit;
-	long info;
-	long draw_noPath;
-	long draw_noColor;
-	long draw_target;
-	enum targetType {to_META, to_WINDOW};
-	long draw_noFill;
-	long draw_noText;
-	long draw_noGraphic;
-	char *pMetaFileName;
-	DRVMETSETUP(char*);
-};
-
-extern DRVMETSETUP *pDrvMETsetup;
 extern int yylex(drvbase*);
 
 class drvMET : public drvbase {
@@ -108,11 +74,25 @@ private:
 	long palStart;
 	long get_print_coords(POINTL aptlPoints[], LONG aIsLineTo[]); 
 	void drawPoly(int cntPoints, PPOINTL aptlPoints, PLONG aIsLineTo, int closed);
+	long exit;
+	long draw_noPath;
+	long draw_noColor;
+	long draw_noFill;
+	long draw_noText;
+	long draw_noGraphic;
+
+	long maxX, maxY;
+	long minX, minY;
+	long maxStatus, minStatus;
+
 
 public:
+	long info;
 	derivedConstructor(drvMET);
 	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream );
 	~drvMET();
+
+	virtual void show_image(const Image & imageinfo); 
 
 	long palEntry(float, float, float);
 	long searchPalEntry(long);
@@ -121,6 +101,12 @@ public:
 
 	inline int transX(float k) { return (int)((k + x_offset)*scale);};
 	inline int transY(float k) { return (int)((k + y_offset)*scale);};
+
+        //overwrite the upside-down transformation from the base class
+	inline long l_transY			(float y) const	{
+		return (long)((y + y_offset) + .5);	// rounded long	
+	}
+
 
 #include "drvfuncs.h"
 
@@ -147,11 +133,14 @@ class INTFONTMAP {
 	char* scanEnv(char*, char*);
 	void readFontmap();
 	void addEntry(char *pLine);
-	ostream *pOutf;
+	//	ostream *pOutf;
 public:
-	INTFONTMAP(ostream*);
+	//	INTFONTMAP(ostream*);
+	INTFONTMAP();
 	~INTFONTMAP();
 	const char* searchMapEntry(const char*);
 };
 
-#endif
+#endif 
+ 
+ 

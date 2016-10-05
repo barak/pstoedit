@@ -9,7 +9,7 @@
    For documentation, see drvplot.cpp.
 
    Written by Robert S. Maier <rsm@math.arizona.edu> and Wolfgang Glunz
-   <wglunz@geocities.com>.
+   <wglunz@pstoedit.net>.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,14 +39,19 @@ class drvplot : public drvbase
   virtual void show_image (const Image& imageinfo); 
   
 private:
+	void print_coords();
   class Plotter *plotter;	// either declared in plotter.h, or faked
   bool physical_page;		// can map PS onto a page of specified size?
   int page_type;		// if so, one of PAGE_{ANSI_A,ISO_A4...}
 
   void set_line_style (void);
   void set_filling_and_edging_style (void);
-  void close_output_file_and_reopen_in_binary_mode (void);
+  bool close_output_file_and_reopen_in_binary_mode (void);
+  
+  NOCOPYANDASSIGN(drvplot)
 };
 
 #endif
+ 
+ 
  

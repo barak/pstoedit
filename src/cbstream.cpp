@@ -3,7 +3,7 @@
    callbackBuffer : This file is part of pstoedit
    streambuf that writes the data to a user defineable call back function
 
-   Copyright (C) 1998 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1998 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,8 +29,9 @@ The GNU C++ Iostream Library
 
 */
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__OS2__)
 // this code is only needed under WIN32
+// ...and under OS/2
 
 #include "cppcomp.h"
 
@@ -39,83 +40,86 @@ The GNU C++ Iostream Library
 
 int callbackBuffer::underflow(void)
 {
-	const char message[]= "unexpected call to callbackbuf::underflow()\n";
-	write_to_callback(message,strlen(message));
+	const char message[] = "unexpected call to callbackbuf::underflow()\n";
+	(void) write_to_callback(message, strlen(message));
 	return 0;
 }
 
-write_callback_type * callbackBuffer::set_callback(void * cb_data_p,write_callback_type* new_cb) 
-{ 
-	write_callback_type * old_cb = write_callback;
+write_callback_type *callbackBuffer::set_callback(void *cb_data_p, write_callback_type * new_cb)
+{
+	write_callback_type *old_cb = write_callback;
 	write_callback = new_cb;
 	cb_data = cb_data_p;
 	return old_cb;
-}	
+}
 
-int callbackBuffer::write_to_callback(const char* text, unsigned long length)
+int callbackBuffer::write_to_callback(const char *text, unsigned long length)
 {
 	if (write_callback) {
-		return (*write_callback)(cb_data,text,length);
+		return (*write_callback) (cb_data, text, length);
 	} else {
 		return 0;
 	}
 }
 
 int callbackBuffer::sync()
-{ 
+{
 	streamsize n = pptr() - pbase();
 	return (n && write_to_callback(pbase(), (unsigned int) n) != n) ? EOF : 0;
 }
 
-int callbackBuffer::overflow (int ch)
-{ 
+int callbackBuffer::overflow(int ch)
+{
 	streamsize n = pptr() - pbase();
 	if (n && sync())
 		return EOF;
 	if (ch != EOF) {
-      		char cbuf[1];
-      		cbuf[0] = ch;
-		if (write_to_callback(cbuf, 1) != 1) return EOF;
-    	}
-	pbump(-n);  // Reset pptr().
+		char cbuf[1];
+		cbuf[0] = (char) ch;
+		if (write_to_callback(cbuf, 1) != 1)
+			return EOF;
+	}
+	pbump(-n);					// Reset pptr().
 	return 0;
 }
 
-streamsize callbackBuffer::xsputn (const char* text, streamsize n)
-{ 
-	return sync() == EOF ? 0 : write_to_callback(text, (unsigned int) n); 
+streamsize callbackBuffer::xsputn(const char *text, streamsize n)
+{
+	return sync() == EOF ? 0 : write_to_callback(text, (unsigned int) n);
 }
 
 
 // #define TEST
 #ifdef TEST
 
-int write_callback_test (void * cb_data, const char* text, unsigned int length)
+int write_callback_test(void *cb_data, const char *text, unsigned int length)
 /* Returns number of characters successfully written  */
 {
-//	cout << "@@@@" << length << endl;
+//  cout << "@@@@" << length << endl;
 	unsigned int count = length;
-	while(count) {
+	while (count) {
 		cout << *text;
-		text++; count--;
+		text++;
+		count--;
 	}
 	return length;
 }
 
 
-int main (int argc, char**argv)
+int main(int argc, char **argv)
 {
 
-  callbackBuffer wbuf(0,write_callback_test);
+	callbackBuffer wbuf(0, write_callback_test);
 
 //  ostream wstr(&wbuf);
-  cerr = &wbuf;
-  cerr << "Hello world!\n" << endl;
-  wbuf.set_callback(0,0);
-  cerr << "Hello world!\n";
-  return 0;
+	cerr = &wbuf;
+	cerr << "Hello world!\n" << endl;
+	wbuf.set_callback(0, 0);
+	cerr << "Hello world!\n";
+	return 0;
 }
 
-#endif 
+#endif
 
 #endif
+ 
