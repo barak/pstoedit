@@ -3,7 +3,7 @@
    Backend for MetaPost files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@geocities.com
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,13 +21,13 @@
 
 */
 #ifdef _MSC_VER
-#define _POSIX_					// for MSVC and limits.h
+// #define _POSIX_					// for MSVC and limits.h
 #endif
 
 #include "drvmpost.h"
 
 
-#include I_fstream
+// #include I_fstream
 #include I_stdio
 #include I_stdlib
 
@@ -56,7 +56,7 @@ constructBase,
 	outf << "% Converted from PostScript(TM) to MetaPost by pstoedit\n"
 		<<
 		"% MetaPost backend contributed by Scott Pakin <pakin@uiuc.edu>\n"
-		<< "% pstoedit is Copyright (C) 1993 - 2001 Wolfgang Glunz" <<
+		<< "% pstoedit is Copyright (C) 1993 - 2003 Wolfgang Glunz" <<
 		" <wglunz@pstoedit.net>\n\n";
 
 	/*
@@ -252,7 +252,7 @@ void drvMPOST::show_text(const TextInfo & textinfo)
 			outf << "shortchar := char(24);" << endl;	// Cedilla in TeX land
 			texshortchar = 1;
 		}
-		if (verbose && thisFontName != prevFontName)
+		if (Verbose() && thisFontName != prevFontName)
 			errf << "nameless font (" << thisFontName << "?) -- "
 				<< "assuming TeX character set" << endl;
 	} else if (texshortchar) {
@@ -279,7 +279,7 @@ void drvMPOST::show_text(const TextInfo & textinfo)
 				<< "/fontsize defaultfont;" << endl;
 			prevFontSize = textinfo.currentFontSize;
 		} else {
-			if (verbose)
+			if (Verbose())
 				errf << "warning: font size of " << textinfo.
 					currentFontSize << "pt encountered; ignoring" << endl;
 			outf << "%defaultscale := " << textinfo.
@@ -383,7 +383,7 @@ void drvMPOST::show_path()
 				sprintf(temptext, " dashed dashpattern(on %lubp off %lubp)", lengthOn, lengthOff);
 			prevDashPattern = temptext;
 		} else {
-			if (verbose)
+			if (Verbose())
 				cerr << "Dash pattern \"" << currentDashPattern <<
 					"\" is too complex;\n" << "using a generic pattern instead" << endl;
 			prevDashPattern = " dashed evenly";
@@ -391,7 +391,7 @@ void drvMPOST::show_path()
 	}
 
 	// Determine the fill mode
-	if (verbose && currentShowType() == drvbase::eofill)
+	if (Verbose() && currentShowType() == drvbase::eofill)
 		errf << "MetaPost does not support eofill; using fill instead" << endl;
 	fillmode = (currentShowType() == drvbase::eofill || currentShowType() == drvbase::fill);
 	if (!fillmode && currentShowType() != drvbase::stroke) {
@@ -402,11 +402,6 @@ void drvMPOST::show_path()
 	// Draw the path
 	print_coords();
 };
-
-void drvMPOST::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	show_path();
-}
 
 static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost Format", "mp", true,	// if backend supports subpathes, else 0
 											   // if subpathes are supported, the backend must deal with
@@ -424,8 +419,7 @@ static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost Format", "mp",
 											   true,	// if backend supports curves, else 0
 											   false,	// if backend supports elements with fill and edges
 											   true,	// if backend supports text, else 0
-											   false,	// if backend supports Images
-											   false,	// no support for PNG file images
+											   DriverDescription::noimage,	// no support for PNG file images
 											   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 											   false, /*clipping */ 
 											   nodriverspecificoptions);

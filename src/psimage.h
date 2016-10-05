@@ -1,9 +1,9 @@
-#ifndef __image_h
-#define __image_h
+#ifndef __psimage_h
+#define __psimage_h
 /*
-   image.h : This file is part of pstoedit.
+   psimage.h : This file is part of pstoedit.
   
-   Copyright (C) 1997 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1997 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 enum ImageType { colorimage, normalimage, imagemask }; 
 	// maybe do subclassing later
 
-class DLLEXPORT Image
+class DLLEXPORT PSImage
 {
 public:
 	ImageType	type;	// the image type
@@ -37,19 +37,19 @@ public:
 	unsigned char * data;   	// the array of values
 	unsigned int nextfreedataitem;  // the current write index into the data array
 	bool isFileImage; // true for PNG file images (Q: is this orthogonal to ImageType ? - I guess yes)
-	RSString pngFileName; // for PNG file images
+	RSString FileName; // for PNG file images
 
-	Image(): type(colorimage),height(0),width(0),bits(0),ncomp(0),
-		polarity(true),data(0),nextfreedataitem(0),isFileImage(false),pngFileName("") 
+	PSImage(): type(colorimage),height(0),width(0),bits(0),ncomp(0),
+		polarity(true),data(0),nextfreedataitem(0),isFileImage(false),FileName("") 
 		{ 
 			for (int i = 0; i < 6 ; i++) 
 				imageMatrix[i] = normalizedImageCurrentMatrix[i] = 0.0f;
 		}
-	~Image() { delete [] data; data = 0; nextfreedataitem = 0;}
+	~PSImage() { delete [] data; data = 0; nextfreedataitem = 0;}
 	void writeEPSImage(ostream & outi) const;
 	void writeIdrawImage(ostream & outi, float scalefactor) const;
-	void writePNGImage(const char * pngFileName, const char * source, const char * title, const char * generator) const;
-	static bool PNGSupported();
+//obsolete	void writePNGImage(const char * pngFileName, const char * source, const char * title, const char * generator) const;
+//obsolete	static bool PNGSupported();
 	void getBoundingBox(Point & ll_p, Point & ur_p) const
 		{ ll_p = ll; ur_p = ur; }
 	void calculateBoundingBox();
@@ -62,7 +62,7 @@ private:
 	Point ll;
 	Point ur;
 
-	NOCOPYANDASSIGN(Image)
+	NOCOPYANDASSIGN(PSImage)
 };
 
 #endif

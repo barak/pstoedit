@@ -1,7 +1,0 @@
--c++
--kr
--ts4
--nfca
--nfc1
---line-length100
---honour-newlines

@@ -3,7 +3,7 @@
    Skeleton for the implementation of text based backends
    for example this could be extended towards an HTML backend.
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ constructBase, charpage(0), dumptextpieces(false), pageheight(200), pagewidth(12
 
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);
-		if (verbose)
+		if (Verbose())
 			errf << "% " << d_argv[i] << endl;
 		if (strcmp(d_argv[i], "-dump") == 0) {
 			dumptextpieces = true;
@@ -196,15 +196,8 @@ void drvTEXT::show_path()
 {
 }
 
-void drvTEXT::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-}
 
-void drvTEXT::show_image(const Image & imageinfo)
+void drvTEXT::show_image(const PSImage & imageinfo)
 {
 	unused(&imageinfo);
 }
@@ -225,8 +218,7 @@ static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ",
 											 false,	// if backend supports curves, else 0
 											 false,	// if backend supports elements with fill and edges
 											 true,	// if backend supports text, else 0
-											 false,	// if backend supports Images
-											 false,	// no support for PNG file images
+											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 											 false,	/*clipping */
 											 driveroptions);

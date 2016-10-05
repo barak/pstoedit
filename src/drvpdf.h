@@ -5,7 +5,7 @@
    drvPDF.h : This file is part of pstoedit
    Backend for PDF format 
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ class drvPDF : public drvbase {
 public:
 
 	derivedConstructor(drvPDF);
-	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
 	~drvPDF(); // Destructor
 	virtual const char * const *    knownFontNames() const ;
 private:
@@ -53,6 +52,7 @@ private:
 private:
 
 	void print_coords();
+	void show_text(const TextInfo & textInfo);
 
 };
 #endif

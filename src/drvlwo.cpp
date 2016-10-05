@@ -7,7 +7,7 @@
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -171,27 +171,11 @@ void drvLWO::close_page()
 	//  outf << "Closing page: " << (currentPageNumber) << endl;
 }
 
-void drvLWO::show_text(const TextInfo & textinfo)
-{
-	unused(&textinfo);
-	// Must use the -dt flag for this, since RenderMan doesn't support text
-}
-
 void drvLWO::show_path()
 {
 	print_coords();
 };
 
-void drvLWO::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ")" << endl;
-	// just do show_path for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
-}
 
 static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D Object Format", "lwo", false,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
@@ -209,8 +193,7 @@ static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D Object Format", 
 										   false,	// if backend supports curves, else 0
 										   false,	// if backend supports elements with fill and edges
 										   false,	// backend supports text
-										   false,	// backend supports images
-										   false,	// no support for PNG file images
+										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::binaryopen, false,	// backend supports multiple pages
 										   false, /*clipping */ 
 										   nodriverspecificoptions

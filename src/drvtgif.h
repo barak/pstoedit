@@ -5,7 +5,7 @@
    drvTGIF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@ public:
 	~drvTGIF(); // Destructor
 
 #include "drvfuncs.h"
+	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+	void show_text(const TextInfo & textInfo);
 
 private:
 	void print_coords();

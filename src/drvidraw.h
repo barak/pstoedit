@@ -6,7 +6,7 @@
    Backend for idraw files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public:
 
   ~drvIDRAW(); // Destructor
 
-void show_image(const Image & imageinfo);
+void show_image(const PSImage & imageinfo);
 
 private:
 	void print_coords();
@@ -65,6 +65,7 @@ private:
 
 
 #include "drvfuncs.h"
+	   void show_text(const TextInfo & textInfo);
 
 	
 };

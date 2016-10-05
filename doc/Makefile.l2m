@@ -13,7 +13,7 @@ LATEX2MAN_FLAGS = -t pstoedit.trans
 .SUFFIXES : .htm .1 .tex .ps .info .texi .txt 
 
 all : $(BASE).1 $(BASE).htm $(BASE).txt # $(BASE).ps $(BASE).pdf $(BASE).info 
-	$(MAKE) clean
+	$(MAKE) -f Makefile.l2m clean
 
 %.dvi : %.tex
 	latex $<

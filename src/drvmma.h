@@ -8,7 +8,7 @@
    $Id: drvmma.h,v 1.2 2001/02/27 19:47:50 manfred Exp $
    Based on drvsampl.h
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
                              Manfred Thole, manfred@thole.org
 
     This program is free software; you can redistribute it and/or modify
@@ -39,6 +39,7 @@ public:
 	~drvMMA(); // Destructor
 
 #include "drvfuncs.h"
+	void show_text(const TextInfo & textInfo);
 
  private:
 	 void print_coords();

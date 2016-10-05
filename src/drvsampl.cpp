@@ -2,7 +2,7 @@
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -172,12 +172,30 @@ void drvSAMPL::show_rectangle(const float llx, const float lly, const float urx,
 // just do show_path for a first guess
 	show_path();
 }
-void drvSAMPL::show_image(const Image & imageinfo)
+void drvSAMPL::show_image(const PSImage & imageinfo)
 {
 	if (outDirName == NIL || outBaseName == NIL) {
 		errf << "images cannot be handled via standard output. Use an output file" << endl;
 		return;
 	}
+	if (imageinfo.isFileImage) {
+		outf << "<image "		 
+			<< " transform=\"matrix("
+			<< imageinfo.normalizedImageCurrentMatrix[0] << ' '
+			<< -imageinfo.normalizedImageCurrentMatrix[1] << ' '
+			<< imageinfo.normalizedImageCurrentMatrix[2] << ' '
+			<< -imageinfo.normalizedImageCurrentMatrix[3] << ' '
+// transfer
+			<< imageinfo.normalizedImageCurrentMatrix[4] << ' '
+			<< currentDeviceHeight - imageinfo.normalizedImageCurrentMatrix[5]
+			<< ")\"" 
+			<< " width=\"" << imageinfo.width << "\"" 
+			<< " height=\"" << imageinfo.height << "\"" 
+			<< " xlink:href=\"" << imageinfo.FileName << "\"></image>" << endl;
+
+	} else {
+		assert (0 && "should not happen since drivers supports PNG file images");
+#if 0
 	char *PNGoutFullFileName = new char[strlen(outDirName) + strlen(outBaseName) + 21];
 	sprintf(PNGoutFullFileName, "%s%s%02d.png", outDirName, outBaseName, imgcount++);
 
@@ -192,6 +210,7 @@ void drvSAMPL::show_image(const Image & imageinfo)
 
 	delete[]title;
 	delete[]PNGoutFullFileName;
+
 
 	outf << "Image:\n";
 	outf << "\ttype: ";
@@ -235,6 +254,9 @@ void drvSAMPL::show_image(const Image & imageinfo)
 		}
 	}
 	outf << endl;
+
+#endif
+	}
 }
 
 static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you don't want to see this, uncomment the corresponding line in makefile and make again", "sam", true,	// backend supports subpathes
@@ -253,8 +275,7 @@ static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you 
 											   true,	// backend supports curves
 											   true,	// backend supports elements which are filled and have edges
 											   true,	// backend supports text
-											   true,	// backend supports Images
-											   false,	// no support for PNG file images
+											   DriverDescription::png,	// support for PNG file images
 											   DriverDescription::normalopen, true,	// if format supports multiple pages in one file
 											   true, /*clipping */ 
 											   driveroptions);

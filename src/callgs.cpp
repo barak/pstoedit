@@ -2,7 +2,7 @@
    callgs.cpp : This file is part of pstoedit
    interface to GhostScript
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    
    Proposal for a "cleaned up" version: removed (IMHO) dead/old code,
    e.g., WIN32 is "dll only" now, because gs32 comes w/DLL 
@@ -78,6 +78,10 @@ char *createCmdLine(int argc, const char *const argv[])
 
 #include "dwmainc.c"
 
+#if defined(_WIN32)
+#include "gvwgsver.c"			// ONLY WINDOWS
+#endif
+
 #undef main
 
 #define WITHGETINI
@@ -136,14 +140,17 @@ const char *whichPI(ostream & errstream, int verbose)
 	static const char *const defaultgs = "";
 #endif
 	const char *gstocall;
+
 #if defined (_WIN32)
+
+
 	RSString gstocallfromregistry = getRegistryValue(errstream, "common", "gstocall");
 	if (gstocallfromregistry.value() != 0) {
 		if (verbose)
 			errstream << "found value in registry" << endl;
 		static char buffer[2000];
-		strcpy(buffer, gstocallfromregistry.value() );
-	//	delete[]gstocallfromregistry;
+		strcpy(buffer, gstocallfromregistry.value());
+		//  delete[]gstocallfromregistry;
 		gstocall = buffer;
 	} else {
 		if (verbose)
@@ -182,28 +189,39 @@ const char *whichPI(ostream & errstream, int verbose)
 //      if (verbose) errstream<< "nothing found so far, trying getenv GS " << endl;
 //      gstocall = getenv("GS");
 //      if (gstocall == 0) {
-			if (verbose)
-				errstream << "nothing found so far, trying default " << endl;
-			if (strlen(defaultgs) > 0) {
-				gstocall = defaultgs;
+
+			static char buf[256];
+			if (find_gs(buf, sizeof(buf), 550, TRUE)) {
+				if (verbose) {
+					dumpgsvers();
+					errstream << "Latest GS DLL is " << buf << endl;
+				}
+				gstocall = buf;
 			} else {
-				errstream <<
-					"Fatal: don't know which interpreter to call. " <<
-					"Either enter gstocall into the registry " <<
-					"or compile again with -DDEFAULTGS=..." << endl;
-				gstocall = 0;
+				if (verbose)
+					errstream << "find_gs couldn't find GS in registry" << endl;
+				if (verbose)
+					errstream << "nothing found so far, trying default " << endl;
+				if (strlen(defaultgs) > 0) {
+					gstocall = defaultgs;
+				} else {
+					errstream <<
+						"Fatal: don't know which interpreter to call. " <<
+						"Either enter gstocall into the registry " <<
+						"or compile again with -DDEFAULTGS=..." << endl;
+					gstocall = 0;
+				}
 			}
 //      }
 		}
 	}
 #elif defined (__OS2__)
-	char *gstocallfromregistry = getRegistryValue(errstream, "common", "gstocall");
-	if (gstocallfromregistry != 0) {
+	RSString gstocallfromregistry = getRegistryValue(errstream, "common", "gstocall");
+	if (gstocallfromregistry.value() != 0) {
 		if (verbose)
 			errstream << "found value in pstoedit.ini" << endl;
 		static char buffer[2000];
-		strcpy(buffer, gstocallfromregistry);
-		delete[]gstocallfromregistry;
+		strcpy(buffer, gstocallfromregistry.value());
 		gstocall = buffer;
 	} else {
 		if (verbose)
@@ -294,23 +312,130 @@ const char *whichPI(ostream & errstream, int verbose)
 	return gstocall;
 }
 
+
+#if defined(_WIN32)
+static const char *getOSspecificOptions(int verbose, ostream & errstream, char *buffer)
+{
+	const char *PIOptions = 0;
+	if (verbose)
+		errstream << "didn't find value in registry, trying gsview32.ini" << endl;
+	// try gsview32.ini
+	const char inifilename[] = "gsview32.ini";
+#ifdef WITHGETINI
+	char fullinifilename[1000];
+	getini(verbose, errstream, fullinifilename, inifilename, sizeof(fullinifilename));
+#else
+	const char *fullinifilename = inifilename;
+#endif
+	if (verbose)
+		errstream << "looking in " << fullinifilename << endl;
+	DWORD result = GetPrivateProfileString("Options",
+										   "GhostscriptInclude",
+										   "",	//default
+										   buffer,
+										   1000,
+										   fullinifilename);
+	if (result > 0) {			//2.
+		if (verbose) {
+			errstream << "found value in ";
+			if (strcmp(inifilename, fullinifilename) == 0) {
+				char sysdir[2000];
+				sysdir[0] = '\0';
+				UINT ret = GetWindowsDirectory(sysdir, 2000);
+				if (ret)
+					errstream << sysdir << '\\';
+			}
+			errstream << fullinifilename << endl;
+		}
+		PIOptions = buffer;
+	} else {
+		// 3.
+		static char buf[500];
+		const unsigned int gsver = get_latest_gs_version();
+		if (gsver) {
+			get_gs_string(gsver, "GS_LIB", buf, sizeof(buf));
+			if (verbose) {
+				errstream << "found GS_LIB as " << buf << " from latest version of gs" << endl;
+			}
+			PIOptions = buf;
+		}
+
+	}
+	return PIOptions;
+}
+
+static const char * const lookupplace = "registry";
+
+#elif defined(__OS2__)
+static const char *getOSspecificOptions(int verbose, ostream & errstream, char *buffer)
+{
+	const char *PIOptions = 0;
+	if (verbose)
+		errstream << "didn't find value in pstoedit.ini, trying gvpm.ini" << endl;
+	// try gvpm.ini
+	const char inifilename[] = "gvpm.ini";
+	char fullinifilename[1000];
+	getini(verbose, errstream, fullinifilename, inifilename, sizeof(fullinifilename));
+	if (verbose)
+		errstream << "looking in " << fullinifilename << endl;
+	ifstream regfile(fullinifilename);
+	int result = 0;
+	if (regfile) {
+		char line[1000];
+		while (!regfile.eof() && !result) {
+			regfile.getline(line, 1000);
+			if (strstr(line, "[Options]"))
+				do {
+					regfile.getline(line, 1000);
+					if (strstr(line, "GhostscriptInclude=")) {
+						strcpy(buffer, line + strlen("GhostscriptInclude="));
+						char *cr = strrchr(buffer, '\r');
+						if (cr)
+							*cr = 0;
+						result = 1;
+						break;
+					}
+				}
+				while (!regfile.eof() && !strchr(line, '['));
+		}
+	}
+	if (result > 0) {			//2.
+		if (verbose) {
+			errstream << "found value in " << fullinifilename << endl;
+		}
+		PIOptions = buffer;
+	}
+	return PIOptions;
+
+}
+static const char * const lookupplace = "pstoedit.ini";
+#else
+static const char *getOSspecificOptions(int verbose, ostream & errstream, char *buffer)
+{
+	return 0;
+}
+static const char * const lookupplace = "registry";
+#endif
+
+
 const char *defaultPIoptions(ostream & errstream, int verbose)
 {
-  // returns default options to be passed to the Postscript Interpreter
-  // WIN32:
-  // 1. look in the registry
-  // 2. look into gsview32.ini
-  // 3. look in the environment for the value of GS_LIB
-  // 4. look for the compiled-in GS_LIB
-  // OS/2:
-  // 1. look in the native profile pstoedit.ini
-  // 2. look into gvpm.ini
-  // 3. look in the environment for the value of GS_LIB
-  // 4. look for the compiled-in GS_LIB
-  // else (i.e. UNIX):
-  // 1. look in the "registry" ($(HOME)/.pstoedit.reg)
-  // 2. look in the environment for the value of GS_LIB
-  // 3. look for the compiled-in GS_LIB
+	// returns default options to be passed to the Postscript Interpreter
+	// WIN32:
+	// 1. look in the registry
+	// 2. look into gsview32.ini
+	// 3. look for latest version of ghostscript in registry
+	// 4. look in the environment for the value of GS_LIB
+	// 5. look for the compiled-in GS_LIB
+	// OS/2:
+	// 1. look in the native profile pstoedit.ini
+	// 2. look into gvpm.ini
+	// 3. look in the environment for the value of GS_LIB
+	// 4. look for the compiled-in GS_LIB
+	// else (i.e. UNIX):
+	// 1. look in the "registry" ($(HOME)/.pstoedit.reg)
+	// 2. look in the environment for the value of GS_LIB
+	// 3. look for the compiled-in GS_LIB
 
 #ifdef GS_LIB
 	static const char *const defaultPIOptions = xstr(GS_LIB);
@@ -319,113 +444,38 @@ const char *defaultPIoptions(ostream & errstream, int verbose)
 #endif
 	static char buffer[2000];
 	const char *PIOptions;
-#if defined (__OS2__)
 	if (verbose)
-		errstream << "first trying pstoedit.ini for common/GS_LIB" << endl;
-#else
-	if (verbose)
-		errstream << "first trying registry for common/GS_LIB" << endl;
-#endif
-  // try first registry/ini value, then GS_LIB and at last the default
-		RSString PIOptionsfromregistry = getRegistryValue(errstream, "common", "GS_LIB");
-  if (PIOptionsfromregistry.value() != 0) { // 1.
-#if defined (__OS2__)
+		errstream << "first trying " << lookupplace << " for common/GS_LIB" << endl;
+
+	// try first registry/ini value, then GS_LIB and at last the default
+	RSString PIOptionsfromregistry = getRegistryValue(errstream, "common", "GS_LIB");
+	if (PIOptionsfromregistry.value() != 0) {	// 1.
+		if (verbose)
+			errstream << "found value in " << lookupplace << endl;
+		strcpy(buffer, PIOptionsfromregistry.value());
+		// delete[]PIOptionsfromregistry;
+		PIOptions = buffer;
+	} else {					//2.-4.
+
+		PIOptions = getOSspecificOptions(verbose, errstream, buffer);
+
+		if (PIOptions == NULL) {	//3.
 			if (verbose)
-				errstream << "found value in pstoedit.ini" << endl;
-#else
-			if (verbose)
-				errstream << "found value in registry" << endl;
-#endif
-			strcpy(buffer, PIOptionsfromregistry.value() );
-			// delete[]PIOptionsfromregistry;
-			PIOptions = buffer;
-  } else  { //2.-4.
-#if defined(_WIN32)
-			if (verbose)
-				errstream << "didn't find value in registry, trying gsview32.ini" << endl;
-			// try gsview32.ini
-			const char inifilename[] = "gsview32.ini";
-#ifdef WITHGETINI
-			char fullinifilename[1000];
-			getini(verbose, errstream, fullinifilename, inifilename, sizeof(fullinifilename));
-#else
-			const char *fullinifilename = inifilename;
-#endif
-			if (verbose) 
-				errstream << "looking in " << fullinifilename << endl;
-			DWORD result = GetPrivateProfileString("Options",
-												   "GhostscriptInclude",
-												   "",	//default
-												   buffer,
-												   1000,
-												   fullinifilename);
-    if (result > 0) { //2.
-				if (verbose) {
-					errstream << "found value in ";
-					if (strcmp(inifilename, fullinifilename) == 0) {
-						char sysdir[2000];
-						sysdir[0] = '\0';
-						UINT ret = GetWindowsDirectory(sysdir, 2000);
-						if (ret)
-							errstream << sysdir << '\\';
-					}
-					errstream << fullinifilename << endl;
-				}
-				PIOptions = buffer;
-			} else
-#elif defined(__OS2__)
-			if (verbose)
-				errstream << "didn't find value in pstoedit.ini, trying gvpm.ini" << endl;
-			// try gvpm.ini
-			const char inifilename[] = "gvpm.ini";
-			char fullinifilename[1000];
-			getini(verbose, errstream, fullinifilename, inifilename, sizeof(fullinifilename));
-			if (verbose)
-				errstream << "looking in " << fullinifilename << endl;
-			ifstream regfile(fullinifilename);
-			int result = 0;
-			if (regfile) {
-				char line[1000];
-				while (!regfile.eof() && !result) {
-					regfile.getline(line, 1000);
-					if (strstr(line, "[Options]"))
-						do {
-							regfile.getline(line, 1000);
-							if (strstr(line, "GhostscriptInclude=")) {
-								strcpy(buffer, line + strlen("GhostscriptInclude="));
-								char *cr = strrchr(buffer, '\r');
-								if (cr)
-									*cr = 0;
-								result = 1;
-								break;
-							}
-						}
-						while (!regfile.eof() && !strchr(line, '['));
-				}
-			}
-    if (result > 0) { //2.
-				if (verbose) {
-					errstream << "found value in " << fullinifilename << endl;
-				}
-				PIOptions = buffer;
-			} else
-#endif
-      { //3.
-	if (verbose)
-	  errstream << "now trying GS_LIB " << endl;
-	PIOptions = getenv("GS_LIB");
-	if (PIOptions==NULL) { //4.
+				errstream << "still not found an entry - now trying GS_LIB " << endl;
+			PIOptions = getenv("GS_LIB");
+			if (PIOptions == NULL) {	//4.
 				if (verbose)
 					errstream << "nothing found so far, trying default " << endl;
-	  if (strlen(defaultPIOptions) > 0) 
+				if (strlen(defaultPIOptions) > 0)
 					PIOptions = defaultPIOptions;
-	  else 
+				else
 					PIOptions = 0;
-	} else
-		if (verbose)
-			errstream << "GS_LIB is set to:" << PIOptions << endl;
+			} else {
+				if (verbose)
+					errstream << "GS_LIB is set to:" << PIOptions << endl;
+			}
+		}
 	}
-  }
 
 	if (PIOptions && (PIOptions[0] != '-') && (PIOptions[1] != 'I')) {
 		static char returnbuffer[2000];

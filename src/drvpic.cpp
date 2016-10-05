@@ -105,11 +105,11 @@ troff_mode(0), landscape(0), keep_font(0), text_as_text(0), debug(0)
 	largest_y = 0.0;
 
 	if (d_argc > 0) {
-		if (verbose)
+		if (Verbose())
 			errf << ".\\\" Driver options:" << endl;
 		for (unsigned int i = 0; i < d_argc; i++) {
 			assert(d_argv && d_argv[i]);
-			if (verbose)
+			if (Verbose())
 				errf << ".\\\" " << d_argv[i] << endl;
 			if (strcmp(d_argv[i], "-groff") == 0) {
 				troff_mode = 0;
@@ -427,18 +427,6 @@ void drvPIC::show_path()
 	print_coords();
 };
 
-void drvPIC::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// BUG: not tested, does not happen...
-	if (debug) {
-		outf << ".\\\" box with .sw at ( " << llx << "," << lly << ") "
-			"width " << urx << " height " << ury << endl;
-	}
-	// BUG: just do show_path for a first guess
-	show_path();
-}
-
-
 static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.", "pic", true,	// backend supports subpathes
 										   // if subpathes are supported, the backend must deal with
 										   // sequences of the following form
@@ -455,8 +443,7 @@ static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.",
 										   USE_SPLINE,	// backend supports curves
 										   true,	// backend supports elements which are filled and have edges 
 										   true,	// backend supports text
-										   false,	// backend supports Images
-										   false,	// no support for PNG file images
+										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, true,	// if format supports multiple pages in one file (wogl? ? ?)
 										   false ,/*clipping */
 										   nodriverspecificoptions);

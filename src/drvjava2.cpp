@@ -2,7 +2,7 @@
    drvJAVA2.cpp : This file is part of pstoedit
    backend to generate a Java(TM) 2 applet -- test version
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    Copyright (C) 2000 TapirSoft Gisbert & Harald Selke GbR, gisbert@tapirsoft.de
 
     This program is free software; you can redistribute it and/or modify
@@ -342,7 +342,7 @@ void drvJAVA2::show_rectangle(const float llx, const float lly, const float urx,
 }
 
 
-void drvJAVA2::show_image(const Image & imageinfo)
+void drvJAVA2::show_image(const PSImage & imageinfo)
 {
 	if (outDirName == NIL || outBaseName == NIL) {
 		errf << "images cannot be handled via standard output. Use an output file" << endl;
@@ -419,8 +419,7 @@ static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "j
 											   true,	// backend supports curves
 											   false,	// backend does not support elements with both fill and edges
 											   true,	// backend supports text
-											   true,	// backend supports Images
-											   false,	// no support for PNG file images
+											   DriverDescription::memoryeps,	// no support for PNG file images
 											   DriverDescription::normalopen, true,	// format supports multiple pages in one file
 											   false /*clipping */, driveroptions );
  

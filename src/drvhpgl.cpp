@@ -2,7 +2,7 @@
    drvHPGL.cpp : This file is part of pstoedit
    HPGL / HPGL2 Device driver
 
-   Copyright (C) 1993 - 2001 Peter Katzmann p.katzmann@thiesen.com
+   Copyright (C) 1993 - 2003 Peter Katzmann p.katzmann@thiesen.com
    Copyright (C) 2000  Katzmann & Glunz (fill stuff)
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ constructBase, fillinstruction("FT1"), penplotter(false),
 
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);	//lint !e796
-		if (verbose)
+		if (Verbose())
 			outf << "% " << d_argv[i] << endl;
 		if (strcmp(d_argv[i], "-pen") == 0) {
 			penplotter = true;
@@ -193,12 +193,6 @@ void drvHPGL::close_page()
 	outf << "PU;SP;EC;PG1;EC1;OE\n";
 }
 
-void drvHPGL::show_text(const TextInfo & textinfo)
-{
-	unused(&textinfo);
-	// outf << "textttt " << textinfo.thetext.value() << endl;
-}
-
 void drvHPGL::show_path()
 {
 	//  Start DA hpgl color addition
@@ -285,15 +279,6 @@ void drvHPGL::show_path()
 	}
 }
 
-void drvHPGL::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	// just do show_path for a first guess
-	show_path();
-}
 
 static DriverDescriptionT < drvHPGL > D_hpgl("hpgl", "HPGL code", "hpgl", false,	// backend supports subpathes
 											 // if subpathes are supported, the backend must deal with
@@ -311,8 +296,7 @@ static DriverDescriptionT < drvHPGL > D_hpgl("hpgl", "HPGL code", "hpgl", false,
 											 false,	// backend supports curves
 											 false,	// backend supports elements which are filled and have edges
 											 false,	// backend supports text
-											 false,	// backend supports Images
-											 false,	// no support for PNG file images
+											 DriverDescription::noimage,	// no support for PNG file images
 											 DriverDescription::normalopen, false,	// backend support multiple pages
 											 false /*clipping */, driveroptions );
  

@@ -2,7 +2,7 @@
    drvFIG.cpp : This file is part of pstoedit
    Based on the skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,6 +42,9 @@
  December 2000
  Use quintic interpolated X-Splines Ian MacPhedran
  December 2000
+ Fix for font scaling - Thanks to Robert K. Nelson - Ian MacPhedran
+ April 2002
+
 */
 
 #include "drvfig.h"
@@ -120,6 +123,8 @@ static void dumpnewcolors(ostream & theoutStream)
 
 static const OptionDescription driveroptions[] = {
 	OptionDescription("-startdepth","number","Set the initial depth (default 999)"),
+	OptionDescription("-metric","","Switch to centimeter display (default inches)"),
+	OptionDescription("-use_correct_font_size","","don't scale fonts for xfig. Use this if you also use this option with xfig"),
 	OptionDescription("-depth","number","Set the page depth in inches"),
 	endofoptions};
 
@@ -129,6 +134,7 @@ buffer(tempFile.asOutput()),
 imgcount(1),
 format(32),
 startdepth(999),
+use_correct_font_size(false),
 glob_min_x(0), glob_max_x(0), glob_min_y(0), glob_max_y(0),
 loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bbox_flag(0)
 {
@@ -136,10 +142,11 @@ loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bb
 	float depth_in_inches = 11;
 	bool show_usage_line = false;
 	const char *paper_size = NULL;
+	const char *units = "Inches";
 
 	for (unsigned int i = 0; i < d_argc; i++) {
 		assert(d_argv && d_argv[i]);	//lint !e796 !e1776
-		if (verbose)
+		if (Verbose())
 			outf << "% " << d_argv[i] << endl;
 		if (strcmp(d_argv[i], "-startdepth") == 0) {
 			i++;
@@ -161,9 +168,12 @@ loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bb
 				assert(d_argv && d_argv[i]);	//lint !e796 !e1776
 				depth_in_inches = (float) atof(d_argv[i]);
 			}
+		} else if (strcmp(d_argv[i], "-metric") == 0) {
+			units = "Metric";
 		} else if (strcmp(d_argv[i], "-help") == 0) {
 			errf << "-help    Show this message" << endl;
 			errf << "-depth # Set the page depth in inches" << endl;
+			errf << "-metric # Set display to use centimeters" << endl;
 			errf << "-startdepth # Set the initial depth (default 999)" << endl;
 			show_usage_line = true;
 		} else {
@@ -200,7 +210,7 @@ loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bb
 	// only after processing the full input
 
 	// print the header part
-	outf << "#FIG 3.2\nPortrait\nFlush left\nInches\n" << paper_size <<
+	outf << "#FIG 3.2\nPortrait\nFlush left\n" << units << "\n" << paper_size <<
 		"\n100.00\nSingle\n0\n1200 2\n";
 }
 
@@ -601,7 +611,11 @@ void drvFIG::show_text(const TextInfo & textinfo)
 	if (localFontSize <= 0.1) {
 		localFontSize = 9;
 	}
-	localFontSize++;			// There appears to be a reduction for some reason
+	if (!use_correct_font_size) {
+		// formerly xfig used scaled font sizes and not the X11 font sizes
+		localFontSize = (((float)localFontSize * 80.0f) / 72.0f) + 0.5f; 
+	}
+
 	const float FigHeight = PntFig * localFontSize;
 	const float FigLength = FigHeight * strlen(textinfo.thetext.value());
 	const float PSHeight = localFontSize;
@@ -732,17 +746,8 @@ void drvFIG::show_path()
 	}
 }
 
-void drvFIG::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// just do show_polyline for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
-}
 
-void drvFIG::show_image(const Image & imageinfo)
+void drvFIG::show_image(const PSImage & imageinfo)
 {
 	if (outDirName == NULL || outBaseName == NULL) {
 		errf << "images cannot be handled via standard output. Use an output file " << endl;
@@ -794,11 +799,11 @@ void drvFIG::show_image(const Image & imageinfo)
 }
 
 
-static DriverDescriptionT < drvFIG > D_fig("fig", ".fig format for xfig", "fig", false, true, true, true, true, false,	// no support for PNG file images
+static DriverDescriptionT < drvFIG > D_fig("fig", ".fig format for xfig", "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
 										   DriverDescription::normalopen,
 										   false, false /*clipping */ ,driveroptions);
 
-static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "fig", false, true, true, true, true, false,	// no support for PNG file images
+static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
 											DriverDescription::normalopen,
 											false, false /*clipping */ ,driveroptions);
  

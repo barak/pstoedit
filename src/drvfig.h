@@ -5,7 +5,7 @@
    drvFIG.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,8 +41,10 @@ private:
 	int	      imgcount;
 	int	      format; // either 31 or something else
 	int	      startdepth; // Start depth for objectID (range 0 - 999)
+	bool	  use_correct_font_size; // if xfig is used in -use_correct_font_size mode as well
 
 #include "drvfuncs.h"
+	void show_text(const TextInfo & textInfo);
 
 	unsigned int nrOfCurvetos() const;
 	void print_polyline_coords();
@@ -60,7 +62,7 @@ private:
    int glo_bbox_flag ,loc_bbox_flag ;
 
 public:
-   void show_image(const Image & imageinfo);
+   void show_image(const PSImage & imageinfo);
 };
 #endif
 

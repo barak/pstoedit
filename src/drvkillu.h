@@ -5,7 +5,7 @@
    drvsampl.h : This file is part of pstoedit
    Class declaration for a Kontour output driver.
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
    Copyright (C) 1998 Kai-Uwe Sattler, kus@iti.cs.uni-magdeburg.de
 
    This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,8 @@ private:
   static int cvtColor (float c);
 
 #include "drvfuncs.h"
+  void show_text(const TextInfo & textInfo);
+  void show_rectangle(const float llx, const float lly, const float urx, const float ury);
 private:
 	void print_coords();
 };

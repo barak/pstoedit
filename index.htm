@@ -3,13 +3,13 @@
 <head>
 <meta http-equiv="Content-Type"
 content="text/html; charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
 <title>pstoedit</title>
 </head>
 
 <body>
 
-<h1>pstoedit 3.31</h1>
+<h1>pstoedit 3.33</h1>
 
 <p>pstoedit translates PostScript and PDF graphics into other
 vector formats. Currently pstoedit can generate the following
@@ -40,15 +40,16 @@ formats: </p>
     <li>LaTeX2e picture</li>
     <li>Kontour</li>
     <li>GNU Metafile (plotutils / libplot)</li>
-    <li>Sketch&nbsp; ( <a href="http://sketch.sourceforge.net">http://sketch.sourceforge.net</a>
+    <li>Sketch ( <a href="http://sketch.sourceforge.net">http://sketch.sourceforge.net</a>
         )</li>
     <li>Mathematica</li>
+    <li>via ImageMagick to any format supported by ImageMagick</li>
     <li>SWF (beta release state - still lot's of features missing
         (fonts, dash handling, ...)</li>
 </ul>
 
 <p>The following formats are available as additional plugins on a
-shareware basis. See <a href="http://www.pstoedit.net/plugins/">http://www.pstoedit.net/plugins/</a>
+shareware basis. See <a href="../plugins/">http://www.pstoedit.net/plugins/</a>
 for more details. </p>
 
 <ul>
@@ -60,8 +61,8 @@ for more details. </p>
         for more details.</li>
     <li>Better Enhanced Windows Meta Files (EMF) (supports curves
         and compound pathes and does more accurate text
-        formatting) (Windows 9x/NT only)</li>
-    <li>RTF (MS Word) (Windows 9x/NT only)</li>
+        formatting) (Windows 9x/NT/2K/XP only)</li>
+    <li>RTF (MS Word) (Windows 9x/NT/2K/XP only)</li>
 </ul>
 
 <p>Implementing support for other formats should be very easy.
@@ -72,7 +73,7 @@ This framework can be used independently from the PostScript
 frontend from any other program. The framework provides a uniform
 interface to all different backends. You need a C++ compiler to
 compile and GhostScript to run pstoedit. pstoedit should run on
-all Un*x like systems and has also been ported to OS/2, Windows 9x/NT,
+all Un*x like systems and has also been ported to OS/2, Windows 9x/NT/2K/XP,
 and RiscOS. </p>
 
 <p>Since version 3.00 it is possible to add new drivers without
@@ -82,40 +83,35 @@ drivers as plugins.</p>
 <p>You can download pstoedit: </p>
 
 <ul>
-    <li><a
-        href="http://www.pstoedit.net/pstoedit/pstoedit_3_30.zip">source
-        code</a> </li>
-    <li><a
-        href="http://www.pstoedit.net/pstoedit/pstoedit_win.zip">binary
-        for Windows 9x/NT</a></li>
-    <li><a href="http://www.pstoedit.net/plugins/">additional
-        plugins</a></li>
-    <li><a
-        href="http://www.pstoedit.net/plugins/pstoedit_bin_solaris.zip">binary
-        for Solaris</a> (including the MIF, CGM and SVG plugin) </li>
-    <li><a
-        href="http://www.pstoedit.net/plugins/pstoedit_bin_linux.zip">binary
-        for Linux</a> (including the MIF, CGM and SVG plugin) </li>
-    <li><a href="http://www.pstoedit.net/importps/">a version of
-        pstoedit that can be used as graphic import filter for MS-Office
-        95/97, Paint Shop Pro, or Photoline</a></li>
+    <li><a href="pstoedit-3.33.tar.gz">source code</a> </li>
+    <li><a href="pstoeditsetup.exe">binary for Windows 9x/2K/NT/XP</a></li>
+    <li><a href="../plugins/index.htm">additional plugins</a></li>
+    <li>V 3.31 only so far : <a href="../v331/plugins/pstoedit_bin_solaris.zip">binary for
+        Solaris</a> (including the MIF, CGM and SVG plugin) </li>
+    <li><a href="pstoedit_linux_bin.tgz">binary for Linux compiled with g++3.2</a>.&nbsp; You should untar 
+    the tar files in /usr/local. </li>
+    <li>V 3.31 only so far : <a href="../v331/pstoedit/pstoedit_os2.zip">binary for OS/2
+    </a>(compiled
+        by Thomas Hoffmann) </li>
+    <li><a href="../importps/index.htm">a version of pstoedit that can be
+        used as graphic import filter for MS-Office 95/97/2K/XP, Paint
+        Shop Pro, or Photoline</a></li>
 </ul>
+
+<p>In case of download problems, visit this page via the <a
+href="http://home.t-online.de/home/helga.glunz/wglunz/pstoedit/">alternate
+URL</a>. </p>
 
 <p>pstoedit can also be used from within <a
 href="http://www.cs.wisc.edu/~ghost/gsview/">gsview</a>. </p>
 
-<p><b>Please note: gsview 2.70 is not compatible with this
-version of pstoedit. You need a newer version of gsview. All
-versions above 3 should be OK. The setup of gsview already
-includes a recent version of pstoedit. If you want to use the
-latest version instead, install the content of the </b><a
-href="http://www.pstoedit.net/pstoedit/pstoedit_win.zip"><b>Windows
-binaries for pstoedit</b></a><b> into the pstoedit directory that
-is in parallel to the gsview directory where gsview is installed.
-Usually this is something like C:\Ghostgum\gsview. So pstoedit
-would go to C:\Ghostgum\pstoedit. </b></p>
+<p><b>
+If you want to use pstoedit in combination with gsview, install pstoedit
+into the pstoedit directory that is in parallel to the gsview
+directory where gsview is installed. Usually this is something
+like C:\Program Files\Ghostgum\gsview. So pstoedit would go to C:\Program Files\Ghostgum\pstoedit. </b></p>
 
-<p><strong>For the&nbsp; ps2ai backend, you first need to install
+<p><strong>For the ps2ai backend, you first need to install
 a simple patch to ps2ai.ps in your gs directory if your version
 of GhostScript is older than 5.60. See </strong><a
 href="pstoedit.htm">the manual</a><strong> for more details.</strong></p>
@@ -131,9 +127,12 @@ href="pstoedit.htm">the manual</a><strong> for more details.</strong></p>
 <p>pstoedit also cooperates with autotrace. Autotrace can produce
 a dump file for further processing by pstoedit using the -bo (backend
 only) option. Autotrace is a program written by a group around
-Martin Weber and can be found at&nbsp; <a
+Martin Weber and can be found at <a
 href="http://sourceforge.net/projects/autotrace/">http://sourceforge.net/projects/autotrace/</a>
 </p>
+
+<p>Some links more or less related to pstoedit can be found
+<a href="related.htm">here</a>.</p>
 
 <hr>
 
@@ -158,16 +157,17 @@ don't like this policy, don't subscribe.</p>
         <tr>
             <td><input type="text" size="21" name="emailaddr"
             value="enter e-mail"> </td>
-            <td><input type="image"
+            <td>
+            <input type="image"
             name="Click here to join pstoedit" src="bevel.gif"
             alt="Click here to join pstoedit" align="bottom"
             border="0" width="88" height="31"> </td>
         </tr>
         <tr>
-            <td><a href="http://www.eGroups.com/list/pstoedit/">pstoedit
+            <td><a href="http://groups.yahoo.com/group/pstoedit/">pstoedit
             archive</a> </td>
-            <td><font size="2"><z112>Hosted by</z> </font><a
-            href="http://www.eGroups.com/"><font size="2">eGroups.com</font></a>
+            <td><font size="2"><z112>Hosted by</z>
+            <a href="http://groups.yahoo.com/">Yahoo! Groups</a></font>
             </td>
         </tr>
     </table>
@@ -179,5 +179,4 @@ don't like this policy, don't subscribe.</p>
     Wolfgang Glunz email: <a href="mailto:wglunz@pstoedit.net">wglunz@pstoedit.net</a>
 </address>
 </body>
-</html>
- 
+</html> 

@@ -34,7 +34,8 @@
 
 #else
 
-#include <libemf.h>
+// use Allen Barnett's libemf
+#include <emf.h>
 
 #endif
 
@@ -50,8 +51,10 @@ public:
 	~drvWMF();						// Destructor
 
 #include "drvfuncs.h"
+	void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+	void show_text(const TextInfo & textInfo);
 
-	virtual void show_image(const Image & imageinfo); 
+	virtual void show_image(const PSImage & imageinfo); 
 
 private:
 
@@ -95,12 +98,14 @@ private:
 	bool			emulateNarrowFonts;	
 	bool			drawBoundingBox;
 	bool			pruneLineEnds;
-	char*			tempName;
+	RSString		tempName;
 	FILE*			outFile;	
+	bool			narrowbox;
 };
 
 #endif /* #ifndef __drvwmf_h__ */
  
  
 
+ 
  

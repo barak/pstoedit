@@ -2,7 +2,7 @@
    drvbase.cpp : This file is part of pstoedit
    Basic, driver independent output routines
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -84,7 +84,8 @@ drvbase::drvbase(const char *driveroptions_p, ostream & theoutStream,
 				 const char *nameOfInputFile_p,
 				 const char *nameOfOutputFile_p,
 				 const float scalefactor,
-				 const RSString & pagesize, const DriverDescription * Pdriverdesc_p)
+				 const PsToEditOptions & globaloptions_p, 
+				 const DriverDescription * Pdriverdesc_p)
 :								// constructor
 Pdriverdesc(Pdriverdesc_p), simulateSubPaths(false),
 //  totalNumberOfPages(0),
@@ -93,7 +94,7 @@ Pdriverdesc(Pdriverdesc_p), simulateSubPaths(false),
 errf(theerrStream),
 inFileName(nameOfInputFile_p),
 outFileName(nameOfOutputFile_p), 
-outDirName(0), outBaseName(0), d_argc(0), d_argv(0), scale(scalefactor), outputPageSize(pagesize),
+outDirName(0), outBaseName(0), d_argc(0), d_argv(0), scale(scalefactor), globaloptions(globaloptions_p),
 	// set some common defaults
 	currentDeviceHeight(792.0f * scale),
 currentDeviceWidth(640.0f * scale),
@@ -119,17 +120,17 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(1), drivero
 		outBaseName = new char[strlen(nameOfOutputFile_p) + 1];
 		splitFullFileName(nameOfOutputFile_p, outDirName, outBaseName, NIL);
 		if (verbose) {
-			errf << " nameofOutputFile:" << nameOfOutputFile_p;
-			errf << " outDirName:" << outDirName;
-			errf << " outBaseName:" << outBaseName;
-			errf << endl;
+			errf << "nameofOutputFile:'" << nameOfOutputFile_p;
+			errf << "' outDirName:" << outDirName;
+			errf << "' outBaseName:" << outBaseName;
+			errf << "'" << endl;
 		}
 	}
 	// preparse driveroptions and build d_argc and d_argv
 	if (driveroptions_p) {
 		driveroptions = cppstrdup(driveroptions_p);
-
-		istrstream optstream(driveroptions, strlen(driveroptions));
+		//C_istrstream optstream(driveroptions, strlen(driveroptions));
+		C_istrstream optstream(driveroptions); //, strlen(driveroptions));
 		const long startOfStream = optstream.tellg();
 		char currentarg[100];
 		// first count number of arguments
@@ -215,6 +216,7 @@ drvbase::~drvbase()
 	//lint -esym(1540,drvbase::currentSaveLevel)
 }
 
+const RSString & drvbase::getPageSize() const { return globaloptions.outputPageSize(); }
 
 const BBox & drvbase::getCurrentBBox() const
 {
@@ -324,7 +326,7 @@ bool basedrawingelement::operator == (const basedrawingelement & bd2) const
 	return 1;
 }
 
-static bool textIsWorthToPrint(const char *thetext)
+bool drvbase::textIsWorthToPrint(const char *thetext) const
 {
 	// check whether it contains just blanks. This makes
 	// problems, e.g. with the xfig backend.
@@ -337,6 +339,32 @@ static bool textIsWorthToPrint(const char *thetext)
 		}
 	}
 	return false;
+}
+
+void    drvbase::show_text(const TextInfo & textinfo) 
+{
+		unused(&textinfo);
+		if (Pdriverdesc->backendSupportsText) {
+			errf << " Backends that support text need to define a show_text method " <<endl;
+		}
+		// in case backendSupportsText is false, the frontend already flattens text (usually)
+		// Must use the -dt flag for this, since RenderMan doesn't support text
+}
+
+void drvbase::show_rectangle(
+				       const float llx,
+				       const float lly,
+				       const float urx,
+				       const float ury) 
+	// writes a rectangle at points (llx,lly) (urx,ury)
+{
+	// outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ")" << endl;
+	// just do show_path for a first guess
+		unused(&llx);
+		unused(&lly);
+		unused(&urx);
+		unused(&ury);
+		show_path(); // default - just write the rect as an ordinary polygon
 }
 
 void drvbase::dumpText(const char *const thetext, const float x, const float y)
@@ -703,6 +731,39 @@ void drvbase::dumpRearrangedPathes()
 	outputPath->numberOfElementsInPath = origCount;
 	outputPath->subpathoffset = 0;
 }
+
+bool drvbase::close_output_file_and_reopen_in_binary_mode()
+{
+	if (Verbose()) cerr << "begin close_output_file_and_reopen_in_binary_mode" << endl;
+
+	if (outFileName.value() || (&outf != &cout) )
+		// output is to a file, and outf is not cout
+	{
+	 	ofstream *outputFilePtr = (ofstream *) (& outf);
+//		ofstream *outputFilePtr = dynamic_cast<ofstream *> (& outf);
+
+		//dbg cerr << "outputfileptr = " << (void*) outputFilePtr << " outf " << (void*) (&outf)<< endl;
+
+		outputFilePtr->close();
+		if (Verbose()) cerr << "after close " << endl;
+#if (defined(unix) || defined(__unix__) || defined(_unix) || defined(__unix) || defined(__EMX__) || defined (NetBSD)  ) && !defined(DJGPP)
+		// binary is not available on UNIX, only on PC
+		outputFilePtr->open(outFileName.value(), ios::out);
+#else
+		// use redundant ios::out because of bug in djgpp
+		outputFilePtr->open(outFileName.value(), ios::out | ios::binary);
+		
+#endif
+		if (Verbose()) cerr << "after open " << endl;
+		return 1;
+	} else {
+		cerr << "Error: This driver cannot write to stdout since it writes binary data " << endl;
+		return 0;
+	}
+	return 0; // not reached - but to make some compilers happy
+}
+
+
 
 void drvbase::beginClipPath()
 {
@@ -1128,10 +1189,10 @@ void DescriptionRegister::registerDriver(DriverDescription * xp)
 		if (strcmp(rp[i]->symbolicname, xp->symbolicname) == 0) {
 			// duplicate found
 			if (xp->checkfunc && xp->checkfunc() && !(rp[i]->checkfunc())) {
-				// the new one has a license, so use it
+				// the new one has a license, so use this instead
 				rp[i] = xp;
-				return;
 			}
+			return; // just use the first version - except for the above case.
 		}
 	}
 	rp[ind] = xp;
@@ -1146,7 +1207,11 @@ extern "C" DLLEXPORT DescriptionRegister * getglobalRp()
 	return &DescriptionRegister::getInstance();
 }
 
+#ifdef  BUGGYGPP
+Point Point::transform(const float * matrix) const
+#else
 Point Point::transform(const float matrix[6]) const
+#endif
 {
 	const float tx = matrix[0] * x_ + matrix[2] * y_ + matrix[4];
 	const float ty = matrix[1] * x_ + matrix[3] * y_ + matrix[5];
@@ -1163,23 +1228,26 @@ DriverDescription::DriverDescription(	const char *const s_name,
 										const bool backendSupportsCurveto_p, 
 										const bool backendSupportsMerging_p,	// merge a separate outline and filling of a polygon -> 1. element
 										const bool backendSupportsText_p, 
-										const bool backendSupportsImages_p,	// supports bitmap images
-										const bool backendSupportsPNGFileImages_p, 
+										const imageformat backendDesiredImageFormat_p, 
 										const opentype backendFileOpenType_p, 
 										const bool backendSupportsMultiplePages_p, 
 										const bool backendSupportsClipping_p, 
 										const OptionDescription* optionDescription_p, 
+										const bool nativedriver_p,
 										checkfuncptr checkfunc_p):
 symbolicname(s_name), explanation(expl), suffix(suffix_p), additionalInfo((checkfunc_p != 0) ? (checkfunc_p()? "" : "(license key needed, see pstoedit manual)") : ""), backendSupportsSubPathes(backendSupportsSubPathes_p), backendSupportsCurveto(backendSupportsCurveto_p), backendSupportsMerging(backendSupportsMerging_p),	// merge a separate outline and filling of a polygon -> 1. element
-	backendSupportsText(backendSupportsText_p), backendSupportsImages(backendSupportsImages_p),	// supports bitmap images
-	backendSupportsPNGFileImages(backendSupportsPNGFileImages_p),
+	backendSupportsText(backendSupportsText_p), 
+	backendDesiredImageFormat(backendDesiredImageFormat_p),
 backendFileOpenType(backendFileOpenType_p),
 backendSupportsMultiplePages(backendSupportsMultiplePages_p),
 backendSupportsClipping(backendSupportsClipping_p), 
 optionDescription(optionDescription_p),
+nativedriver(nativedriver_p),
 filename(DriverDescription::currentfilename), checkfunc(checkfunc_p)
 {
-	DescriptionRegister::getInstance().registerDriver(this);
+	DescriptionRegister & registry = DescriptionRegister::getInstance();
+//dbg	cout << "registering driver " << s_name << "\t at registry " << (void*) &registry << endl;
+	registry.registerDriver(this);
 }
 
 #if 0
@@ -1188,7 +1256,7 @@ drvbase *DriverDescription::
 CreateBackend(const char *const driveroptions_P, ostream & theoutStream,
 			  ostream & theerrStream, const char *const nameOfInputFile,
 			  const char *const nameOfOutputFile, const float scalefactor,
-			  const RSString & pagesize) const
+			  const PsToEditOptions & globaloptions) const
 {
 	unused(driveroptions_P);
 	unused(&theoutStream);
@@ -1196,7 +1264,7 @@ CreateBackend(const char *const driveroptions_P, ostream & theoutStream,
 	unused(nameOfInputFile);
 	unused(nameOfOutputFile);
 	unused(&scalefactor);
-	unused(&pagesize);
+	unused(&globaloptions);
 	return 0;
 }
 #endif
@@ -1266,4 +1334,6 @@ FontMapper& drvbase::theFontMapper() {
 
 bool drvbase::verbose = false; // offensichtlich kann man keine initialisierten Daten DLLEXPORTieren
 bool drvbase::Verbose() { return verbose; }
+void drvbase::SetVerbose(bool param) { verbose = param; }
+ 
  

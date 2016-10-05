@@ -1,7 +1,7 @@
 /*
-   image.cpp : This file is part of pstoedit.
+   psimage.cpp : This file is part of pstoedit.
   
-   Copyright (C) 1997- 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1997- 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
    Support for Image::writeIdrawImage by Scott Johnston
 
@@ -22,11 +22,15 @@
 */
 #include "drvbase.h"
 #include "version.h"
-#include "iomanip.h"
+#include I_iomanip
+
+#if 0
+// should be obsolete - since now PNG images are written directly by ghostscript
+
 
 //#define HAVE_LIBPNG
 #ifdef HAVE_LIBPNG
-bool Image::PNGSupported()
+bool PSImage::PNGSupported()
 {
 	return true;
 }
@@ -41,16 +45,14 @@ static void user_error_fn(png_structp, png_const_charp)
 static void user_warning_fn(png_structp, png_const_charp)
 {
 }
-void Image::writePNGImage(const char *pngFileNameP, const char *source,
+
+
+void PSImage::writePNGImage(const char *FileNameP, const char *source,
 						  const char *title, const char *generator) const
 {
-	if (isFileImage) {
-		cerr << "Image::writePNGImage not yet supported for PNG File Image objects" << endl;
-		return;
-	}
-	FILE *fp = fopen(pngFileNameP, "wb");
+	FILE *fp = fopen(FileNameP, "wb");
 	if (!fp) {
-		cerr << "error in open " << pngFileName << endl;
+		cerr << "error in open " << FileName << endl;
 		return;
 	}
 
@@ -198,19 +200,23 @@ void Image::writePNGImage(const char *pngFileNameP, const char *source,
 	fclose(fp);
 }
 
+
 #else
-bool Image::PNGSupported()
+bool PSImage::PNGSupported()
 {
 	return false;
 }
-void Image::writePNGImage(const char *pngFileName, const char *source,
+void PSImage::writePNGImage(const char *FileName, const char *source,
 						  const char *title, const char *generator) const
 {
 }
 
 #endif
 
-unsigned char Image::getComponent(unsigned int x, unsigned int y, char numComponent) const
+// end obsolete
+#endif
+
+unsigned char PSImage::getComponent(unsigned int x, unsigned int y, char numComponent) const
 {
 	if (isFileImage) {
 		cerr << "Image::getComponent not yet supported for PNG File Image objects" << endl;
@@ -252,7 +258,7 @@ unsigned char Image::getComponent(unsigned int x, unsigned int y, char numCompon
 }
 
 
-void Image::calculateBoundingBox()
+void PSImage::calculateBoundingBox()
 {
 //  if (isFileImage) { 
 //      cerr << "Image::calculateBoundingBox not yet supported for PNG File Image objects" << endl;
@@ -276,11 +282,71 @@ void Image::calculateBoundingBox()
 }
 
 
-void Image::writeEPSImage(ostream & outi) const
+void PSImage::writeEPSImage(ostream & outi) const
 {
 	if (isFileImage) {
+#ifdef HAVELIBGD
+
+		FILE* in = fopen(FileName.value(),"rb");
+		cerr<<"Reading: "<<FileName.value()<<endl;
+		gdImagePtr im=gdImageCreateFromPng(in);
+		assert(im);
+		fclose(in);
+		
+		const int w=gdImageSX(im);
+		const int h=gdImageSY(im);
+		
+		outi<<"%!PS-Adobe-2.0 EPSF-2.0\n";
+		outi<<"%%Title: image created by pstoedit\n";
+		outi<<"%%Creator: pstoedit version "<<version<<endl;
+		outi<<"%%BoundingBox: 0 0 "<<w<<" "<<h<<"\n";
+		outi<<"%%Pages: 1\n";
+		outi<<"%%EndComments\n";
+
+		outi<<"%%Page: 1 1\n";
+		
+		outi<<"gsave\n";
+
+		outi<<"1 dict begin % temp dict for storing str1\n";
+		outi<<"/str1 1 string def\n";
+			
+		outi<<"0 "<<h<<" translate\n";
+		outi<<w<<" "<<-h<<" scale\n";
+		outi<<w<<" "<<h<<" 8"<<endl;
+		outi<<"[ "<<w<<" 0 0 "<<h<<" 0 0 ]\n";
+		
+		outi << "{currentfile str1 readhexstring pop} % decoding procedure" << endl;
+		outi << "false 3 % has many sources, number of color components" << endl;
+		outi << "% number of data " << w*h*3 << endl;
+		outi << "colorimage" << endl;
+		
+		int x,y,c,i=0;
+		for(y=0; y<h; y++)
+			for(x=0; x<w; x++)
+			{
+				if (i % (12 * ncomp) == 0) outi << endl;
+				c=gdImageGetPixel(im,x,y);
+				outi << setw(2) << setfill('0') << hex << (int)gdImageRed(im,c);
+				i++;
+				outi << setw(2) << setfill('0') << hex << (int)gdImageGreen(im,c);
+				i++;
+				outi << setw(2) << setfill('0') << hex << (int)gdImageBlue(im,c);
+				i++;
+			}
+		outi << endl << endl;
+		outi << "% restore previous state" << endl;
+		outi << "end " << endl;
+		outi << "grestore" << endl << endl;
+		outi << "%%Trailer" << endl;
+		outi << "%%EOF" << endl;
+		outi << dec;
+		
+		gdImageDestroy(im);
+		return;
+#else
 		cerr << "Image::writeEPSImage not yet supported for PNG File Image objects" << endl;
 		return;
+#endif
 	}
 	assert(data);
 	// output the image data along with decoding procedure
@@ -354,7 +420,7 @@ void Image::writeEPSImage(ostream & outi) const
 	outi << dec;
 }
 
-void Image::writeIdrawImage(ostream & outi, float scalefactor) const
+void PSImage::writeIdrawImage(ostream & outi, float scalefactor) const
 {
 	if (isFileImage) {
 		cerr << "Image::writeIdrawImage not yet supported for PNG File Image objects" << endl;

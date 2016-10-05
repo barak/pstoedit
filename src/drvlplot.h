@@ -36,7 +36,10 @@ class drvplot : public drvbase
   ~drvplot();			// dtor
   
 #include "drvfuncs.h"
-  virtual void show_image (const Image& imageinfo); 
+  virtual void show_image (const PSImage& imageinfo); 
+  void show_text(const TextInfo & textInfo);
+  void show_rectangle(const float llx, const float lly, const float urx, const float ury);
+
   
 private:
 	void print_coords();
@@ -46,8 +49,7 @@ private:
 
   void set_line_style (void);
   void set_filling_and_edging_style (void);
-  bool close_output_file_and_reopen_in_binary_mode (void);
-  
+   
   NOCOPYANDASSIGN(drvplot)
 };
 

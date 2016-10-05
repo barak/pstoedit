@@ -7,7 +7,7 @@
    drvSAMPL.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -98,28 +98,12 @@ void drvRIB::close_page()
 	//  outf << "Closing page: " << (currentPageNumber) << endl;
 }
 
-void drvRIB::show_text(const TextInfo & textinfo)
-{
-	// Must use the -dt flag for this, since RenderMan doesn't support text
-	unused(&textinfo);
-}
-
 void drvRIB::show_path()
 {
 	outf << "Color " << currentR() << " " << currentG() << " " << currentB() << endl;
 	print_coords();
 };
 
-void drvRIB::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-	// outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ")" << endl;
-	// just do show_path for a first guess
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	show_path();
-}
 
 static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestream", "rib", false,	// if backend supports subpathes, else 0
 										   // if subpathes are supported, the backend must deal with
@@ -137,8 +121,7 @@ static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestrea
 										   false,	// if backend supports curves, else 0
 										   false,	// if backend supports elements with fill and edges
 										   false,	// if backend supports text, else 0
-										   false,	// if backend supports Images
-										   false,	// no support for PNG file images
+										   DriverDescription::noimage,	// no support for PNG file images
 										   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 										   false, /*clipping */
 										   nodriverspecificoptions);

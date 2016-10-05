@@ -2,7 +2,7 @@
    drvSWF.cpp : This file is part of pstoedit
    Skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2001 Wolfgang Glunz, wglunz@pstoedit.net
+   Copyright (C) 1993 - 2003 Wolfgang Glunz, wglunz@pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
+
 #ifdef HAVE_LIBMING 
 #include "drvswf.h"
 #include I_fstream
@@ -42,7 +43,10 @@ extern "C" {
 		// just as a quick workaround
 		// libswf needs this - since on Windows, there is no rint in math.h 
 }}
+
 #endif
+
+#ifdef HAVE_LIBMINGUTIL
 
 #define main MAIN
 // strdup is not visible is -ansi is turned on
@@ -56,6 +60,8 @@ static void png2dbl(const char *pngfile, const char *dblfile)
 	writeDBL(f, png);
 	fclose(f);
 }
+
+#endif
 
 const bool withcurves = true;	// curves are still quite broken in SWF
 
@@ -221,7 +227,7 @@ void drvSWF::print_coords()
 					firstpoint = p;
 				}
 				if (p == currentpoint) {
-					if (verbose)
+					if (Verbose())
 						errf << "ignoring zero length lineto " << endl;
 				} else {
 					s->drawLineTo(swfx(p), swfy(p));
@@ -268,7 +274,7 @@ void drvSWF::print_coords()
 					const coordtype dy = swfy(d);
 
 					if (currentpoint == b) {
-						if (verbose)
+						if (Verbose())
 							errf << "converting strange PS-curveto cp = b to simple curveto" <<
 								endl;
 						s->drawCurveTo(cx, cy, dx, dy);
@@ -278,7 +284,7 @@ void drvSWF::print_coords()
 						}
 						currentpoint = d;
 					} else if (c == d) {
-						if (verbose)
+						if (Verbose())
 							errf << "converting strange PS-curveto c = d to simple curveto" << endl;
 						s->drawCurveTo(bx, by, dx, dy);
 						if (trace) {
@@ -286,14 +292,14 @@ void drvSWF::print_coords()
 								   (int) dx, (int) dy);
 						}
 					} else if ((cpy == by) && (by == cy) && (cy == dy)) {
-						if (verbose)
+						if (Verbose())
 							errf << "converting curve to line (all same y)" << endl;
 						s->drawLineTo(dx, dy);
 						if (trace) {
 							printf("s->drawLineTo(%d,%d);\n", (int) dx, (int) dy);
 						}
 					} else if ((cpx == bx) && (bx == cx) && (cx == dx)) {
-						if (verbose)
+						if (Verbose())
 							errf << "converting curve to line (all same x)" << endl;
 						s->drawLineTo(dx, dy);
 						if (trace) {
@@ -395,14 +401,14 @@ void drvSWF::show_text(const TextInfo & textinfo)
 
 	const char *const fontname = textinfo.currentFontName.value();
 	if (fileExists(fontfilename.value())) {
-		if (verbose) {
+		if (Verbose()) {
 			errf << "loading font from from " << fontfilename.value() << endl;
 		}
 	} else {
 		RSString defaultfontname = fonthome;
 		defaultfontname += "default.fdb";
 		if (fileExists(defaultfontname.value())) {
-			if (verbose)
+			if (Verbose())
 				errf << "no fdb file found for font " << fontname << ". Using " <<
 					defaultfontname.value() << " instead" << endl;
 			fontfilename = defaultfontname;
@@ -415,7 +421,8 @@ void drvSWF::show_text(const TextInfo & textinfo)
 
 	// if the fontnames ends with .fdb, then the file is read, otherwise browser fonts are used.
 
-	SWFFont *f = new SWFFont(fontfilename.value());
+	//as long as SWF is not const correct SWFFont *f = new SWFFont(fontfilename.value());
+	SWFFont *f = new SWFFont(const_cast<char *>(fontfilename.value()));
 	if ((f == NULL) || (f->font == NULL)) {
 		errf << "Loading font " << fontfilename.value() << " failed !" << endl;
 		return;
@@ -481,17 +488,8 @@ void drvSWF::show_path()
 
 }
 
-void drvSWF::show_rectangle(const float llx, const float lly, const float urx, const float ury)
-{
-
-//  outf << "Rectangle ( " << llx << "," << lly << ") (" << urx << "," << ury << ") equivalent to:" << endl;
-	unused(&llx);
-	unused(&lly);
-	unused(&urx);
-	unused(&ury);
-	// just do show_path for a first guess
-	show_path();
-} void drvSWF::show_image(const Image & imageinfo)
+#ifdef HAVE_LIBMINGUTIL
+void drvSWF::show_image(const PSImage & imageinfo)
 {
 
 	if (outDirName == NIL || outBaseName == NIL) {
@@ -501,7 +499,7 @@ void drvSWF::show_rectangle(const float llx, const float lly, const float urx, c
 
 
 	if (imageinfo.isFileImage) {
-		// use imageinfo.pngFileName;
+		// use imageinfo.FileName;
 #if 0
 		outf << "<image "		// x=\"" << 0 << "\" y=\"" << 0 << "\"" 
 			<< " transform=\"matrix("
@@ -516,16 +514,16 @@ void drvSWF::show_rectangle(const float llx, const float lly, const float urx, c
 			<< currentDeviceHeight - imageinfo.normalizedImageCurrentMatrix[5]
 			<< ")\"" << " width=\"" << imageinfo.
 			width << "\"" << " height=\"" << imageinfo.
-			height << "\"" << " xlink:href=\"" << imageinfo.pngFileName << "\"></image>" << endl;
+			height << "\"" << " xlink:href=\"" << imageinfo.FileName << "\"></image>" << endl;
 
 #endif
 
-		unsigned int len = strlen(imageinfo.pngFileName.value());
-		char *outfile = cppstrdup(imageinfo.pngFileName.value());
+		unsigned int len = strlen(imageinfo.FileName.value());
+		char *outfile = cppstrdup(imageinfo.FileName.value());
 		outfile[len - 3] = 'd';
 		outfile[len - 2] = 'b';
 		outfile[len - 1] = 'l';
-		png2dbl(imageinfo.pngFileName.value(), outfile);
+		png2dbl(imageinfo.FileName.value(), outfile);
 		SWFBitmap *bm = new SWFBitmap(outfile);
 		SWFShape *s = new SWFShape;
 		SWFFill *swffill = s->addBitmapFill(bm);
@@ -576,6 +574,11 @@ void drvSWF::show_rectangle(const float llx, const float lly, const float urx, c
 	}
 
 }
+#else
+void drvSWF::show_image(const PSImage & imageinfo) {
+	errf << "no support for bitmaps - need to have access to util/png2dbl.c at compile time" << endl;
+}
+#endif
 static DriverDescriptionT < drvSWF > D_SWF("swf",	//
 										   "SWF driver: ",	//
 										   "swf",	//
@@ -595,11 +598,15 @@ static DriverDescriptionT < drvSWF > D_SWF("swf",	//
 										   withcurves,	// backend supports curves
 										   true,	// backend supports elements which are filled and have edges
 										   true,	// backend supports text
-										   true,	// backend supports Images
-										   true,	// backend does not support PNG files
+#ifdef HAVE_LIBMINGUTIL
+										   DriverDescription::png,	// backend supports Images
+#else
+   										   DriverDescription::noimage,	// no support for Images
+#endif
 										   DriverDescription::noopen,	// we open output file ourselves
 										   true,	// if format supports multiple pages in one file
 										   false,	/*clipping */
 										   driveroptions);
 #endif
+ 
  

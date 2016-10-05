@@ -3,7 +3,7 @@
    Backend for Latex2E files
    Contributed by: Scott Pakin <pakin@uiuc.edu>
 
-   Copyright (C) 1993 - 2001	Wolfgang Glunz, wglunz@pstoedit.net, 
+   Copyright (C) 1993 - 2003	Wolfgang Glunz, wglunz@pstoedit.net, 
 							Scott Pakin, pakin@uiuc.edu
 
     This program is free software; you can redistribute it and/or modify
@@ -372,8 +372,7 @@ static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "LaTeX2e picture f
 												   true,	// backend supports curves
 												   false,	// backend supports elements which are filled and have edges
 												   true,	// backend supports text
-												   false,	// backend supports Images
-												   false,	// no support for PNG file images
+												   DriverDescription::noimage,	// no support for PNG file images
 												   DriverDescription::normalopen, false,	// if format supports multiple pages in one file
 												   false,	// no clipping 
 												   driveroptions
