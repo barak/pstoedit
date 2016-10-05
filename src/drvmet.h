@@ -5,7 +5,7 @@
    Backend for OS/2 Meta Files.
    Contributed by : Christoph Jaeschke (jaeschke@imbe05.imbe.uni-bremen.de)
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -110,7 +110,8 @@ private:
 	void drawPoly(int cntPoints, PPOINTL aptlPoints, PLONG aIsLineTo, int closed);
 
 public:
-	drvMET(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream );
+	derivedConstructor(drvMET);
+	//(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream );
 	~drvMET();
 
 	long palEntry(float, float, float);

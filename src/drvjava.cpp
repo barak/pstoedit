@@ -2,7 +2,7 @@
    drvJAVA.cpp : This file is part of pstoedit
    backend to generate a Java(TM) applet
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,16 +19,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-
-#include <stdio.h>
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-  #include "unix:string.h"
-#else
-  #include <string.h>
-#endif
-#include <stdlib.h>
 #include "drvjava.h"
+#include I_fstream
+#include I_stdio
+#include I_stdlib
 
 struct JavaFontDesc {
 	const char * psname;
@@ -56,7 +50,7 @@ static JavaFontDesc JavaFonts[] = { // predefined Fonts
 const  unsigned int numberOfFonts = sizeof(JavaFonts)/(sizeof(JavaFontDesc)) - 1;
 
 static int getFontNumber(const char * const fontname) {
-    const unsigned int fntlength = strlen(fontname);
+    const size_t fntlength = strlen(fontname);
     for (unsigned int i=0; i < numberOfFonts; i++) {
     	const unsigned int JavaFntLengh = strlen(JavaFonts[i].psname);
 	if (fntlength == JavaFntLengh ) { 
@@ -69,30 +63,13 @@ static int getFontNumber(const char * const fontname) {
 }
 
 
-drvJAVA::drvJAVA(const char * driveroptions_p,ostream & theoutStream,ostream & theerrStream): // Constructor
-	drvbase(driveroptions_p,theoutStream,theerrStream,
-		0, // if backend supports subpathes, else 0
-		   // if subpathes are supported, the backend must deal with
-		   // sequences of the following form
-		   // moveto (start of subpath)
-		   // lineto (a line segment)
-		   // lineto 
-		   // moveto (start of a new subpath)
-		   // lineto (a line segment)
-		   // lineto 
-		   //
-		   // If this argument is set to 0 each subpath is drawn 
-		   // individually which might not necessarily represent
-		   // the original drawing.
-
-		0,  // if backend supports curves, else 0
-		0  // if backend supports elements with fill and edges
-	),
+drvJAVA::derivedConstructor(drvJAVA):
+	constructBase,
 	jClassName("PSJava")
 {
 	if (d_argc>0) {
 		jClassName = d_argv[0];
-	};
+	}
 // driver specific initializations
 // and writing of header to output file
 	outf << "import java.applet.*;" << endl;
@@ -182,7 +159,7 @@ void drvJAVA::show_text(const TextInfo & textinfo)
 	outf << "\t\t" << currentR()<< "F," << currentG() << "F," << currentB()<< "F," << endl;
 	outf << "\t\t\"" ;
 	// << textinfo.thetext 
-	for (const char * p = textinfo.thetext; (*p) != 0; p++ ){
+	for (const char * p = textinfo.thetext.value(); (*p) != 0; p++ ){
 		if ((*p) == '"') {
 			outf << '\\' << *p;
 		} else if ((*p) == '\\') {
@@ -206,13 +183,13 @@ void drvJAVA::show_text(const TextInfo & textinfo)
 
 void drvJAVA::show_path()
 {
-	outf << "\t// Path # " << currentNr() << endl;;
+	outf << "\t// Path # " << currentNr() << endl;
 
 // if fill then use a polygon
 // else use line-segments.
     	switch (currentShowType() ) {
     	case drvbase::stroke : {
-    		outf << "\tl = new PSLinesObject(" << endl;;
+    		outf << "\tl = new PSLinesObject(" << endl;
 		outf << "\t\t" << currentR()<< "F," << currentG() << "F," << currentB()<< "F);" << endl;
 		for(unsigned int t=0;t<numberOfElementsInPath();t++) {
 			const Point & p = pathElement(t).getPoint(0);
@@ -254,3 +231,28 @@ void drvJAVA::show_rectangle(const float llx, const float lly, const float urx, 
   	unused(&llx); unused(&lly); unused(&urx); unused(&ury);
 	show_path();
 }
+
+static DriverDescriptionT<drvJAVA> D_java(
+		"java","java applet source code","java",
+		false, // if backend supports subpathes, else 0
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to 0 each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		false, // if backend supports curves, else 0
+		false, // if backend supports elements with fill and edges
+		true,  // if backend supports text, else 0
+		false, // if backend supports Images
+		DriverDescription::normalopen,
+		true); // if format supports multiple pages in one file
+
+ 

@@ -1,13 +1,13 @@
 PSTOEDIT 
-Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
 
 pstoedit converts Postscript(TM) and PDF files to other vector graphic
-formats so that they can be edited graphically. See pstoedit.man or
-manual.html for more details on which formats are supported by pstoedit.
+formats so that they can be edited graphically. See pstoedit.htm or
+index.htm for more details on which formats are supported by pstoedit.
 
 The architecture of pstoedit consists of a PostScript frontend which
 needs to call a PostScript interpreter like Ghostscript and the
-individual backends which are pugged into a kind of framework.
+individual backends which are plugged into a kind of framework.
 
 This framework can be used independently from the PostScript frontend
 from any other program. The framework provides a uniform interface to
@@ -15,7 +15,7 @@ all different backends. Get in contact with the author if you need
 more information on how to use this framework.
 
 If you just find this program useful, have made some improvements or 
-implemented other backends please send email to Wolfgang.Glunz@mchp.siemens.de.
+implemented other backends please send an email to wogl@geocities.com.
 
 If this programs saves you a lot of work consider sending a contribution
 of any kind.
@@ -29,35 +29,30 @@ My home address is:
 	81825 Muenchen / Germany  
 	Josef Brueckl Str. 32    
 
-Installing pstoedit:
---------------------
+Compiling pstoedit:
+-------------------
 You need a C++ compiler, e.g., g++ to compile pstoedit.
 
 * cd to src
 * edit the makefile 
-	- change  BINDIR and MANDIR according to your local environment
+	- change  BINDIR  according to your local environment
 	- Uncomment the platform specific flags corresponding to your 
 	  platform.
-	- if you want to include the CGM driver, you must have a copy 
-	  of the cd-library from 
-	  Here is how to get cd (quoted from an article of the author of cd).
+* Note: pstoedit is configured to use the ANSI C++ headers if
+  it "thinks" that the compiler supports them. Currently it assumes
+  that GNU g++ supports the ANSI C++ headers and the STL. If your
+  installation of g++ does not (e.g. because libstdc++ is missing)
+  eliminate the #define HAVESTL in cppcomp.h. 
+  See the head of drvlplot.cpp for more details about compiling with
+  or without the GNU plotting library.
 
-Documentation for cd is included with the package, and is available from
-http://speckle.ncsl.nist.gov/~lorax/cgm/cd.html
-This distribution may be retrieved via ftp from
-zing.ncsl.nist.gov in the directory "cgm"  It will have the
-name cd followed by the version number.
-The current version is 1.3 and is at:
-ftp://zing.ncsl.nist.gov/cgm/cd1.3.tar.gz          
-
-
-	  After getting cd, uncomment the lines following lines in the makefile
-	#CDDIR=../cd1.3
-	#LOCALDEFINES=-I$(CDDIR) -DWITHCGM
-	#LOCALDRIVERS=drvcgm.$(OBJEXT) cdlib.$(OBJEXT)
-
-	  Note: You don't need to build the cd-library separately.
-
+  A note regarding Visual C++. In principle the HAVESTL can be activated
+  for Visual C++ (>= 5.0). However, I noticed a drastical increase both in 
+  compilation time and object size. This is probably due to the template 
+  based iostream library. Therefore I switched it off again. If you need
+  the MetaPost backend under Windows, just turn the HAVESTL on and compile
+  again.
+  
 
 * type: make clean; make; make install; (for *nix like systems)
 	nmake /f makefile 	(in a DOS box)
@@ -65,9 +60,20 @@ ftp://zing.ncsl.nist.gov/cgm/cd1.3.tar.gz
 There are several test cases included. To run them type `make test'.
 This works under *nix only.
 
-If you want a GUI and have Borland C++ you can build one using the sources
-provided in the src/bc5gui directory. See src/bc5gui/readme.txt for more
-details. Many thanks to Jens Weber for this contribution.
+Installing pstoedit under Windows 9x/NT:
+----------------------------------------
+
+* create a directory "pstoedit" in parallel to the gsview and gs5.xx directories, e.g.
+  c:\gstools\pstoedit.
+* copy the pstoedit.exe and pstoedit.dll to this directory.
+* if you plan to call pstoedit from a DOS box, you might consider to extend your
+  PATH variable in order to avoid the need to call pstoedit always with with 
+  full path name.
+* if you have installed gsview 2.6 or later, you are done, if not you need
+  to set the variable GS to point to either the gswin32.dll or gswin32c.exe found
+  in the gsx.xx directory. In addition you might need to set GS_LIB (see GhostScript
+  manual for details).
+
 
 pstoedit and the -dSAFER option of Ghostscript:
 -----------------------------------------------
@@ -90,7 +96,7 @@ GS=gs.real
 export GS
 pstoedit.real -include /??????/local/safer.ps $*
 
-A template for safer.ps can be found in the src subdirectory.
+A template for safer.ps can be found in the misc subdirectory.
 This way pstoedit can open all the file it needs (the input file and an
 output file). After that then -- via the included file -- all files
 operations are disabled and the input file is processed. Any file operation
@@ -102,7 +108,7 @@ Using pstoedit:
 Before you can use pstoedit you must have a working installation
 of GhostScript (either GNU or Aladdin).
 
-The rest is descibed in the manual page in src/pstoedit.man or src/manual.html.
+The rest is descibed in the manual page in /pstoedit.htm.
 
 pstoedit works reasonable with PostScript files containing
 	* line drawings
@@ -112,7 +118,7 @@ Try to run it on golfer.ps or tiger.ps that comes with ghostscript, e.g.,
 pstoedit -f <your format> <local path where GhostScript is installed>/examples/tiger.ps tiger.<suffix>
 
 In particular pstoedit does not support
-	* bitmap images
+	* bitmap images (just for xfig and MIF)
 	* general fill patterns
 	* clipping
 	* ... 
@@ -120,23 +126,21 @@ In particular pstoedit does not support
 Special note about the Java backend:
 ------------------------------------
 The java backend generates a java source file that needs other files
-in order to be compiled and usable. These files are not part of pstoedit
-but can be obtained from the author.
-These other files are Java classes (one applet and support classes) that 
-allow to step through the individual pages of the converted PostScript
-document. This applet can easily be activated from a html-document.
+in order to be compiled and usable. See the file java/readme_java.txt 
+for more details.
 
 Extending pstoedit:
 -------------------
 To implement a new backend you can start from drvsampl.cc.
 Please don't forget to send any new backend that might be of interest
-for others as well to the author (Wolfgang.Glunz@mchp.siemens.de) so that
-it can be incorporated into future versions of pstoedit.
+for others as well to the author (wglunz@geocities.com) so that
+it can be incorporated into future versions of pstoedit. Such
+new backends will then be available with the GPL as well.
 
 Acknowledgements:
 -----------------
 
-See manual page in src/pstoedit.man or src/manual.html for a list of contributors.
+See manual page in pstoedit.htm for a list of contributors.
 
 License: 
 --------
@@ -158,11 +162,4 @@ License:
 
 
 ----------------------------------------------------------------------------
-
-The cgm backend within pstoedit is based on the cd-library available from
-http://speckle.ncsl.nist.gov/~lorax/cgm/cd.html . The source contains the
-following copyright notice:
-	cd software produced by NIST, an agency of the U.S. government,
-	is by statute not subject to copyright in the United States.
-	Recipients of this software assume all responsibilities associated
-	with its operation, modification and maintenance.
+ 

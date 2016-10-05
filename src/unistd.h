@@ -1,2 +1,2 @@
-// dummy for dos
+// dummy for dos - used in lexyy.cpp
 

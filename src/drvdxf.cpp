@@ -1,7 +1,7 @@
 /* 
    drvDXF.cpp : This file is part of pstoedit 
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993,1994,1995,1996,1997,1998 Wolfgang Glunz, wglunz@geocities.com
 
 	DXF Backend Version 0.9 ( LINEs only, no Text, no color, no linewidth )
 	(see if polyaslines )
@@ -25,12 +25,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-
-#include <stdio.h>
-#include <string.h>
-#include <iostream.h>
-
 #include "drvdxf.h"
+#include I_stdio
+#include I_string_h
+#include I_iostream
 
 class DXFColor {
 public:
@@ -338,8 +336,8 @@ const unsigned short DXFColor::numberOfColors = sizeof(DXFColor::DXFColors) / si
 
 
 
-drvDXF::drvDXF(const char * driveroptions_p,ostream & theoutStream, ostream & theerrStream/* , float theMagnification */ ):
-        drvbase(driveroptions_p,theoutStream,theerrStream,0,0,0),
+drvDXF::derivedConstructor(drvDXF):
+	constructBase,
 	polyaslines(0) 
 {
 if (d_argc>0) {
@@ -398,7 +396,7 @@ void drvDXF::show_text(const TextInfo & textinfo)
 	outf << " 20\n" << textinfo.y << "\n";
 	outf << " 30\n" << 0.0 << "\n";
 	outf << " 40\n" << textinfo.currentFontSize << "\n";
-	outf << "  1\n" << textinfo.thetext << "\n";
+	outf << "  1\n" << textinfo.thetext.value() << "\n";
 	outf << " 50\n" << textinfo.currentFontAngle << "\n";
 }
 
@@ -462,3 +460,26 @@ void drvDXF::show_rectangle(const float llx, const float lly, const float urx, c
   unused(&ury);
 	 show_path();
 }
+
+static DriverDescriptionT<drvDXF> D_dxf(
+		"dxf","CAD exchange format","dxf",
+		false, // if backend supports subpathes, else 0
+		   // if subpathes are supported, the backend must deal with
+		   // sequences of the following form
+		   // moveto (start of subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   // moveto (start of a new subpath)
+		   // lineto (a line segment)
+		   // lineto 
+		   //
+		   // If this argument is set to 0 each subpath is drawn 
+		   // individually which might not necessarily represent
+		   // the original drawing.
+
+		false, // if backend supports curves, else 0
+		false, // if backend supports elements with fill and edges
+		true,  // if backend supports text, else 0
+		false, // if backend supports Images
+		DriverDescription::normalopen,
+		false); // if format supports multiple pages in one file

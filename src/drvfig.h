@@ -1,11 +1,11 @@
 #ifndef __drvFIG_h
 #define __drvFIG_h
 
-/* 
+/*
    drvFIG.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,27 +22,35 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-#include <fstream.h>
 
-// for tmpnam
-#include <stdio.h>
 #include "drvbase.h"
 
 class drvFIG : public drvbase {
 
 public:
 
-	drvFIG(const char * driveroptions_P,ostream & theoutStream,ostream & theerrStream ); // Constructor
+	derivedConstructor(drvFIG);
+	//(const char * driveroptions_P, ostream & theoutStream, ostream & theerrStream, const char* outPath_P, const char* outName_P); // Constructor
 
 	~drvFIG(); // Destructor
 
 private:
-	int           objectId;
+	int	      objectId;
 	TempFile      tempFile;
-	ofstream     &buffer;
+	ofstream      &buffer;
+	int	      imgcount;
+	int	      format; // either 31 or something else
 
 #include "drvfuncs.h"
 
+	unsigned int nrOfCurvetos() const;
+	void print_polyline_coords();
+	void print_spline_coords_noxsplines(int linestyle, float localLineWidth);
+	void prpoint(ostream & os, const Point& p) const;
+	void print_spline_coords1();
+	void print_spline_coords2();
+
+	void show_image(const Image & imageinfo);
 };
 #endif
 

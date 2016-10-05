@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993,1994,1995,1996,1997 Wolfgang Glunz, Wolfgang.Glunz@mchp.siemens.de
+   Copyright (C) 1993 - 1999 Wolfgang Glunz, wglunz@geocities.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,40 +35,53 @@
 //     $Id$
 */
 
-#include <fstream.h>
-#include <stdio.h>
 
-// for free
-#include <stdlib.h>
-// for strcpy
-// rcw2: work round case insensitivity in RiscOS
-#ifdef riscos
-#include "unix:string.h"
-// rcw2: tempnam doesn't seem to be defined in UnixLib 3.7b for RiscOS 
-  char *tempnam(const char *, const char *);
-#else
-#include <string.h>
-#endif
+#include "cppcomp.h"
 
+
+#include I_fstream
+#include I_stdio
+#include I_stdlib
+#include I_string_h
+USESTD
+
+#include <assert.h>
+#include "miscutil.h"
+
+
+// for compatibility checking
+static const unsigned int drvbaseVersion = 105;
+// 101 introduced the driverOK function
+// 102 introduced the font optimization (lasttextinfo_)
+// 103 introduced the -ssp support and the virtual pathscanbemerged
+// 104 introduced the fontmatrix handling
+// 105 introduced the miterlimit Info and outputPageSize
 
 const unsigned int	maxFontNamesLength = 1000;
 const unsigned int	maxpoints    = 20000;	// twice the maximal number of points in a path
 const unsigned int	maxElements  = maxpoints/2;
 const unsigned int	maxsegments  = maxpoints/2;// at least half of maxpoints (if we only have segments with one point)
 
-#if defined (__GNUG__) || defined (__BCPLUSPLUS__) || defined (INTERNALBOOL)
-// no need to define bool
-#else
-typedef int bool;
-const bool false = 0;
-const bool true  = 1;
-#endif
 
+struct Point
+{
+public:
+	Point(float x, float y) : x_(x),y_(y) {}
+	Point() : x_(0.0f), y_(0.0f) {}; // for arrays
+	float x_;
+	float y_;
+	friend bool operator==(const Point & p1, const Point & p2) { return (p1.x_ == p2.x_) && (p1.y_ == p2.y_); }
+	Point transform(const float matrix[6]) const;
+private:
+};
+
+// image needs Point !
+#include "image.h"
 
 static const char emptyDashPattern[] =  "[ ] 0.0";
 
 class basedrawingelement ; // forward
-
+class DriverDescription ;  // forward
 class           drvbase 
     // = TITLE
     // Base class for backends to pstoedit
@@ -85,66 +98,56 @@ class           drvbase
     // to implement and some functions that are common to all backends
     //
 {
+	friend class sub_path; // needs PathInfo
+	friend class sub_path_list;
 public:
 	// = PUBLIC TYPES 
 
 	enum showtype { stroke, fill, eofill };
-	enum linetype { solid, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
-
-// need to make RSString public because of problem with SparcCompiler
-	class  RSString {
-	public:
-		// a very very simple resizing string
-		RSString(const char * arg = 0) : 
-			content(0),
-			allocatedLength(0) { if (arg) this->copy(arg); }
-		~RSString() { delete [] content; content = 0; allocatedLength = 0; }
-		const char * value() const { return content; }
-		void copy(const char *src) {
-			if ((strlen(src)+1) <= allocatedLength) {
-				// we have enough space
-				::strcpy(content,src);
-			} else {
-				// resize
-				delete [] content;
-				allocatedLength = strlen(src) + 1;
-				content = new char[allocatedLength];
-				::strcpy(content,src);
-			}
-		}
-	private:
-		char * content;
-		unsigned int allocatedLength;
-		// declared but not defined
-		RSString(const RSString &);
-		const RSString & operator == (const RSString &);
-	};
-
-protected:
-	// = PROTECTED TYPES 
+	enum linetype { solid=0, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
 
 	struct TextInfo {
 		float 		x;
 		float		y;
-		const char *	thetext;
+		float		FontMatrix[6];
+		float 		x_end; // pen coordinates after show in PostScript
+		float		y_end; // 
+		RSString 	thetext;
 		bool		is_non_standard_font;
-		RSString        currentFontName;
-		RSString        currentFontFamilyName;
-		RSString        currentFontFullName;
-		RSString        currentFontWeight;
-		float           currentFontSize;
+		RSString    currentFontName;
+		RSString    currentFontFamilyName;
+		RSString    currentFontFullName;
+		RSString    currentFontWeight;
+		float       currentFontSize;
 		float		currentFontAngle;
-		float           currentR; // Colors
-		float           currentG;
-		float           currentB;
+		float       currentR; // Colors
+		float       currentG;
+		float       currentB;
 		float		cx; // next five items correspond to the 
 		float		cy; // params for the awidthshow operator
-		int		Char; // of PostScript
+		int			Char; // of PostScript
 		float		ax; 
 		float		ay;
+		bool		mappedtoIsoLatin1;
+		bool		samefont(const TextInfo& cmp) const {
+			return ( currentFontName == cmp.currentFontName ) &&
+				//	( currentFontFamilyName == cmp.currentFontFamilyName ) &&
+				//	( currentFontFullName == cmp.currentFontFullName ) &&
+					( currentFontWeight == cmp.currentFontWeight ) &&
+					( currentFontSize == cmp.currentFontSize ) &&
+					( currentFontAngle == cmp.currentFontAngle ) ;
+		}
+
+		bool		samecolor(const TextInfo& cmp) const {
+			return ( currentR == cmp.currentR ) &&
+					( currentG == cmp.currentG ) &&
+					( currentB == cmp.currentB );
+		}
 		TextInfo() :
 			x(0.0f),
 			y(0.0f),
+			x_end(0.0f),
+			y_end(0.0f),
 			thetext(0),
 			is_non_standard_font(false),
 			currentFontSize(10.0f),
@@ -156,22 +159,36 @@ protected:
 			cy(0.0f),
 			Char(32), // 32 means space
 			ax(0.0f),
-			ay(0.0f) { 
+			ay(0.0f), 
+			mappedtoIsoLatin1(true) {
+				for (int i = 0; i < 6 ; i++ ) FontMatrix[i] = 0.0f;
 			}
+		~TextInfo() { }
+	private:
+		// declared but not defined
+		// const TextInfo & operator = (const TextInfo &); // default is ok
+		// TextInfo(const TextInfo &); // default is ok
 	};
 
 private:
 	// = PRIVATE TYPES 
+
+protected:
+	// = PROTECTED TYPES 
 
 	struct PathInfo {
 		showtype	currentShowType;
 		linetype	currentLineType;
 		unsigned int    currentLineCap;
 		unsigned int    currentLineJoin;
+		float			currentMiterLimit;
 		unsigned int    nr;
 		basedrawingelement * * path; // a path is an array of pointers to basedrawingelements
 		bool	 	isPolygon; // whether current path was closed via closepath or not
 		unsigned int	numberOfElementsInPath;
+		unsigned int	subpathoffset; // normally 0, but if subpathes are simulated
+									   // then this is set to the begin of the current subpath 
+									   // before show_path is executed
 		float           currentLineWidth;
 		float           edgeR; // edge colors
 		float           edgeG;
@@ -179,23 +196,27 @@ private:
 		float           fillR; // fill colors
 		float           fillG;
 		float           fillB;
+		bool			pathWasMerged; // true, if this path is a result of a merge operation
 		RSString	dashPattern; // just the dump of currentdash as string
 		PathInfo() :
 			currentShowType(drvbase::stroke),
 			currentLineType(drvbase::solid),
 			currentLineCap(0),
 			currentLineJoin(0),
+			currentMiterLimit(10.0f),
 			nr(0),
 			path(0),
 			isPolygon(0),
 			numberOfElementsInPath(0),
+			subpathoffset(0),
 			currentLineWidth(0.0f),
 			edgeR(0.0f),
 			edgeG(0.0f),
 			edgeB(0.0f),
 			fillR(0.0f),
 			fillG(0.0f),
-			fillB(0.0f), 
+			fillB(0.0f),
+			pathWasMerged(false),
 			dashPattern(emptyDashPattern)
 			{
 			    path = new basedrawingelement *[maxElements];
@@ -208,6 +229,8 @@ private:
 		void clear();
 		void copyInfo(const PathInfo & p);
 			// copies the whole path state except the path array
+		void rearrange();
+            // rearrange subpaths for backends which don't support them 
 	private:
 		// Inhibitors (declared, but not defined)
 		const PathInfo& operator=(const PathInfo&);
@@ -217,25 +240,35 @@ private:
 public:
 	// = PUBLIC DATA
 
-	const bool 	backendSupportsSubPathes;
-	const bool 	backendSupportsCurveto;
-	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
+	const DriverDescription * Pdriverdesc; // pointer to the derived class' driverdescription
+	bool simulateSubPaths; // simulate sub paths for backend that don't support it directly
+	Image 		imageInfo;
+
+	static FontMapper theFontMapper;
+	static bool	verbose;
 
 protected:
 	// = PROTECTED DATA
 
 	ostream &	outf;           // the output stream
 	ostream &	errf;           // the error stream
+	const char*		inFileName; // full name of input file
+	const char*		outFileName; // full name of output file
+	char*         	outDirName; 	// output path with trailing slash or backslash
+	char*         	outBaseName; 	// just the basename (no path, no suffix)
 	unsigned int	d_argc;
-	const char * *	d_argv;
+	char * *	d_argv;
 	float           scale;
+	RSString		outputPageSize; // set via -pagesize option
 	float           currentDeviceHeight; // normally 792 pt; used for flipping y values.
 	float           currentDeviceWidth;  
 	float           x_offset;
 	float           y_offset;
 	unsigned int    currentPageNumber;
-	bool		verbose;
-	bool		domerge;
+	bool			domerge;
+	const char *	defaultFontName; // name of default font 
+	bool			ctorOK;			// indicated Constructor failure
+									// returned via driverOK() function
 
 
 private:
@@ -245,9 +278,12 @@ private:
 	char * 		driveroptions; // string containing options for backend
 	PathInfo 	p1,p2;
 	PathInfo * 	currentPath; // for filling from lexer
-	PathInfo * 	lastPath;    // for merging
+protected: // for drvrtf
 	PathInfo * 	outputPath;  // for output driver
+private:
+	PathInfo * 	lastPath;    // for merging
 	TextInfo 	textInfo_;
+	TextInfo 	lasttextInfo_; // for saving font settings
 
 
 public:
@@ -258,10 +294,13 @@ public:
 	drvbase(
 		const char * driverOptions_p,
 		ostream & theoutStream,
-		ostream & theerrStream,
-		bool backendSupportsSubPathes_p,
-		bool backendSupportsCurveto_p,
-		bool backendSupportsMerging_p); // constructor
+		ostream & theerrStream,		
+		const char* nameOfInputFile_p,
+		const char* nameOfOutputFile_p,
+		const float scalefactor,
+		const RSString & pagesize,
+		const DriverDescription * Pdriverdesc_p
+	); // constructor
 	virtual ~drvbase();  		// destructor
 
 	// = BACKEND GENERIC FUNCTIONS 
@@ -273,18 +312,32 @@ public:
 	void 		finalize(); // needed because base destructor will be called after
 				    // derived destructor
 
+	void		setdefaultFontName(const char * n) {defaultFontName = n;}
+
 	void            setCurrentDeviceHeight(const float deviceHeight) 
 			{ currentDeviceHeight = deviceHeight; }
 
 	void            setCurrentDeviceWidth(const float deviceWidth) 
 			{ currentDeviceWidth = deviceWidth; }
 
-	float           get_scale() const { return scale; }
+	float           getScale() const { return scale; }
+
+	const RSString & getPageSize() const { return outputPageSize; }
+
+	bool		fontchanged() const { return ! textInfo_.samefont(lasttextInfo_); }
+	bool		textcolorchanged() const { return ! textInfo_.samecolor(lasttextInfo_); }
 
 	void		setRGB(const float R,const float G, const float B)
-			{ textInfo_.currentR = R ; textInfo_.currentG = G; textInfo_.currentB = B; 
-			 currentPath->edgeR = R ; currentPath->edgeG = G; currentPath->edgeB = B; 
-			 currentPath->fillR = R ; currentPath->fillG = G; currentPath->fillB = B; }
+			{ 
+			 if ( ( R > 1.0 ) || ( G > 1.0 ) || ( B > 1.0 ) ||
+			      ( R < 0.0 ) || ( G < 0.0 ) || ( B < 0.0 ) ) {
+				errf << "Warning: color value out of range (0..1). Color change ignored." << R << ' ' << G << ' ' << B << endl;
+			 } else {
+			 	textInfo_.currentR = R ; textInfo_.currentG = G; textInfo_.currentB = B; 
+			 	currentPath->edgeR = R ; currentPath->edgeG = G; currentPath->edgeB = B; 
+			 	currentPath->fillR = R ; currentPath->fillG = G; currentPath->fillB = B; 
+			 }
+			}
 
 	void    	showpage();
 
@@ -294,6 +347,7 @@ public:
 	void		addtopath(basedrawingelement * newelement);
 
 	unsigned int 	&numberOfElementsInPath() { return outputPath->numberOfElementsInPath; }
+	unsigned int 	numberOfElementsInPath() const { return outputPath->numberOfElementsInPath; }
 
 	const basedrawingelement & pathElement(unsigned int index) const;
 
@@ -313,6 +367,9 @@ public:
 	void            setCurrentLineJoin(const unsigned int joinType) 
 			{ currentPath->currentLineJoin = joinType; }
 
+	void            setCurrentMiterLimit(const float miterLimit) 
+			{ currentPath->currentMiterLimit = miterLimit; }
+
 	void            setCurrentLineCap(const unsigned int capType) 
 			{ currentPath->currentLineCap = capType; }
 
@@ -321,9 +378,24 @@ public:
 
 	void 		dumpPath();  // shows current path
 
+	void		dumpRearrangedPathes(); // show the current subpathes after calling rearrange
+
+	unsigned int nrOfSubpaths() const;
+
+	void 		dumpImage();  // shows current image
+
 	// = TEXT RELATED METHODS
 
- 	void		setCurrentWidthParams(float ax,float ay,int Char,float cx,float cy);
+ 	void		setCurrentWidthParams(  const float ax,
+						const float ay,
+						const int Char,
+						const float cx,
+						const float cy,
+				 		const float x_end = 0.0f, 
+				 		const float y_end = 0.0f);
+
+	void		setMappedtoisolatin1 (  const bool mapped )
+			{ textInfo_.mappedtoIsoLatin1 = mapped; }
 
 	void            setCurrentFontName(const char *const Name,bool is_non_standard_font);
 
@@ -337,7 +409,11 @@ public:
 
 	void		setCurrentFontAngle(float value);
 
-	void    	dumpText(const char *const thetext,const float x, const float y);
+	float *		getCurrentFontMatrix() { return textInfo_.FontMatrix; }
+
+	void    	dumpText(const char *const thetext,
+				 const float x, 
+				 const float y);
 
 
 
@@ -348,16 +424,29 @@ public:
 	// of font names.
 	virtual const char * const * 	knownFontNames() const { return 0; }
 
+	// The next functions are virtual with a default empty implementation
+
+	virtual void    show_image(const Image & imageinfo) {
+		cerr << "show_image called, although backend does not support images" << endl;
+		unused(&imageinfo);
+	}
+
+	// if during construction something may go wrong, a backend can
+	// overwrite this function and return false in case of an error.
+	// or it can just set the ctorOK to false.
+	virtual bool driverOK() const { return ctorOK; } // some  
 
 protected:
 	// = PROTECTED METHODS
 
-	showtype	currentShowType() const { return outputPath->currentShowType; }
-	linetype	currentLineType() const { return outputPath->currentLineType; }
+	showtype		currentShowType() const { return outputPath->currentShowType; }
+	linetype		currentLineType() const { return outputPath->currentLineType; }
 	unsigned int	currentLineCap() const { return outputPath->currentLineCap; }
 	unsigned int	currentLineJoin() const { return outputPath->currentLineJoin; }
-	bool	 	isPolygon() const { return outputPath->isPolygon;} // whether current path was closed via closepath or not
-protected:
+	float			currentMiterLimit() const { return outputPath->currentMiterLimit; }
+	bool	 		isPolygon() const { return outputPath->isPolygon;} // whether current path was closed via closepath or not
+	virtual bool	pathsCanBeMerged  (const PathInfo & p1, const PathInfo & p2) const;
+	bool			pathWasMerged() const  { return outputPath->pathWasMerged; }
 	float           currentLineWidth() const { return outputPath->currentLineWidth; }
 	unsigned int    currentNr() const { return outputPath->nr; } 
 	float           edgeR() const { return outputPath->edgeR; } // edge colors
@@ -366,14 +455,10 @@ protected:
 	float           fillR() const { return outputPath->fillR; } // fill colors
 	float           fillG() const { return outputPath->fillG; }
 	float           fillB() const { return outputPath->fillB; }
-
 	const char *    dashPattern() const { return outputPath->dashPattern.value(); }
-
 	float           currentR() const { return outputPath->fillR; } // backends that don't support merging 
 	float           currentG() const { return outputPath->fillG; } // don't need to differentiate and
 	float           currentB() const { return outputPath->fillB; } // can use these functions.
-
-
 
 private:
 	// = PRIVATE METHODS
@@ -382,9 +467,8 @@ private:
 
 	bool		is_a_rectangle() const;
 
-	void            add_to_page();
+	void		add_to_page();
 
-	bool		pathsCanBeMerged(const PathInfo & p1, const PathInfo & p2);
 
 	// = BACKEND SPECIFIC FUNCTIONS
 
@@ -407,13 +491,23 @@ private:
 				       const float ury) = 0;
 	// writes a rectangle at points (llx,lly) (urx,ury)
 
-	// = INHIBITORS (declared, but not defined)
 
+	// = INHIBITORS (declared, but not defined)
+	drvbase(); // avoid default ctor
 	drvbase(const drvbase &);
 	drvbase & operator=(const drvbase&);
 
 };
 
+class DashPattern {
+public:
+	DashPattern(const char * patternAsSetDashString);
+	~DashPattern();
+	const RSString dashString;
+	int nrOfEntries;
+	float * numbers;
+	float offset;
+};
 
 typedef const char * (*makeColorNameType)(float r, float g, float b);
 const unsigned int maxcolors = 1000 ; // 1000 colors maximum
@@ -433,20 +527,10 @@ private:
 	const char * const * const defaultColors_;
 	const unsigned int  numberOfDefaultColors_;
 	char * newColors[maxcolors];
-        makeColorNameType makeColorName_ ;
+        const makeColorNameType makeColorName_ ;
 };
 
 
-struct Point
-{
-public:
-	Point(float x, float y) : x_(x),y_(y) {}
-	Point() : x_(0.0f), y_(0.0f) {}; // for arrays
-	float x_;
-	float y_;
-	friend bool operator==(const Point & p1, const Point & p2) { return (p1.x_ == p2.x_) && (p1.y_ == p2.y_); }
-private:
-};
 
 #ifdef __TCPLUSPLUS__
 // turbo C++ has problems with enum for template parameters
@@ -465,17 +549,19 @@ enum  Dtype {moveto, lineto, closepath, curveto};
 class basedrawingelement 
 {
 public:
-	basedrawingelement(unsigned int size_p) : size(size_p) {}
+//	basedrawingelement(unsigned int size_p) /*: size(size_p) */ {}
 	virtual const Point &getPoint(unsigned int i) const = 0;
 	virtual Dtype getType() const = 0;
 	friend ostream & operator<<(ostream & out,const basedrawingelement &elem);
 	friend bool operator==(const basedrawingelement & bd1, const basedrawingelement & bd2);
-protected:
-	const unsigned int size;
+	virtual unsigned int getNrOfPoints() const = 0;
+	virtual basedrawingelement* clone() const = 0; // make a copy
+private:
+//	const unsigned int size;
 };
 
 
-static void copyPoints(unsigned int nr, const Point src[], Point target[])
+inline void copyPoints(unsigned int nr, const Point src[], Point target[])
 {
 // needed because CenterLine cannot inline for loops
 	for (unsigned int i = 0 ; i < nr ; i++ ) target[i] = src[i]; 
@@ -490,33 +576,54 @@ public:
 //   <1 , 0 >::drawingelement__pt__19_XCUiL11XC5DtypeL10(Point*) with  for statement in inline
 
 	drawingelement(float x1 = 0.0 ,float y1 = 0.0 , float x2 = 0.0, float y2 = 0.0, float x3 = 0.0, float y3 = 0.0)
-	: basedrawingelement(nr)
-{
-	Point  p[] = {Point(x1,y1),Point(x2,y2),Point(x3,y3)};
-#if 0
-	Point   p[3];
-	p[0].x_ = x1;
-	p[0].y_ = y1;
-	p[1].x_ = x2;
-	p[1].y_ = y2;
-	p[2].x_ = x3;
-	p[2].y_ = y3;
-#endif
+	// : basedrawingelement(nr)
+	{
+#if defined (__GNUG__) || defined (_MSC_VER) && _MSC_VER >= 1100
+	const Point  p[] = {Point(x1,y1),Point(x2,y2),Point(x3,y3)};
 	copyPoints(nr,p,points);
-}
+#else
+	// Turbo C++ hangs if the other solution is used.
+	// and the HP CC compiler doesn't like it either
+	// so use this for all compilers besides GNU and MS VC++
+	// This, however, is somewhat slower than the solution above
+	Point  * p = new Point[3];
+	p[0] = Point(x1,y1);
+	p[1] = Point(x2,y2);
+	p[2] = Point(x3,y3);
+	copyPoints(nr,p,points);
+	delete [] p;
+#endif
+
+	}
 
 	drawingelement(const Point p[])
-	: basedrawingelement(nr)
-{
+	//: basedrawingelement(nr)
+	{
 //	for (unsigned int i = 0 ; i < nr ; i++ ) points[i] = p[i]; 
-	copyPoints(nr,p,points);
-}
-	const Point &getPoint(unsigned int i) const  { return points[i]; }
-	Dtype getType() const 		     { return (Dtype) curtype; }
+		copyPoints(nr,p,points);
+	}
+	drawingelement(const drawingelement<nr,curtype> & orig)
+		//: basedrawingelement(nr)
+	{ // copy ctor
+		if (orig.getType() != curtype ) {
+			cerr << "illegal usage of copy ctor of drawingelement" << endl;
+			exit(1);
+		} else {
+			copyPoints(nr,orig.points,points);
+		}
+	}
+	virtual basedrawingelement* clone() const {
+		return new drawingelement<nr,curtype>(*this);
+	}
+	const Point &getPoint(unsigned int i) const  { 
+		return points[i]; 
+	}
+	virtual Dtype getType() const 		     { return (Dtype) curtype; }
 						// This cast (Dtype) is necessary
 						// to eliminate a compiler warning
 						// from the SparcCompiler 4.1.
 						// although curtype is of type Dtype
+	virtual unsigned int getNrOfPoints() const { return nr; }
 private:
 	Point points[nr > 0 ? nr : 1];
 };
@@ -537,28 +644,178 @@ inline drawingelement<nr,curtype>::drawingelement(Point p[])
 
 typedef drawingelement<(unsigned int) 1,moveto>  	Moveto;
 typedef drawingelement<(unsigned int) 1,lineto> 	Lineto;
-typedef drawingelement<(unsigned int) 0,closepath>  	Closepath;
+typedef drawingelement<(unsigned int) 0,closepath>  Closepath;
 typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 
-// A temporary file, that is automatically removed after usage
-class TempFile {
+
+#define derivedConstructor(Class)			\
+	Class(const char * driveroptions_p, 	\
+	       ostream & theoutStream, 			\
+	       ostream & theerrStream, 			\
+		   const char* nameOfInputFile_p,	\
+	       const char* nameOfOutputFile_p,	\
+		   const float scalefactor_p,	    \
+		   const RSString & pagesize,		\
+		   const DriverDescription * descptr)	
+
+#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,scalefactor_p,pagesize,descptr)
+
+
+class DescriptionRegister
+{
+	enum {maxelems = 100 };
 public:
-	TempFile()  ;
-	~TempFile() ;
-	ofstream & asOutput();
-	ifstream & asInput();
+	DescriptionRegister() { 
+		ind = 0;
+		for (int i = 0; i < maxelems; i++) rp[i] = 0; 
+	//	cout << " R constructed " << (void *) this << endl;
+	}
+	~DescriptionRegister() {
+	//	cout << " R destructed " << (void *) this << endl;
+	}
+
+	static DescriptionRegister& getInstance();
+
+	void registerDriver(DriverDescription* xp);
+	void mergeRegister(ostream & out,const DescriptionRegister & src,const char * filename);
+	void explainformats(ostream & out) const;
+	const DriverDescription * getdriverdesc(const char * drivername) const;
+
+	DriverDescription* rp[maxelems];
+
+	int nrOfDescriptions() const { return ind; }
 private:
-	void close() ;
-	char * tempFileName;
-	ofstream outFileStream;
-	ifstream inFileStream;
+	
+	int ind;
 };
 
-// used to eliminate compiler warnings about unused parameters
-inline void unused(const void * const) { }
+extern DescriptionRegister* globalRp;
 
-class istream;
-class ostream;
-void copy_file(istream& infile,ostream& outfile) ;
-void freeconst(const void *ptr);
+//extern __declspec ( dllexport) "C" {
+//not needed // DescriptionRegister* getglobalRp();
+typedef DescriptionRegister* (*getglobalRpFuncPtr)();
+//}
+
+//class Rinit 
+//{
+//public:
+//	Rinit() { if (!globalRp) {globalRp = new DescriptionRegister; ref = 1 ; } else { ref++;} }
+//	~Rinit() { ref--; if (ref == 0) delete globalRp; }
+//
+//private:
+//	static	int ref;
+//};
+
+//static Rinit Rinit_var;
+
+//now in drvdesc.h typedef bool (*checkfuncptr)();
+// static bool nocheck() { return true; }
+
+typedef bool (*checkfuncptr)(void);
+class drvbase;
+
+class DriverDescription {
+public:
+	enum opentype {noopen, normalopen, binaryopen};
+	DriverDescription(const char * s_name, 
+			const char * expl, 
+			const char * suffix_p, 
+			const bool 	backendSupportsSubPathes_p,
+			const bool 	backendSupportsCurveto_p,
+			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
+			const bool 	backendSupportsText_p,
+			const bool 	backendSupportsImages_p,  // supports bitmap images
+			const opentype  backendFileOpenType_p,
+			const bool	backendSupportsMultiplePages_p,
+			checkfuncptr checkfunc_p = 0);
+	virtual ~DriverDescription() {}
+
+	virtual drvbase * CreateBackend (const char * driveroptions_P,
+			 ostream & theoutStream, 
+			 ostream & theerrStream,   
+			 const char* nameOfInputFile,
+		     const char* nameOfOutputFile,
+			 const float scalefactor,
+			 const RSString & pagesize
+			 ) const;
+	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
+
+ // Data members
+	const char * const symbolicname;
+	const char * const explanation;
+	const char * const suffix;
+	const char * const additionalInfo;
+	const bool 	backendSupportsSubPathes;
+	const bool 	backendSupportsCurveto;
+	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
+	const bool 	backendSupportsText;
+	const bool 	backendSupportsImages;  // supports bitmap images
+	const opentype  backendFileOpenType;
+	const bool	backendSupportsMultiplePages;
+	RSString filename; // where this driver is loaded from
+	const checkfuncptr checkfunc;
+};
+
+class DescriptionRegister;
+
+template <class T>
+class DriverDescriptionT : public DriverDescription {
+public:
+	DriverDescriptionT(const char * s_name, 
+			const char * expl, 
+			const char * suffix_p, 
+			const bool 	backendSupportsSubPathes_p,
+			const bool 	backendSupportsCurveto_p,
+			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
+			const bool 	backendSupportsText_p,
+			const bool 	backendSupportsImages_p,  // supports bitmap images
+			const DriverDescription::opentype  backendFileOpenType_p,
+			const bool	backendSupportsMultiplePages_p,
+			checkfuncptr checkfunc_p = 0 ):
+	DriverDescription( 
+			s_name, 
+			expl, 
+			suffix_p, 
+			backendSupportsSubPathes_p,
+			backendSupportsCurveto_p,
+			backendSupportsMerging_p, 
+			backendSupportsText_p,
+			backendSupportsImages_p, 
+			backendFileOpenType_p,
+			backendSupportsMultiplePages_p,
+			checkfunc_p
+			)
+		{}
+	drvbase * CreateBackend (
+			const char * driveroptions_P,
+		    ostream & theoutStream, 
+		    ostream & theerrStream,   
+			const char* nameOfInputFile,
+	       	const char* nameOfOutputFile,
+			const float scalefactor,
+			const RSString & pagesize
+			 ) const
+	{ 
+	  return new T(driveroptions_P, theoutStream, theerrStream,nameOfInputFile,nameOfOutputFile, scalefactor,pagesize,this); 
+	} 
+//	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
+	virtual unsigned int getdrvbaseVersion() const { return drvbaseVersion; }
+};
+
+
+
+inline float min(float x,float y)
+{
+	return (x<y) ? x:y;
+}
+
+inline float max(float x,float y)
+{
+	return (x>y) ? x:y;
+}
+
+
 #endif
+ 
+ 
+ 
