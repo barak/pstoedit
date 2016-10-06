@@ -1,0 +1,11 @@
+*.debhelper.log
+*.substvars
+/.debhelper/
+/autoreconf.after
+/autoreconf.before
+/debhelper-build-stamp
+/files
+/libpstoedit-dev/
+/libpstoedit0c2a/
+/pstoedit/
+/tmp/
