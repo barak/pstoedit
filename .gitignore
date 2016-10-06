@@ -27,6 +27,7 @@
 /missing
 /src/pstoedit
 /src/pstoedit_config.h
+/src/pstoedit_config.h.in
 /src/stamp-h1
 Makefile
 Makefile.in
