@@ -1,12 +1,18 @@
-Description: Remove -pedantic option from g++
- This patch removes the -pedantic option from g++ to prevent uncritical compile
- errors.
-Author: J.H.M. Dassen (Ray) <jdassen@debian.org>
+From: "J.H.M. Dassen (Ray)" <jdassen@debian.org>
+Date: Sun, 10 Jul 2011 12:19:43 +0200
+Subject: configure no pedantic
 
-Index: pstoedit-3.70/configure.ac
-===================================================================
---- pstoedit-3.70.orig/configure.ac
-+++ pstoedit-3.70/configure.ac
+Remove -pedantic option from g++
+
+This patch removes the -pedantic option from g++ to prevent uncritical compile errors.
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 2a4d8e7..b959266 100755
+--- a/configure.ac
++++ b/configure.ac
 @@ -473,7 +473,7 @@ if test "$GXX" = yes; then
    else
      AC_MSG_RESULT([GNU])

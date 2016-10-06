@@ -1,0 +1,95 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 5 Oct 2016 23:42:58 +0100
+Subject: spelling donts
+
+dont to don't
+
+doesnt to doesn't
+
+beeing to being
+---
+ doc/changelog.htm | 2 +-
+ src/drvfig.cpp    | 2 +-
+ src/pstoedit.h    | 2 +-
+ src/pstoedit.ph   | 8 ++++----
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/doc/changelog.htm b/doc/changelog.htm
+index b796c7f..e35c060 100644
+--- a/doc/changelog.htm
++++ b/doc/changelog.htm
+@@ -505,7 +505,7 @@
+     This is still in an experimenal stage!</li>
+   <li>added an option (-nc) to force the replacement of curves with line segments even for
+     backends that support curves.</li>
+-  <li>fixed a bug with the -flat option not beeing honoured correctly in combination with the
++  <li>fixed a bug with the -flat option not being honoured correctly in combination with the
+     new -nc option</li>
+   <li>added an option to emulate clipping (-sclip). This however results in larger number of
+     points ! Use it only if the missing support for clipping causes problems with your file.</li>
+diff --git a/src/drvfig.cpp b/src/drvfig.cpp
+index 921e379..94013b8 100644
+--- a/src/drvfig.cpp
++++ b/src/drvfig.cpp
+@@ -799,7 +799,7 @@ void drvFIG::show_path()
+ {
+ 	float localLineWidth = currentLineWidth();
+ 	localLineWidth *= 80.0f/72.0f; // xfig scales width differently - added in 3.50 - wogl
+-	// dont know whether this should be synchronized with -usecorrectfontsize option.
++	// don't know whether this should be synchronized with -usecorrectfontsize option.
+ 
+ 
+ 
+diff --git a/src/pstoedit.h b/src/pstoedit.h
+index 0393c6a..c644198 100644
+--- a/src/pstoedit.h
++++ b/src/pstoedit.h
+@@ -36,7 +36,7 @@
+ USESTD
+ #else
+ #if defined (__GNUG__)  && (__GNUC__>=3) 
+-/* if we dont define HAVE_STL for g++ > 3.0, then we can use the simple forwards */
++/* if we don't define HAVE_STL for g++ > 3.0, then we can use the simple forwards */
+ 	#include <iostream.h>
+ #else
+ 	class istream;
+diff --git a/src/pstoedit.ph b/src/pstoedit.ph
+index 5f6256c..3f07dd2 100755
+--- a/src/pstoedit.ph
++++ b/src/pstoedit.ph
+@@ -2991,7 +2991,7 @@ const char * const PS_prologue[] =
+  " soverload ",
+  " /copypage  ",
+  " { 4059 psentry ",
+- " (copypage is beeing handled as showpage. This may lead to different results if copypage was used to overlay multiple pages to one\\n) true printwarning ",
++ " (copypage is being handled as showpage. This may lead to different results if copypage was used to overlay multiple pages to one\\n) true printwarning ",
+  " showpage ",
+  " psexit }  ",
+  " soverload ",
+@@ -3243,7 +3243,7 @@ const char * const PS_prologue[] =
+  " { 4433 psentry ",
+  " printstate ",
+  " pstoedit.ignoredraw pstoedit.ignoreimage or  ",
+- " pstoedit.DrawGlyphBitmaps not and % if DrawGlyphBitmaps is true then dont suppress the images coming from glyphs ",
++ " pstoedit.DrawGlyphBitmaps not and % if DrawGlyphBitmaps is true then don't suppress the images coming from glyphs ",
+  " pstoedit.DEVICEINFO /HWResolution known not or  ",
+  " { 4442 psentry ",
+  " pstoedit.verbosemode  ",
+@@ -3451,7 +3451,7 @@ const char * const PS_prologue[] =
+  " /pstoedit.image.stringprefix exch store ",
+  " /pstoedit.image.realproc exch store ",
+  " pstoedit.ignoredraw pstoedit.ignoreimage or  ",
+- " pstoedit.DrawGlyphBitmaps not and % if DrawGlyphBitmaps is true then dont suppress the images coming from glyphs ",
++ " pstoedit.DrawGlyphBitmaps not and % if DrawGlyphBitmaps is true then don't suppress the images coming from glyphs ",
+  " pstoedit.DEVICEINFO /HWResolution known not or %%%% test only pop false ",
+  " { 4722 psentry ",
+  " pstoedit.verbosemode  ",
+@@ -4051,7 +4051,7 @@ const char * const PS_prologue[] =
+  " 0 pstoedit.image.height -1 mul translate ",
+  " psexit }  ",
+  " if   ",
+- " -image %pstoedit.realproc  %% it probably doesnt make sense to use imagemask on the virtual device ",
++ " -image %pstoedit.realproc  %% it probably doesn't make sense to use imagemask on the virtual device ",
+  " 0 .endpage .doneshowpage 1 true .outputpage pop ",
+  " -grestore  %% Hier wird offenbar das gerestore mit output aufgerufen. Wieso ist unklar. ",
+  " psexit }  ",

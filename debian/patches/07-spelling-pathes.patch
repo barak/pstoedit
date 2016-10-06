@@ -1,0 +1,818 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 6 Oct 2016 08:11:22 +0100
+Subject: spelling pathes
+
+pathes to paths
+---
+ doc/changelog.htm   |  6 +++---
+ src/drvbase.cpp     | 24 ++++++++++++------------
+ src/drvbase.h       | 16 ++++++++--------
+ src/drvcairo.cpp    |  4 ++--
+ src/drvcfdg.cpp     |  2 +-
+ src/drvdxf.cpp      |  8 ++++----
+ src/drvgcode.cpp    |  4 ++--
+ src/drvgnplt.cpp    |  4 ++--
+ src/drvgschem.cpp   |  4 ++--
+ src/drvhpgl.cpp     |  8 ++++----
+ src/drvidraw.cpp    |  4 ++--
+ src/drvjava.cpp     |  4 ++--
+ src/drvjava2.cpp    |  4 ++--
+ src/drvkillu.cpp    |  4 ++--
+ src/drvlatex2e.cpp  |  4 ++--
+ src/drvlwo.cpp      |  4 ++--
+ src/drvmagick++.cpp |  4 ++--
+ src/drvmma.cpp      |  4 ++--
+ src/drvmpost.cpp    |  4 ++--
+ src/drvpcb1.cpp     |  4 ++--
+ src/drvpcb2.cpp     |  4 ++--
+ src/drvpcbfill.cpp  |  4 ++--
+ src/drvpdf.cpp      |  4 ++--
+ src/drvpic.cpp      |  4 ++--
+ src/drvpptx.cpp     |  4 ++--
+ src/drvrib.cpp      |  4 ++--
+ src/drvrpl.cpp      |  4 ++--
+ src/drvsampl.cpp    |  4 ++--
+ src/drvsvm.cpp      |  2 +-
+ src/drvswf.cpp      |  4 ++--
+ src/drvtext.cpp     |  4 ++--
+ src/drvtgif.cpp     |  4 ++--
+ src/drvtk.cpp       |  4 ++--
+ src/drvvtk.cpp      |  4 ++--
+ src/drvwmf.cpp      |  8 ++++----
+ src/lexyy.cpp       |  4 ++--
+ src/pstoedit.cpp    |  4 ++--
+ src/pstoedll.h      |  2 +-
+ 38 files changed, 96 insertions(+), 96 deletions(-)
+
+diff --git a/doc/changelog.htm b/doc/changelog.htm
+index e35c060..3be5301 100644
+--- a/doc/changelog.htm
++++ b/doc/changelog.htm
+@@ -300,7 +300,7 @@
+     Russell Lang.</li>
+   <li>added a general -help option for each driver to show driver specific options. For
+     example -f xfig:-help shows specific options for the fig backend.</li>
+-  <li>minor bug fix in CGM backend - some pathes triggered an assertion violation.</li>
++  <li>minor bug fix in CGM backend - some paths triggered an assertion violation.</li>
+   <li>several enhancements for the DXF backend. Now it supports the DXF SPLINE element as
+     well. Big thanks to Daniel Gehriger <a href="mailto:gehriger_AT_linkcad.com">(gehriger_AT_linkcad.com</a>)
+     for his help concerning the DXF format.</li>
+@@ -524,7 +524,7 @@
+     gs5.82.</li>
+   <li>bux fix in documentation (-fontmap instead of -mapfile).</li>
+   <li>added some support for easier retrieval of dash patterns from within backends.</li>
+-  <li>extended the check for &quot;mergable&quot; path to include also eofilled pathes and
++  <li>extended the check for &quot;mergable&quot; path to include also eofilled paths and
+     made pathsCanBeMerged virtual so it can be overloaded by a specific backend.</li>
+   <li>changed again the version of drvbase. This means that all plugins need to be updated
+     (just the .dll not the keys). Otherwise you will get an error message.</li>
+@@ -550,7 +550,7 @@
+   <li>Burkhard Plaum <a href="mailto:(plaum_AT_IPF.Uni-Stuttgart.de">(plaum_AT_IPF.Uni-Stuttgart.de</a>)
+     added support for complex filled paths (paths consisting of an arbitraty sequence of
+     moveto, lineto and curveto in combination with fill and eofill) to the xfig backend. In
+-    future, this will be made available to other backend that don't support such pathes as
++    future, this will be made available to other backend that don't support such paths as
+     well. In order to activate this feature you need to specify the -ssp (simulate sub paths)
+     option.</li>
+   <li>changed again the version of drvbase due to the support for complex paths. This means
+diff --git a/src/drvbase.cpp b/src/drvbase.cpp
+index 5ec33a8..c574e59 100644
+--- a/src/drvbase.cpp
++++ b/src/drvbase.cpp
+@@ -326,7 +326,7 @@ bool drvbase::pathsCanBeMerged(const PathInfo & path1, const PathInfo & path2) c
+ 			 && path2.currentLineType == solid && ((path1.currentShowType == fill)
+ 												   || (path1.currentShowType == eofill))))
+ 		&& (path1.numberOfElementsInPath == path2.numberOfElementsInPath)) {
+-		//errf << "Pathes seem to be mergeable" << endl;
++		//errf << "Paths seem to be mergeable" << endl;
+ 		for (unsigned int i = 0; i < path1.numberOfElementsInPath; i++) {
+ 			const basedrawingelement *bd1 = path1.path[i];
+ 			const basedrawingelement *bd2 = path2.path[i];
+@@ -339,11 +339,11 @@ bool drvbase::pathsCanBeMerged(const PathInfo & path1, const PathInfo & path2) c
+ 				return false;
+ 		}
+ 		if (verbose)
+-			errf << "Pathes are mergeable" << endl;
++			errf << "Paths are mergeable" << endl;
+ 		return true;
+ 	} else {
+ 		if (verbose)
+-			errf << "Pathes are not mergable:" <<
++			errf << "Paths are not mergable:" <<
+ 				" PI1 st " << (int) path1.currentShowType <<
+ 				" PI1 lt " << (int) path1.currentLineType <<
+ 				" PI1 el " << path1.numberOfElementsInPath <<
+@@ -879,7 +879,7 @@ unsigned int drvbase::nrOfSubpaths() const
+ }
+ 
+ 
+-void drvbase::dumpRearrangedPathes()
++void drvbase::dumpRearrangedPaths()
+ {
+ 	// Count the subpaths
+ 	unsigned int numpaths = nrOfSubpaths();
+@@ -957,7 +957,7 @@ bool drvbase::close_output_file_and_reopen_in_binary_mode()
+ void drvbase::beginClipPath()
+ {
+ 	// now we start a clippath, so we need to dump
+-	// all previous pathes
++	// all previous paths
+ 	flushOutStanding();
+ 	last_currentPath = currentPath;
+ 	currentPath = &clippath;
+@@ -1029,7 +1029,7 @@ void drvbase::dumpPath(bool doFlushText)
+ 		// a polygon with two points is drawn as a line
+ 
+ 		// PROBLEM ! This resetting has an impact on the subsequent segments
+-		// if subpathes are not supported by the backend !!!!
++		// if subpaths are not supported by the backend !!!!
+ 		currentPath->isPolygon = false;
+ 		currentPath->currentShowType = drvbase::stroke;
+ 	}
+@@ -1083,8 +1083,8 @@ void drvbase::dumpPath(bool doFlushText)
+ 	}
+ 	if (numberOfElementsInPath() > 0) {
+ 
+-		// nothing to do for empty pathes
+-		// pathes may be empty due to a merge operation
++		// nothing to do for empty paths
++		// paths may be empty due to a merge operation
+ 
+ 		if (verbose) {
+ 			errf << "working on";
+@@ -1134,13 +1134,13 @@ void drvbase::dumpPath(bool doFlushText)
+ 					show_rectangle(llx, lly, urx, ury);
+ 				} else {
+ 					if (globaloptions.simulateSubPaths)
+-						dumpRearrangedPathes();
++						dumpRearrangedPaths();
+ 					else
+ 						show_or_convert_path();
+ 				}
+ 			} else {			/* PolyLine */
+ 				if (globaloptions.simulateSubPaths)
+-					dumpRearrangedPathes();
++					dumpRearrangedPaths();
+ 				else
+ 					show_or_convert_path();
+ 			}
+@@ -1493,7 +1493,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
+ 										const char *const short_expl, 
+ 										const char *const long_expl, 
+ 										const char *const suffix_p, 
+-										const bool backendSupportsSubPathes_p, 
++										const bool backendSupportsSubPaths_p, 
+ 										const bool backendSupportsCurveto_p, 
+ 										const bool backendSupportsMerging_p,	// merge a separate outline and filling of a polygon -> 1. element
+ 										const bool backendSupportsText_p, 
+@@ -1507,7 +1507,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
+ 	short_explanation(short_expl), 
+ 	long_explanation(long_expl), 
+ 	suffix(suffix_p), 
+-	backendSupportsSubPathes(backendSupportsSubPathes_p), 
++	backendSupportsSubPaths(backendSupportsSubPaths_p), 
+ 	backendSupportsCurveto(backendSupportsCurveto_p), 
+ 	backendSupportsMerging(backendSupportsMerging_p),	// merge a separate outline and filling of a polygon -> 1. element
+ 	backendSupportsText(backendSupportsText_p), 
+diff --git a/src/drvbase.h b/src/drvbase.h
+index 821af27..8982ee3 100644
+--- a/src/drvbase.h
++++ b/src/drvbase.h
+@@ -248,7 +248,7 @@ protected:
+ #endif
+ 		bool	 	isPolygon; // whether current path was closed via closepath or not
+ 		unsigned int	numberOfElementsInPath;
+-		unsigned int	subpathoffset; // normally 0, but if subpathes are simulated
++		unsigned int	subpathoffset; // normally 0, but if subpaths are simulated
+ 									   // then this is set to the begin of the current subpath 
+ 									   // before show_path is executed
+ 		float           currentLineWidth;
+@@ -314,7 +314,7 @@ protected:
+ //lint -esym(1712,SaveRestoreInfo) // no default ctor
+ 	class DLLEXPORT SaveRestoreInfo {
+ 	public:
+-		unsigned int clippathlevel; // number of clippathes since opening (=save)
++		unsigned int clippathlevel; // number of clippaths since opening (=save)
+ 		unsigned int savelevel;	
+ 		SaveRestoreInfo * previous;	
+ 		SaveRestoreInfo * next;
+@@ -537,7 +537,7 @@ public:
+ 
+ 	void		flushOutStanding( flushmode_t flushmode = flushall);
+ 
+-	void		dumpRearrangedPathes(); // show the current subpathes after calling rearrange
++	void		dumpRearrangedPaths(); // show the current subpaths after calling rearrange
+ 
+ 	unsigned int nrOfSubpaths() const;
+ 
+@@ -731,7 +731,7 @@ const Dtype curveto = 4;
+ #else
+ enum  Dtype {moveto, lineto, closepath, curveto};
+ #endif
+-// closepath is only generated if backend supportes subpathes
++// closepath is only generated if backend supportes subpaths
+ // curveto   is only generated if backend supportes it
+ 
+ //lint -esym(1769,basedrawingelement)
+@@ -953,7 +953,7 @@ public:
+ 			const char * const short_expl, 
+ 			const char * const long_expl,
+ 			const char * const suffix_p, 
+-			const bool 	backendSupportsSubPathes_p,
++			const bool 	backendSupportsSubPaths_p,
+ 			const bool 	backendSupportsCurveto_p,
+ 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
+ 			const bool 	backendSupportsText_p,
+@@ -988,7 +988,7 @@ public:
+ 	const char * const long_explanation;
+ 	const char * const suffix;
+ 
+-	const bool 	backendSupportsSubPathes;
++	const bool 	backendSupportsSubPaths;
+ 	const bool 	backendSupportsCurveto;
+ 	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
+ 	const bool 	backendSupportsText;
+@@ -1021,7 +1021,7 @@ public:
+ 			const char * short_expl_p, 
+ 			const char * long_expl_p, 
+ 			const char * suffix_p, 
+-			const bool 	backendSupportsSubPathes_p,
++			const bool 	backendSupportsSubPaths_p,
+ 			const bool 	backendSupportsCurveto_p,
+ 			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
+ 			const bool 	backendSupportsText_p,
+@@ -1036,7 +1036,7 @@ public:
+ 			short_expl_p,
+ 			long_expl_p, 
+ 			suffix_p, 
+-			backendSupportsSubPathes_p,
++			backendSupportsSubPaths_p,
+ 			backendSupportsCurveto_p,
+ 			backendSupportsMerging_p, 
+ 			backendSupportsText_p,
+diff --git a/src/drvcairo.cpp b/src/drvcairo.cpp
+index 67d07dc..4e44f29 100644
+--- a/src/drvcairo.cpp
++++ b/src/drvcairo.cpp
+@@ -700,8 +700,8 @@ static DriverDescriptionT < drvCAIRO > D_cairo("cairo",  // name
+ 					       "cairo driver", // short description
+ 					       "generates compilable c code for rendering with cairo", // long description
+ 					       "c", // output file suffix
+-					       true,	// backend supports subpathes
+-					       // if subpathes are supported, the backend must deal with
++					       true,	// backend supports subpaths
++					       // if subpaths are supported, the backend must deal with
+ 					       // sequences of the following form
+ 					       // moveto (start of subpath)
+ 					       // lineto (a line segment)
+diff --git a/src/drvcfdg.cpp b/src/drvcfdg.cpp
+index 67d28ce..bd3f8d1 100644
+--- a/src/drvcfdg.cpp
++++ b/src/drvcfdg.cpp
+@@ -205,7 +205,7 @@ void drvCFDG::show_path()
+ 
+ static DriverDescriptionT < drvCFDG > D_cfdg("cfdg", "Context Free Design Grammar", "Context Free Design Grammar, usable by Context Free Art (http://www.contextfreeart.org/)", "cfdg",
+ 					     true,	// backend supports subpaths
+-					                // if subpathes are supported, the backend must deal with
++					                // if subpaths are supported, the backend must deal with
+ 							// sequences of the following form
+ 							// moveto (start of subpath)
+ 							// lineto (a line segment)
+diff --git a/src/drvdxf.cpp b/src/drvdxf.cpp
+index 8f953b0..b89e5bf 100644
+--- a/src/drvdxf.cpp
++++ b/src/drvdxf.cpp
+@@ -1623,8 +1623,8 @@ void drvDXF::show_path()
+ 
+ 
+ 
+-static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format","", "dxf", false,	// if backend supports subpathes, else 0
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format","", "dxf", false,	// if backend supports subpaths, else 0
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+@@ -1644,8 +1644,8 @@ static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format","", "dxf
+ 										   false /*clipping */ 
+ 										   );
+ 
+-static DriverDescriptionT < drvDXF > D_dxf_s("dxf_s", "CAD exchange format with splines","", "dxf", false,	// if backend supports subpathes, else 0
+-											 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvDXF > D_dxf_s("dxf_s", "CAD exchange format with splines","", "dxf", false,	// if backend supports subpaths, else 0
++											 // if subpaths are supported, the backend must deal with
+ 											 // sequences of the following form
+ 											 // moveto (start of subpath)
+ 											 // lineto (a line segment)
+diff --git a/src/drvgcode.cpp b/src/drvgcode.cpp
+index c03c56d..ac40889 100644
+--- a/src/drvgcode.cpp
++++ b/src/drvgcode.cpp
+@@ -136,8 +136,8 @@ void drvGCODE::show_path()
+ 
+ 
+ static DriverDescriptionT < drvGCODE > D_gcode("gcode", "emc2 gcode format", 
+-												 "See also:  \\URL{http://linuxcnc.org/}","gcode", false,	// if backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++												 "See also:  \\URL{http://linuxcnc.org/}","gcode", false,	// if backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvgnplt.cpp b/src/drvgnplt.cpp
+index 1aad9b0..d5feb73 100644
+--- a/src/drvgnplt.cpp
++++ b/src/drvgnplt.cpp
+@@ -64,8 +64,8 @@ void drvGNUPLOT::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "","gnuplot", false,	// if backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvGNUPLOT > D_gnuplot("gnuplot", "gnuplot format", "","gnuplot", false,	// if backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvgschem.cpp b/src/drvgschem.cpp
+index accebd8..c9e87b1 100644
+--- a/src/drvgschem.cpp
++++ b/src/drvgschem.cpp
+@@ -73,8 +73,8 @@ void drvGSCHEM::show_path()
+ 
+ 
+ static DriverDescriptionT < drvGSCHEM > D_gschem("gschem", "gschem format", 
+-												 "See also:  \\URL{http://www.geda.seul.org/tools/gschem/}","gschem", false,	// if backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++												 "See also:  \\URL{http://www.geda.seul.org/tools/gschem/}","gschem", false,	// if backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvhpgl.cpp b/src/drvhpgl.cpp
+index 816d4f3..8565dcb 100644
+--- a/src/drvhpgl.cpp
++++ b/src/drvhpgl.cpp
+@@ -509,8 +509,8 @@ void drvHPGL::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvHPGL > D_HPGL("hpgl", "HPGL code", "","hpgl", false,	// backend supports subpathes
+-												 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvHPGL > D_HPGL("hpgl", "HPGL code", "","hpgl", false,	// backend supports subpaths
++												 // if subpaths are supported, the backend must deal with
+ 												 // sequences of the following form
+ 												 // moveto (start of subpath)
+ 												 // lineto (a line segment)
+@@ -529,8 +529,8 @@ static DriverDescriptionT < drvHPGL > D_HPGL("hpgl", "HPGL code", "","hpgl", fal
+ 												 DriverDescription::normalopen, false,	// backend support multiple pages
+ 												 false /*clipping */ );
+ 
+-static DriverDescriptionT < drvHPGL > D_PCL("pcl", "PCL code", "","pcl", false,	// backend supports subpathes
+-												 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvHPGL > D_PCL("pcl", "PCL code", "","pcl", false,	// backend supports subpaths
++												 // if subpaths are supported, the backend must deal with
+ 												 // sequences of the following form
+ 												 // moveto (start of subpath)
+ 												 // lineto (a line segment)
+diff --git a/src/drvidraw.cpp b/src/drvidraw.cpp
+index 431de36..3e9d6be 100644
+--- a/src/drvidraw.cpp
++++ b/src/drvidraw.cpp
+@@ -1012,8 +1012,8 @@ void drvIDRAW::show_image(const PSImage & imageinfo)
+ 	imageinfo.writeIdrawImage(outf, 1.0f / IDRAW_SCALING);
+ }
+ 
+-static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format (EPS)", "", "idraw", false,	// if backend supports subpathes, else 0
+-											   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvIDRAW > D_idraw("idraw", "Interviews draw format (EPS)", "", "idraw", false,	// if backend supports subpaths, else 0
++											   // if subpaths are supported, the backend must deal with
+ 											   // sequences of the following form
+ 											   // moveto (start of subpath)
+ 											   // lineto (a line segment)
+diff --git a/src/drvjava.cpp b/src/drvjava.cpp
+index 76491e5..b35bd7a 100644
+--- a/src/drvjava.cpp
++++ b/src/drvjava.cpp
+@@ -236,8 +236,8 @@ void drvJAVA::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code", "","java", false,	// if backend supports subpathes, else 0
+-											 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvJAVA > D_java("java1", "java 1 applet source code", "","java", false,	// if backend supports subpaths, else 0
++											 // if subpaths are supported, the backend must deal with
+ 											 // sequences of the following form
+ 											 // moveto (start of subpath)
+ 											 // lineto (a line segment)
+diff --git a/src/drvjava2.cpp b/src/drvjava2.cpp
+index e4846e9..dbb59d4 100644
+--- a/src/drvjava2.cpp
++++ b/src/drvjava2.cpp
+@@ -408,8 +408,8 @@ void drvJAVA2::show_image(const PSImage & imageinfo)
+ }
+ 
+ 
+-static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "","java2", true,	// if backend supports subpathes, else 0
+-											   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvJAVA2 > D_java2("java2", "java 2 source code", "","java2", true,	// if backend supports subpaths, else 0
++											   // if subpaths are supported, the backend must deal with
+ 											   // sequences of the following form
+ 											   // moveto (start of subpath)
+ 											   // lineto (a line segment)
+diff --git a/src/drvkillu.cpp b/src/drvkillu.cpp
+index ee5670b..c01374b 100644
+--- a/src/drvkillu.cpp
++++ b/src/drvkillu.cpp
+@@ -191,8 +191,8 @@ int drvKontour::cvtColor(float c)
+ 	return int ((c * 255.0) + 0.5);
+ }
+ 
+-static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Kontour", "","kil", false,	// backend supports subpathes
+-															 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvKontour > D_Kontour("kil", ".kil format for Kontour", "","kil", false,	// backend supports subpaths
++															 // if subpaths are supported, the backend must deal with
+ 															 // sequences of the following form
+ 															 // moveto (start of subpath)
+ 															 // lineto (a line segment)
+diff --git a/src/drvlatex2e.cpp b/src/drvlatex2e.cpp
+index 03edef0..d716aa6 100644
+--- a/src/drvlatex2e.cpp
++++ b/src/drvlatex2e.cpp
+@@ -394,8 +394,8 @@ void drvLATEX2E::show_image(const Image &  )
+ #endif
+ 
+ // Describe the LaTeX2e backend's capabilities.
+-static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "\\LaTeX2e picture format", "","tex", true,	// backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvLATEX2E > D_latex2e("latex2e", "\\LaTeX2e picture format", "","tex", true,	// backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvlwo.cpp b/src/drvlwo.cpp
+index d3142a0..d02def1 100644
+--- a/src/drvlwo.cpp
++++ b/src/drvlwo.cpp
+@@ -181,8 +181,8 @@ void drvLWO::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D object format", "","lwo", false,	// if backend supports subpathes, else 0
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvLWO > D_lwo("lwo", "LightWave 3D object format", "","lwo", false,	// if backend supports subpaths, else 0
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvmagick++.cpp b/src/drvmagick++.cpp
+index 31b4a4c..5c36e50 100644
+--- a/src/drvmagick++.cpp
++++ b/src/drvmagick++.cpp
+@@ -376,8 +376,8 @@ static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver compat
+ 												 "formats. The output format is determined automatically by Image-/GraphicsMagick based on the suffix "
+ 												 "of the output filename. So an output file test.png will force the creation of an image in PNG format."
+ 												 " This binary of pstoedit was compiled against version " MagickLibVersionText " of " MagickPackageName ".",
+-												 "...", true,	// backend supports subpathes
+-												 // if subpathes are supported, the backend must deal with
++												 "...", true,	// backend supports subpaths
++												 // if subpaths are supported, the backend must deal with
+ 												 // sequences of the following form
+ 												 // moveto (start of subpath)
+ 												 // lineto (a line segment)
+diff --git a/src/drvmma.cpp b/src/drvmma.cpp
+index 6f76aca..a5f3ba9 100644
+--- a/src/drvmma.cpp
++++ b/src/drvmma.cpp
+@@ -286,8 +286,8 @@ void drvMMA::RGBColor(float R, float G, float B)
+ 	}
+ }
+ 
+-static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica graphics", "","m", true,	// backend supports subpathes
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvMMA > D_mma("mma", "Mathematica graphics", "","m", true,	// backend supports subpaths
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvmpost.cpp b/src/drvmpost.cpp
+index e093bd9..69a52b6 100644
+--- a/src/drvmpost.cpp
++++ b/src/drvmpost.cpp
+@@ -416,8 +416,8 @@ void drvMPOST::show_path()
+ 	print_coords();
+ }
+ 
+-static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost format", "","mp", true,	// if backend supports subpathes, else 0
+-											   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvMPOST > D_mpost("mpost", "MetaPost format", "","mp", true,	// if backend supports subpaths, else 0
++											   // if subpaths are supported, the backend must deal with
+ 											   // sequences of the following form
+ 											   // moveto (start of subpath)
+ 											   // lineto (a line segment)
+diff --git a/src/drvpcb1.cpp b/src/drvpcb1.cpp
+index a40e1b2..05ea2f4 100644
+--- a/src/drvpcb1.cpp
++++ b/src/drvpcb1.cpp
+@@ -440,8 +440,8 @@ static DriverDescriptionT<drvPCB1> D_pcb("pcbi","engrave data - insulate/PCB for
+ 										 "See \\URL{http://home.vr-web.de/\\Tilde hans-juergen-jahn/software/devpcb.html} for more details.",
+ 										 "dat",
+ 								
+-		false, // backend supports subpathes
+-		   // if subpathes are supported, the backend must deal with
++		false, // backend supports subpaths
++		   // if subpaths are supported, the backend must deal with
+ 		   // sequences of the following form
+ 		   // moveto (start of subpath)
+ 		   // lineto (a line segment)
+diff --git a/src/drvpcb2.cpp b/src/drvpcb2.cpp
+index 1581998..b6f379d 100644
+--- a/src/drvpcb2.cpp
++++ b/src/drvpcb2.cpp
+@@ -287,8 +287,8 @@ void drvPCB2::show_path()
+ 
+ 
+ static DriverDescriptionT < drvPCB2 > D_pcb("pcb", "pcb format", 
+-											"See also: \\URL{http://pcb.sourceforge.net} and \\URL{http://www.penguin.cz/\\Tilde utx/pstoedit-pcb/}","pcb", false,	// if backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++											"See also: \\URL{http://pcb.sourceforge.net} and \\URL{http://www.penguin.cz/\\Tilde utx/pstoedit-pcb/}","pcb", false,	// if backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvpcbfill.cpp b/src/drvpcbfill.cpp
+index 8e46812..cccdc58 100644
+--- a/src/drvpcbfill.cpp
++++ b/src/drvpcbfill.cpp
+@@ -75,8 +75,8 @@ void drvPCBFILL::show_path()
+ 
+ 
+ static DriverDescriptionT < drvPCBFILL > D_pcbfill("pcbfill", "pcb format with fills", 
+-												   "See also: \\URL{http://pcb.sourceforge.net}","pcbfill", false,	// if backend supports subpathes
+-												   // if subpathes are supported, the backend must deal with
++												   "See also: \\URL{http://pcb.sourceforge.net}","pcbfill", false,	// if backend supports subpaths
++												   // if subpaths are supported, the backend must deal with
+ 												   // sequences of the following form
+ 												   // moveto (start of subpath)
+ 												   // lineto (a line segment)
+diff --git a/src/drvpdf.cpp b/src/drvpdf.cpp
+index c128aef..da34d53 100644
+--- a/src/drvpdf.cpp
++++ b/src/drvpdf.cpp
+@@ -693,8 +693,8 @@ void drvPDF::show_path()
+ 	buffer << drawingop << endl;
+ }
+ 
+-static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document Format", "","pdf", true,	// if backend supports subpathes, else 0
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvPDF > D_pdf("pdf", "Adobe's Portable Document Format", "","pdf", true,	// if backend supports subpaths, else 0
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvpic.cpp b/src/drvpic.cpp
+index 03534f9..dae8390 100644
+--- a/src/drvpic.cpp
++++ b/src/drvpic.cpp
+@@ -426,8 +426,8 @@ void drvPIC::show_path()
+ 	print_coords();
+ }
+ 
+-static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.","", "pic", true,	// backend supports subpathes
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvPIC > D_PIC("pic", "PIC format for troff et.al.","", "pic", true,	// backend supports subpaths
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvpptx.cpp b/src/drvpptx.cpp
+index d4db9e0..6dd7eb2 100644
+--- a/src/drvpptx.cpp
++++ b/src/drvpptx.cpp
+@@ -1767,8 +1767,8 @@ D_pptx("pptx",
+        "PresentationML (PowerPoint) format",
+        "This is the format used internally by Microsoft PowerPoint.  LibreOffice can also read/write PowerPoint files albeit with some lack of functionality.",
+        "pptx",
+-       true,   // backend supports subpathes
+-       // if subpathes are supported, the backend must deal with
++       true,   // backend supports subpaths
++       // if subpaths are supported, the backend must deal with
+        // sequences of the following form
+        // moveto (start of subpath)
+        // lineto (a line segment)
+diff --git a/src/drvrib.cpp b/src/drvrib.cpp
+index c151eb9..cb6a767 100644
+--- a/src/drvrib.cpp
++++ b/src/drvrib.cpp
+@@ -106,8 +106,8 @@ void drvRIB::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestream", "","rib", false,	// if backend supports subpathes, else 0
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvRIB > D_rib("rib", "RenderMan Interface Bytestream", "","rib", false,	// if backend supports subpaths, else 0
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvrpl.cpp b/src/drvrpl.cpp
+index e5696de..f490d50 100644
+--- a/src/drvrpl.cpp
++++ b/src/drvrpl.cpp
+@@ -95,8 +95,8 @@ void drvRPL::show_path()
+ 	print_coords();
+ }
+ 
+-static DriverDescriptionT < drvRPL > D_rpl("rpl", "Real3D Programming Language format","", "rpl", false,	// if backend supports subpathes, else 0
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvRPL > D_rpl("rpl", "Real3D Programming Language format","", "rpl", false,	// if backend supports subpaths, else 0
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvsampl.cpp b/src/drvsampl.cpp
+index 0af29d9..75d2d16 100644
+--- a/src/drvsampl.cpp
++++ b/src/drvsampl.cpp
+@@ -258,8 +258,8 @@ void drvSAMPL::show_image(const PSImage & imageinfo)
+ 	}
+ }
+ 
+-static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you do not want to see this, uncomment the corresponding line in makefile and make again", "this is a long description for the sample driver","sam", true,	// backend supports subpathes
+-											   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvSAMPL > D_sampl("sample", "sample driver: if you do not want to see this, uncomment the corresponding line in makefile and make again", "this is a long description for the sample driver","sam", true,	// backend supports subpaths
++											   // if subpaths are supported, the backend must deal with
+ 											   // sequences of the following form
+ 											   // moveto (start of subpath)
+ 											   // lineto (a line segment)
+diff --git a/src/drvsvm.cpp b/src/drvsvm.cpp
+index 381a813..f049e01 100644
+--- a/src/drvsvm.cpp
++++ b/src/drvsvm.cpp
+@@ -1048,7 +1048,7 @@ static DriverDescriptionT < drvSVM > D_svm("svm",
+                                            "StarView/OpenOffice.org metafile", 
+                                            "StarView/OpenOffice.org metafile, readable from OpenOffice.org 1.0/StarOffice 6.0 and above.",
+                                            "svm", 
+-                                           true,	// backend supports subpathes
++                                           true,	// backend supports subpaths
+ 										   true,	// backend does support curves
+ 										   true,	// backend supports elements which are filled and have edges 
+ 										   true,	// backend supports text
+diff --git a/src/drvswf.cpp b/src/drvswf.cpp
+index a311d16..43f62e3 100644
+--- a/src/drvswf.cpp
++++ b/src/drvswf.cpp
+@@ -697,8 +697,8 @@ static DriverDescriptionT < drvSWF > D_SWF("swf",	//
+ 										   "SWF driver: ",	//
+ 										   "",
+ 										   "swf",	//
+-										   false,	// backend supports subpathes
+-										   // if subpathes are supported, the backend must deal with
++										   false,	// backend supports subpaths
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/drvtext.cpp b/src/drvtext.cpp
+index ac6eb91..ee34c05 100644
+--- a/src/drvtext.cpp
++++ b/src/drvtext.cpp
+@@ -198,8 +198,8 @@ void drvTEXT::show_image(const PSImage & imageinfo)
+ 	unused(&imageinfo);
+ }
+ 
+-static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ", "","txt", false,	// if backend supports subpathes, else 0
+-											 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvTEXT > D_text("text", "text in different forms ", "","txt", false,	// if backend supports subpaths, else 0
++											 // if subpaths are supported, the backend must deal with
+ 											 // sequences of the following form
+ 											 // moveto (start of subpath)
+ 											 // lineto (a line segment)
+diff --git a/src/drvtgif.cpp b/src/drvtgif.cpp
+index 9da6ab7..c5a47bf 100644
+--- a/src/drvtgif.cpp
++++ b/src/drvtgif.cpp
+@@ -371,8 +371,8 @@ void drvTGIF::show_rectangle(const float llx, const float lly, const float urx,
+ 		<< "," << Fill << "," << objectId++ << ",0,0,0,0,0,'1',[" << endl << "])." << endl;
+ }
+ 
+-static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format", "","obj", false,	// if backend supports subpathes, else 0
+-											 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvTGIF > D_tgif("tgif", "Tgif .obj format", "","obj", false,	// if backend supports subpaths, else 0
++											 // if subpaths are supported, the backend must deal with
+ 											 // sequences of the following form
+ 											 // moveto (start of subpath)
+ 											 // lineto (a line segment)
+diff --git a/src/drvtk.cpp b/src/drvtk.cpp
+index 0d54f06..54d6b1c 100644
+--- a/src/drvtk.cpp
++++ b/src/drvtk.cpp
+@@ -1079,8 +1079,8 @@ void drvTK::show_path()
+ }
+ 
+ 
+-static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code", "","tk", false,	// backend supports subpathes
+-										 // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvTK > D_tk("tk", "tk and/or tk applet source code", "","tk", false,	// backend supports subpaths
++										 // if subpaths are supported, the backend must deal with
+ 										 // sequences of the following form
+ 										 // moveto (start of subpath)
+ 										 // lineto (a line segment)
+diff --git a/src/drvvtk.cpp b/src/drvvtk.cpp
+index 8bb3fec..328c472 100644
+--- a/src/drvvtk.cpp
++++ b/src/drvvtk.cpp
+@@ -153,8 +153,8 @@ void drvVTK::show_image(const PSImage & )
+ 	errf << "\t\tFatal: unexpected case in drvVTK - show_image " << endl;
+ }
+ 
+-static DriverDescriptionT < drvVTK > D_VTK("vtk", "VTK driver: if you do not want to see this, uncomment the corresponding line in makefile and make again", "this is a long description for the VTKe driver","vtk", false,	// backend supports subpathes
+-											   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvVTK > D_VTK("vtk", "VTK driver: if you do not want to see this, uncomment the corresponding line in makefile and make again", "this is a long description for the VTKe driver","vtk", false,	// backend supports subpaths
++											   // if subpaths are supported, the backend must deal with
+ 											   // sequences of the following form
+ 											   // moveto (start of subpath)
+ 											   // lineto (a line segment)
+diff --git a/src/drvwmf.cpp b/src/drvwmf.cpp
+index 06d57ea..5b18ec0 100644
+--- a/src/drvwmf.cpp
++++ b/src/drvwmf.cpp
+@@ -1429,8 +1429,8 @@ void drvWMF::show_image(const PSImage & image)
+ // Under libemf, a createMetaFile effectively creates an enhMetaFile but that confuses almost all
+ // programs which expect to read an WMF with an aldus placeable header
+ // 
+-static DriverDescriptionT < drvWMF > D_wmf("wmf", "MS Windows Metafile", "","wmf", true,	// backend supports subpathes
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvWMF > D_wmf("wmf", "MS Windows Metafile", "","wmf", true,	// backend supports subpaths
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+@@ -1452,8 +1452,8 @@ static DriverDescriptionT < drvWMF > D_wmf("wmf", "MS Windows Metafile", "","wmf
+ 										   );
+ #endif
+ 
+-static DriverDescriptionT < drvWMF > D_emf("emf", "Enhanced MS Windows Metafile", "","emf", true,	// backend supports subpathes
+-										   // if subpathes are supported, the backend must deal with
++static DriverDescriptionT < drvWMF > D_emf("emf", "Enhanced MS Windows Metafile", "","emf", true,	// backend supports subpaths
++										   // if subpaths are supported, the backend must deal with
+ 										   // sequences of the following form
+ 										   // moveto (start of subpath)
+ 										   // lineto (a line segment)
+diff --git a/src/lexyy.cpp b/src/lexyy.cpp
+index 390a2d2..36830b4 100755
+--- a/src/lexyy.cpp
++++ b/src/lexyy.cpp
+@@ -2803,7 +2803,7 @@ YY_RULE_SETUP
+ 				// this is an intermediate moveto
+ 				// if backend supports subpaths add it
+ 				// else dump last path and start a new one
+-				if (backend->globaloptions.simulateSubPaths || backend->driverdesc.backendSupportsSubPathes) {
++				if (backend->globaloptions.simulateSubPaths || backend->driverdesc.backendSupportsSubPaths) {
+ //					Point p(origx,origy);
+ 					backend->addtopath(new Moveto(origx,origy));  
+ 				} else {
+@@ -2892,7 +2892,7 @@ YY_RULE_SETUP
+ 				backend->removeFromElementFromPath();
+ 				// no need to close the path, it's already closed
+ 			 } /* else */ {
+-				if (backend->globaloptions.simulateSubPaths || backend->driverdesc.backendSupportsSubPathes) {
++				if (backend->globaloptions.simulateSubPaths || backend->driverdesc.backendSupportsSubPaths) {
+ 			 		backend->addtopath(new Closepath(origx,origy)); 
+ 				} else {
+ 			 		backend->addtopath(new Lineto(origx,origy)); // pass p as array
+diff --git a/src/pstoedit.cpp b/src/pstoedit.cpp
+index 833abf2..9f2a28c 100644
+--- a/src/pstoedit.cpp
++++ b/src/pstoedit.cpp
+@@ -1283,7 +1283,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
+ 					{
+ 						// local scope to force delete before delete of driver
+ 						outputdriver->setdefaultFontName(options.replacementfont.value.c_str());
+-						//      if (nosubpaths) ((DriverDescription*) outputdriver->Pdriverdesc)->backendSupportsSubPathes=false;
++						//      if (nosubpaths) ((DriverDescription*) outputdriver->Pdriverdesc)->backendSupportsSubPaths=false;
+ //						outputdriver->simulateSubPaths = (bool) options.simulateSubPaths;
+ 
+ 						const char * bbfilename = 0;
+@@ -1444,7 +1444,7 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
+ 			curR->explanation =  currentDD->short_explanation;
+ 			curR->suffix =  currentDD->suffix;
+ 			curR->additionalInfo =  currentDD->additionalInfo();
+-			curR->backendSupportsSubPathes = (int) currentDD->backendSupportsSubPathes;
++			curR->backendSupportsSubPaths = (int) currentDD->backendSupportsSubPaths;
+ 			curR->backendSupportsCurveto = (int) currentDD->backendSupportsCurveto;
+ 			curR->backendSupportsMerging = (int) currentDD->backendSupportsMerging;
+ 			curR->backendSupportsText = (int) currentDD->backendSupportsText;
+diff --git a/src/pstoedll.h b/src/pstoedll.h
+index 2c2280b..3f7b458 100644
+--- a/src/pstoedll.h
++++ b/src/pstoedll.h
+@@ -32,7 +32,7 @@ struct DriverDescription_S {
+ 	const char *	explanation;
+ 	const char *	suffix;
+ 	const char *	additionalInfo;
+-	int		backendSupportsSubPathes;
++	int		backendSupportsSubPaths;
+ 	int		backendSupportsCurveto;
+ 	int 		backendSupportsMerging; 
+ 	int 		backendSupportsText;

@@ -1,12 +1,20 @@
-Description: Redirect error messages to stderr
- This patch redirects error messages to stderr.
-Author: Roland Stigge <stigge@antcom.de>
-Bug-Debian: http://bugs.debian.org/551125
+From: Roland Stigge <stigge@antcom.de>
+Date: Sun, 10 Jul 2011 12:19:43 +0200
+Subject: errors to stderr
 
-Index: pstoedit-3.70/src/pstoedit.cpp
-===================================================================
---- pstoedit-3.70.orig/src/pstoedit.cpp
-+++ pstoedit-3.70/src/pstoedit.cpp
+This patch redirects error messages to stderr.
+I.e., send error messages to standard error even when diagnostic
+messages, on stream diag, are being sent to standard output.
+
+Bug-Debian: http://bugs.debian.org/551125
+---
+ src/pstoedit.cpp | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/src/pstoedit.cpp b/src/pstoedit.cpp
+index 7f66d23..33a297a 100644
+--- a/src/pstoedit.cpp
++++ b/src/pstoedit.cpp
 @@ -414,7 +414,7 @@ extern "C" DLLEXPORT
  		break;
  			}
@@ -25,7 +33,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  		}
  		getglobalRp()->explainformats(diag);
  		return 1;
-@@ -577,13 +577,13 @@ To get the pre 8.00 behaviour, either us
+@@ -577,13 +577,13 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  	if (options.drivername.value.length() == 0) {
  		// try to find driver according to suffix of input file
  		if (!options.nameOfOutputFile) {
@@ -41,7 +49,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  				shortusage(diag);
  				return 1;
  			} else {
-@@ -592,7 +592,7 @@ To get the pre 8.00 behaviour, either us
+@@ -592,7 +592,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  					errstream << "No explicit output format specified - using " << suffixDriverDesc->symbolicname << " as derived from suffix of output file" << endl;
  					options.drivername = suffixDriverDesc->symbolicname;
  				} else {
@@ -50,7 +58,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  					// usage(errstream);
  					getglobalRp()->explainformats(diag); // ,true);
  					return 1;
-@@ -611,13 +611,13 @@ To get the pre 8.00 behaviour, either us
+@@ -611,13 +611,13 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  		}
  		const DriverDescription *currentDriverDesc = getglobalRp()->getDriverDescForName(options.drivername.value.c_str());
  		if (currentDriverDesc == 0) {
@@ -66,7 +74,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  			return 1;
  		}
  
-@@ -625,7 +625,7 @@ To get the pre 8.00 behaviour, either us
+@@ -625,7 +625,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  		if (driveroptions && strequal(driveroptions, "-help") ) {
  			ProgramOptions* dummy = currentDriverDesc->createDriverOptions();
  			if (dummy->numberOfOptions() ) {
@@ -75,7 +83,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  				dummy->showhelp(diag,false,false);
  			}
  			delete dummy;
-@@ -635,7 +635,7 @@ To get the pre 8.00 behaviour, either us
+@@ -635,7 +635,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  // TODO:
  			// Check for input file (exists, or stdin) stdout handling
  			if (!options.nameOfInputFile) {
@@ -84,7 +92,7 @@ Index: pstoedit-3.70/src/pstoedit.cpp
  				return 1;
  			}
  			// an input file was given as argument
-@@ -646,23 +646,23 @@ To get the pre 8.00 behaviour, either us
+@@ -646,23 +646,23 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  			convertBackSlashes(options.nameOfInputFile);
  
  			if (!fileExists(options.nameOfInputFile)) {

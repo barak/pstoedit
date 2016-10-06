@@ -3,3 +3,5 @@
 03-doc-remove-nonfree-options.patch
 04-fix-obsolete-LIBPNG_LDFLAGS.patch
 05-fix-plugin-loading.patch
+06-spelling-donts.patch
+07-spelling-pathes.patch
