@@ -1,3 +1,15 @@
+pstoedit (3.70-2) unstable; urgency=medium
+
+  * Adopt package (closes: #812753).
+  * As the library has no reverse dependencies, i.e., is only used
+    internally, I agree with the previous maintainer that there is no need
+    for a GCC-5 library transition. This logic (closes: #791247).
+  * Migrate patches to modern gbp pq import/export format.
+  * Patch spelling.
+  * Patch update autotools.
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 06 Oct 2016 09:57:47 +0100
+
 pstoedit (3.70-1.1) unstable; urgency=medium
 
   * Non-maintainer upload.
