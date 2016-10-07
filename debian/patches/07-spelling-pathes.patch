@@ -760,7 +760,7 @@ index 06d57ea..5b18ec0 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/lexyy.cpp b/src/lexyy.cpp
-index 390a2d2..36830b4 100755
+index 390a2d2..36830b4 100644
 --- a/src/lexyy.cpp
 +++ b/src/lexyy.cpp
 @@ -2803,7 +2803,7 @@ YY_RULE_SETUP

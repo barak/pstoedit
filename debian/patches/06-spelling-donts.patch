@@ -54,7 +54,7 @@ index 0393c6a..c644198 100644
  #else
  	class istream;
 diff --git a/src/pstoedit.ph b/src/pstoedit.ph
-index 5f6256c..3f07dd2 100755
+index 5f6256c..3f07dd2 100644
 --- a/src/pstoedit.ph
 +++ b/src/pstoedit.ph
 @@ -2991,7 +2991,7 @@ const char * const PS_prologue[] =

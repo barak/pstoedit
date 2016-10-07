@@ -6,3 +6,4 @@
 06-spelling-donts.patch
 07-spelling-pathes.patch
 08-autoupdate.patch
+09-simplify-autogen.sh.patch
