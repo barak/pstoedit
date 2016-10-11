@@ -1,3 +1,10 @@
+pstoedit (3.70-3) unstable; urgency=medium
+
+  * Enable pptx support via simple build dependency on libzip-dev,
+    see https://bugs.launchpad.net/ubuntu/+source/pstoedit/+bug/1411907
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 11 Oct 2016 14:55:22 +0100
+
 pstoedit (3.70-2) unstable; urgency=medium
 
   * Adopt package (closes: #812753).
