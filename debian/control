@@ -25,7 +25,7 @@ Description: PostScript to editable vector graphics library (development files)
 Package: libpstoedit0c2a
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpstoedit0c2a (= ${binary:Version})
 Pre-Depends: ${misc:Pre-Depends}
 Conflicts: libpstoedit0, libpstoedit0c2
 Replaces: libpstoedit-dev (<= 3.32-3), libpstoedit0, libpstoedit0c2
