@@ -12,7 +12,7 @@ HURD_LIBPTHREAD += -lpthread
 endif
 
 %:
-	dh $@ --parallel --with autoreconf
+	dh $@
 
 override_dh_auto_configure:
 	CXX="c++ $(HURD_LIBPTHREAD) -Wl,--as-needed -Wl,-O1" dh_auto_configure
