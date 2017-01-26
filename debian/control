@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 10), dh-buildinfo, docbook-to-man,
  pkg-config, texlive-extra-utils, dh-autoreconf,
  libzip-dev,
  libgd-dev,
+ libemf-dev,
  dpkg-dev (>= 1.16.1~)
 Homepage: http://www.pstoedit.net/
 Standards-Version: 3.9.8
