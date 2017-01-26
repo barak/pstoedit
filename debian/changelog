@@ -1,3 +1,12 @@
+pstoedit (3.70-4) unstable; urgency=medium
+
+  * require an identical support library version
+  * bump to debhelper 10
+  * build with libgd
+  * build with libEMF
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 26 Jan 2017 18:02:33 +0000
+
 pstoedit (3.70-3) unstable; urgency=medium
 
   * Enable pptx support via simple build dependency on libzip-dev,
