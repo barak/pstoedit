@@ -5,11 +5,10 @@ Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends: debhelper (>= 10), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++-dev,
  libplot-dev (>= 2.4.1-14), libpng-dev, ghostscript,
- pkg-config, texlive-extra-utils, dh-autoreconf,
+ pkg-config, texlive-extra-utils,
  libzip-dev,
  libgd-dev,
  libemf-dev,
- dpkg-dev (>= 1.16.1~)
 Homepage: http://www.pstoedit.net/
 Standards-Version: 3.9.8
 Vcs-Git: git://anonscm.debian.org/collab-maint/pstoedit.git
