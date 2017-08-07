@@ -5,3 +5,8 @@ For a list of supported backends, do "pstoedit -help". Note that the WMF
 backend is specific to Windows systems; it is not supported under Un*x.
 
 J.H.M. Dassen (Ray) <jdassen@debian.org>, Sat Dec  2 16:31:01 CET 2000
+
+Support for libming is not enabled, as that library is no longer in
+Debian due to a security issue.
+
+ -- Barak A. Pearlmutter <bap@debian.org>, Mon,  7 Aug 2017 14:13:54 +0200
