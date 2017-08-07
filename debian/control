@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 10), dh-buildinfo, docbook-to-man,
  libgd-dev,
  libemf-dev,
 Homepage: http://www.pstoedit.net/
-Standards-Version: 3.9.8
+Standards-Version: 4.0.1
 Vcs-Git: git://anonscm.debian.org/collab-maint/pstoedit.git
 
 Package: libpstoedit-dev
