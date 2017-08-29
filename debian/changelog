@@ -1,3 +1,9 @@
+pstoedit (3.70-5) unstable; urgency=medium
+
+  * restrict use of libEMF to architectures upon which it is available
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 29 Aug 2017 16:42:53 +0100
+
 pstoedit (3.70-4) unstable; urgency=medium
 
   * require an identical support library version
