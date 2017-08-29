@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 10), dh-buildinfo, docbook-to-man,
  pkg-config, texlive-extra-utils,
  libzip-dev,
  libgd-dev,
- libemf-dev,
+ libemf-dev [alpha amd64 arm armeb armel armhf arm64 i386 powerpc powerpcel powerpcspe ppc64 ppc64el s390 s390x sparc sparc64 x32],
 Homepage: http://www.pstoedit.net/
 Standards-Version: 4.1.0
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/pstoedit.git
