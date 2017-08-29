@@ -31,17 +31,7 @@ override_dh_auto_clean:
 override_dh_auto_install:
 	dh_auto_install
 	@echo "Clearing .la files dependency_libs fields per Debian policy"	
-# Add/remove plugins here when enabled/disabled in build.
-# Check for plugins in: debian/tmp/usr/lib/*/pstoedit/libp2edrv*.la
-	@for plugin in libp2edrvpptx libp2edrvmagick++ libp2edrvlplot libp2edrvstd libp2edrvwmf ; do \
-		if ! test -r $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/$$plugin.la ; then \
-			echo "" ; \
-			echo "pstoedit plugins \"$$plugin\" didn't get installed properly" ; \
-			echo "Please investigate" ; \
-			exit 1; \
-		fi ; \
-		sed -i "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/$$plugin.la ; \
-	done
+	sed --in-place "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/*.la
 
 override_dh_installchangelogs:
 	dh_installchangelogs doc/changelog.htm
