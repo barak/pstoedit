@@ -7,9 +7,10 @@ pstoedit (3.71-1) unstable; urgency=medium
   * bump to debhelper 11
   * push cleaning list from debian/rules into debian/clean
   * patch around removal of . from latex2man search path
-  * install examples
+  * install examples and
+  * install PDF format documentation
 
- -- Barak A. Pearlmutter <bap@debian.org>  Mon, 16 Apr 2018 11:23:44 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 16 Apr 2018 12:29:07 +0100
 
 pstoedit (3.70-5) unstable; urgency=medium
 
