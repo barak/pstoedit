@@ -8,7 +8,6 @@ pathes to paths
  src/drvbase.cpp     | 24 ++++++++++++------------
  src/drvbase.h       | 16 ++++++++--------
  src/drvcairo.cpp    |  4 ++--
- src/drvcfdg.cpp     |  2 +-
  src/drvdxf.cpp      |  8 ++++----
  src/drvgcode.cpp    |  4 ++--
  src/drvgnplt.cpp    |  4 ++--
@@ -42,13 +41,13 @@ pathes to paths
  src/lexyy.cpp       |  4 ++--
  src/pstoedit.cpp    |  4 ++--
  src/pstoedll.h      |  2 +-
- 38 files changed, 96 insertions(+), 96 deletions(-)
+ 37 files changed, 95 insertions(+), 95 deletions(-)
 
 diff --git a/doc/changelog.htm b/doc/changelog.htm
-index e35c060..3be5301 100644
+index 03e2f6c..4d15409 100755
 --- a/doc/changelog.htm
 +++ b/doc/changelog.htm
-@@ -300,7 +300,7 @@
+@@ -310,7 +310,7 @@
      Russell Lang.</li>
    <li>added a general -help option for each driver to show driver specific options. For
      example -f xfig:-help shows specific options for the fig backend.</li>
@@ -57,7 +56,7 @@ index e35c060..3be5301 100644
    <li>several enhancements for the DXF backend. Now it supports the DXF SPLINE element as
      well. Big thanks to Daniel Gehriger <a href="mailto:gehriger_AT_linkcad.com">(gehriger_AT_linkcad.com</a>)
      for his help concerning the DXF format.</li>
-@@ -524,7 +524,7 @@
+@@ -534,7 +534,7 @@
      gs5.82.</li>
    <li>bux fix in documentation (-fontmap instead of -mapfile).</li>
    <li>added some support for easier retrieval of dash patterns from within backends.</li>
@@ -66,7 +65,7 @@ index e35c060..3be5301 100644
      made pathsCanBeMerged virtual so it can be overloaded by a specific backend.</li>
    <li>changed again the version of drvbase. This means that all plugins need to be updated
      (just the .dll not the keys). Otherwise you will get an error message.</li>
-@@ -550,7 +550,7 @@
+@@ -560,7 +560,7 @@
    <li>Burkhard Plaum <a href="mailto:(plaum_AT_IPF.Uni-Stuttgart.de">(plaum_AT_IPF.Uni-Stuttgart.de</a>)
      added support for complex filled paths (paths consisting of an arbitraty sequence of
      moveto, lineto and curveto in combination with fill and eofill) to the xfig backend. In
@@ -76,7 +75,7 @@ index e35c060..3be5301 100644
      option.</li>
    <li>changed again the version of drvbase due to the support for complex paths. This means
 diff --git a/src/drvbase.cpp b/src/drvbase.cpp
-index 5ec33a8..c574e59 100644
+index 5acd2bb..1f4cff2 100644
 --- a/src/drvbase.cpp
 +++ b/src/drvbase.cpp
 @@ -326,7 +326,7 @@ bool drvbase::pathsCanBeMerged(const PathInfo & path1, const PathInfo & path2) c
@@ -102,7 +101,7 @@ index 5ec33a8..c574e59 100644
  				" PI1 st " << (int) path1.currentShowType <<
  				" PI1 lt " << (int) path1.currentLineType <<
  				" PI1 el " << path1.numberOfElementsInPath <<
-@@ -879,7 +879,7 @@ unsigned int drvbase::nrOfSubpaths() const
+@@ -881,7 +881,7 @@ unsigned int drvbase::nrOfSubpaths() const
  }
  
  
@@ -111,7 +110,7 @@ index 5ec33a8..c574e59 100644
  {
  	// Count the subpaths
  	unsigned int numpaths = nrOfSubpaths();
-@@ -957,7 +957,7 @@ bool drvbase::close_output_file_and_reopen_in_binary_mode()
+@@ -959,7 +959,7 @@ bool drvbase::close_output_file_and_reopen_in_binary_mode()
  void drvbase::beginClipPath()
  {
  	// now we start a clippath, so we need to dump
@@ -120,7 +119,7 @@ index 5ec33a8..c574e59 100644
  	flushOutStanding();
  	last_currentPath = currentPath;
  	currentPath = &clippath;
-@@ -1029,7 +1029,7 @@ void drvbase::dumpPath(bool doFlushText)
+@@ -1031,7 +1031,7 @@ void drvbase::dumpPath(bool doFlushText)
  		// a polygon with two points is drawn as a line
  
  		// PROBLEM ! This resetting has an impact on the subsequent segments
@@ -129,7 +128,7 @@ index 5ec33a8..c574e59 100644
  		currentPath->isPolygon = false;
  		currentPath->currentShowType = drvbase::stroke;
  	}
-@@ -1083,8 +1083,8 @@ void drvbase::dumpPath(bool doFlushText)
+@@ -1085,8 +1085,8 @@ void drvbase::dumpPath(bool doFlushText)
  	}
  	if (numberOfElementsInPath() > 0) {
  
@@ -140,7 +139,7 @@ index 5ec33a8..c574e59 100644
  
  		if (verbose) {
  			errf << "working on";
-@@ -1134,13 +1134,13 @@ void drvbase::dumpPath(bool doFlushText)
+@@ -1136,13 +1136,13 @@ void drvbase::dumpPath(bool doFlushText)
  					show_rectangle(llx, lly, urx, ury);
  				} else {
  					if (globaloptions.simulateSubPaths)
@@ -156,7 +155,7 @@ index 5ec33a8..c574e59 100644
  				else
  					show_or_convert_path();
  			}
-@@ -1493,7 +1493,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
+@@ -1491,7 +1491,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
  										const char *const short_expl, 
  										const char *const long_expl, 
  										const char *const suffix_p, 
@@ -165,7 +164,7 @@ index 5ec33a8..c574e59 100644
  										const bool backendSupportsCurveto_p, 
  										const bool backendSupportsMerging_p,	// merge a separate outline and filling of a polygon -> 1. element
  										const bool backendSupportsText_p, 
-@@ -1507,7 +1507,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
+@@ -1505,7 +1505,7 @@ DriverDescription::DriverDescription(	const char *const s_name,
  	short_explanation(short_expl), 
  	long_explanation(long_expl), 
  	suffix(suffix_p), 
@@ -175,10 +174,10 @@ index 5ec33a8..c574e59 100644
  	backendSupportsMerging(backendSupportsMerging_p),	// merge a separate outline and filling of a polygon -> 1. element
  	backendSupportsText(backendSupportsText_p), 
 diff --git a/src/drvbase.h b/src/drvbase.h
-index 821af27..8982ee3 100644
+index 40a5dae..160f693 100644
 --- a/src/drvbase.h
 +++ b/src/drvbase.h
-@@ -248,7 +248,7 @@ protected:
+@@ -244,7 +244,7 @@ protected:
  #endif
  		bool	 	isPolygon; // whether current path was closed via closepath or not
  		unsigned int	numberOfElementsInPath;
@@ -187,7 +186,7 @@ index 821af27..8982ee3 100644
  									   // then this is set to the begin of the current subpath 
  									   // before show_path is executed
  		float           currentLineWidth;
-@@ -314,7 +314,7 @@ protected:
+@@ -310,7 +310,7 @@ protected:
  //lint -esym(1712,SaveRestoreInfo) // no default ctor
  	class DLLEXPORT SaveRestoreInfo {
  	public:
@@ -196,7 +195,7 @@ index 821af27..8982ee3 100644
  		unsigned int savelevel;	
  		SaveRestoreInfo * previous;	
  		SaveRestoreInfo * next;
-@@ -537,7 +537,7 @@ public:
+@@ -533,7 +533,7 @@ public:
  
  	void		flushOutStanding( flushmode_t flushmode = flushall);
  
@@ -205,7 +204,7 @@ index 821af27..8982ee3 100644
  
  	unsigned int nrOfSubpaths() const;
  
-@@ -731,7 +731,7 @@ const Dtype curveto = 4;
+@@ -727,7 +727,7 @@ const Dtype curveto = 4;
  #else
  enum  Dtype {moveto, lineto, closepath, curveto};
  #endif
@@ -214,7 +213,7 @@ index 821af27..8982ee3 100644
  // curveto   is only generated if backend supportes it
  
  //lint -esym(1769,basedrawingelement)
-@@ -953,7 +953,7 @@ public:
+@@ -949,7 +949,7 @@ public:
  			const char * const short_expl, 
  			const char * const long_expl,
  			const char * const suffix_p, 
@@ -223,7 +222,7 @@ index 821af27..8982ee3 100644
  			const bool 	backendSupportsCurveto_p,
  			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
  			const bool 	backendSupportsText_p,
-@@ -988,7 +988,7 @@ public:
+@@ -984,7 +984,7 @@ public:
  	const char * const long_explanation;
  	const char * const suffix;
  
@@ -232,7 +231,7 @@ index 821af27..8982ee3 100644
  	const bool 	backendSupportsCurveto;
  	const bool 	backendSupportsMerging; // merge a separate outline and filling of a polygon -> 1. element
  	const bool 	backendSupportsText;
-@@ -1021,7 +1021,7 @@ public:
+@@ -1017,7 +1017,7 @@ public:
  			const char * short_expl_p, 
  			const char * long_expl_p, 
  			const char * suffix_p, 
@@ -241,7 +240,7 @@ index 821af27..8982ee3 100644
  			const bool 	backendSupportsCurveto_p,
  			const bool 	backendSupportsMerging_p, // merge a separate outline and filling of a polygon -> 1. element
  			const bool 	backendSupportsText_p,
-@@ -1036,7 +1036,7 @@ public:
+@@ -1032,7 +1032,7 @@ public:
  			short_expl_p,
  			long_expl_p, 
  			suffix_p, 
@@ -251,7 +250,7 @@ index 821af27..8982ee3 100644
  			backendSupportsMerging_p, 
  			backendSupportsText_p,
 diff --git a/src/drvcairo.cpp b/src/drvcairo.cpp
-index 67d07dc..4e44f29 100644
+index f87ea47..9317d7a 100644
 --- a/src/drvcairo.cpp
 +++ b/src/drvcairo.cpp
 @@ -700,8 +700,8 @@ static DriverDescriptionT < drvCAIRO > D_cairo("cairo",  // name
@@ -265,24 +264,11 @@ index 67d07dc..4e44f29 100644
  					       // sequences of the following form
  					       // moveto (start of subpath)
  					       // lineto (a line segment)
-diff --git a/src/drvcfdg.cpp b/src/drvcfdg.cpp
-index 67d28ce..bd3f8d1 100644
---- a/src/drvcfdg.cpp
-+++ b/src/drvcfdg.cpp
-@@ -205,7 +205,7 @@ void drvCFDG::show_path()
- 
- static DriverDescriptionT < drvCFDG > D_cfdg("cfdg", "Context Free Design Grammar", "Context Free Design Grammar, usable by Context Free Art (http://www.contextfreeart.org/)", "cfdg",
- 					     true,	// backend supports subpaths
--					                // if subpathes are supported, the backend must deal with
-+					                // if subpaths are supported, the backend must deal with
- 							// sequences of the following form
- 							// moveto (start of subpath)
- 							// lineto (a line segment)
 diff --git a/src/drvdxf.cpp b/src/drvdxf.cpp
-index 8f953b0..b89e5bf 100644
+index dc433b4..815fef6 100644
 --- a/src/drvdxf.cpp
 +++ b/src/drvdxf.cpp
-@@ -1623,8 +1623,8 @@ void drvDXF::show_path()
+@@ -1622,8 +1622,8 @@ void drvDXF::show_path()
  
  
  
@@ -293,7 +279,7 @@ index 8f953b0..b89e5bf 100644
  										   // sequences of the following form
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
-@@ -1644,8 +1644,8 @@ static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format","", "dxf
+@@ -1643,8 +1643,8 @@ static DriverDescriptionT < drvDXF > D_dxf("dxf", "CAD exchange format","", "dxf
  										   false /*clipping */ 
  										   );
  
@@ -305,7 +291,7 @@ index 8f953b0..b89e5bf 100644
  											 // moveto (start of subpath)
  											 // lineto (a line segment)
 diff --git a/src/drvgcode.cpp b/src/drvgcode.cpp
-index c03c56d..ac40889 100644
+index 9ea33cd..53c9229 100644
 --- a/src/drvgcode.cpp
 +++ b/src/drvgcode.cpp
 @@ -136,8 +136,8 @@ void drvGCODE::show_path()
@@ -320,7 +306,7 @@ index c03c56d..ac40889 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvgnplt.cpp b/src/drvgnplt.cpp
-index 1aad9b0..d5feb73 100644
+index c39ce9d..60dcfbf 100644
 --- a/src/drvgnplt.cpp
 +++ b/src/drvgnplt.cpp
 @@ -64,8 +64,8 @@ void drvGNUPLOT::show_path()
@@ -335,7 +321,7 @@ index 1aad9b0..d5feb73 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvgschem.cpp b/src/drvgschem.cpp
-index accebd8..c9e87b1 100644
+index 93be52b..395d85e 100644
 --- a/src/drvgschem.cpp
 +++ b/src/drvgschem.cpp
 @@ -73,8 +73,8 @@ void drvGSCHEM::show_path()
@@ -350,7 +336,7 @@ index accebd8..c9e87b1 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvhpgl.cpp b/src/drvhpgl.cpp
-index 816d4f3..8565dcb 100644
+index e6e80e9..9187e9b 100644
 --- a/src/drvhpgl.cpp
 +++ b/src/drvhpgl.cpp
 @@ -509,8 +509,8 @@ void drvHPGL::show_path()
@@ -376,7 +362,7 @@ index 816d4f3..8565dcb 100644
  												 // moveto (start of subpath)
  												 // lineto (a line segment)
 diff --git a/src/drvidraw.cpp b/src/drvidraw.cpp
-index 431de36..3e9d6be 100644
+index d844af3..69fba22 100644
 --- a/src/drvidraw.cpp
 +++ b/src/drvidraw.cpp
 @@ -1012,8 +1012,8 @@ void drvIDRAW::show_image(const PSImage & imageinfo)
@@ -391,7 +377,7 @@ index 431de36..3e9d6be 100644
  											   // moveto (start of subpath)
  											   // lineto (a line segment)
 diff --git a/src/drvjava.cpp b/src/drvjava.cpp
-index 76491e5..b35bd7a 100644
+index e207cef..fdcd195 100644
 --- a/src/drvjava.cpp
 +++ b/src/drvjava.cpp
 @@ -236,8 +236,8 @@ void drvJAVA::show_path()
@@ -406,7 +392,7 @@ index 76491e5..b35bd7a 100644
  											 // moveto (start of subpath)
  											 // lineto (a line segment)
 diff --git a/src/drvjava2.cpp b/src/drvjava2.cpp
-index e4846e9..dbb59d4 100644
+index 2d32372..8b510e4 100644
 --- a/src/drvjava2.cpp
 +++ b/src/drvjava2.cpp
 @@ -408,8 +408,8 @@ void drvJAVA2::show_image(const PSImage & imageinfo)
@@ -421,7 +407,7 @@ index e4846e9..dbb59d4 100644
  											   // moveto (start of subpath)
  											   // lineto (a line segment)
 diff --git a/src/drvkillu.cpp b/src/drvkillu.cpp
-index ee5670b..c01374b 100644
+index 4007ec7..aff8235 100644
 --- a/src/drvkillu.cpp
 +++ b/src/drvkillu.cpp
 @@ -191,8 +191,8 @@ int drvKontour::cvtColor(float c)
@@ -436,7 +422,7 @@ index ee5670b..c01374b 100644
  															 // moveto (start of subpath)
  															 // lineto (a line segment)
 diff --git a/src/drvlatex2e.cpp b/src/drvlatex2e.cpp
-index 03edef0..d716aa6 100644
+index dbacb58..7e2b063 100644
 --- a/src/drvlatex2e.cpp
 +++ b/src/drvlatex2e.cpp
 @@ -394,8 +394,8 @@ void drvLATEX2E::show_image(const Image &  )
@@ -451,7 +437,7 @@ index 03edef0..d716aa6 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvlwo.cpp b/src/drvlwo.cpp
-index d3142a0..d02def1 100644
+index b12ab8d..66b9c83 100644
 --- a/src/drvlwo.cpp
 +++ b/src/drvlwo.cpp
 @@ -181,8 +181,8 @@ void drvLWO::show_path()
@@ -466,10 +452,10 @@ index d3142a0..d02def1 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvmagick++.cpp b/src/drvmagick++.cpp
-index 31b4a4c..5c36e50 100644
+index 4439196..1b9fdbe 100644
 --- a/src/drvmagick++.cpp
 +++ b/src/drvmagick++.cpp
-@@ -376,8 +376,8 @@ static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver compat
+@@ -385,8 +385,8 @@ static DriverDescriptionT < drvMAGICK > D_magick("magick", "MAGICK driver compat
  												 "formats. The output format is determined automatically by Image-/GraphicsMagick based on the suffix "
  												 "of the output filename. So an output file test.png will force the creation of an image in PNG format."
  												 " This binary of pstoedit was compiled against version " MagickLibVersionText " of " MagickPackageName ".",
@@ -481,7 +467,7 @@ index 31b4a4c..5c36e50 100644
  												 // moveto (start of subpath)
  												 // lineto (a line segment)
 diff --git a/src/drvmma.cpp b/src/drvmma.cpp
-index 6f76aca..a5f3ba9 100644
+index 010c865..fa08509 100644
 --- a/src/drvmma.cpp
 +++ b/src/drvmma.cpp
 @@ -286,8 +286,8 @@ void drvMMA::RGBColor(float R, float G, float B)
@@ -496,7 +482,7 @@ index 6f76aca..a5f3ba9 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvmpost.cpp b/src/drvmpost.cpp
-index e093bd9..69a52b6 100644
+index ad033db..2f75ce1 100644
 --- a/src/drvmpost.cpp
 +++ b/src/drvmpost.cpp
 @@ -416,8 +416,8 @@ void drvMPOST::show_path()
@@ -511,7 +497,7 @@ index e093bd9..69a52b6 100644
  											   // moveto (start of subpath)
  											   // lineto (a line segment)
 diff --git a/src/drvpcb1.cpp b/src/drvpcb1.cpp
-index a40e1b2..05ea2f4 100644
+index d02d27d..814f232 100644
 --- a/src/drvpcb1.cpp
 +++ b/src/drvpcb1.cpp
 @@ -440,8 +440,8 @@ static DriverDescriptionT<drvPCB1> D_pcb("pcbi","engrave data - insulate/PCB for
@@ -526,7 +512,7 @@ index a40e1b2..05ea2f4 100644
  		   // moveto (start of subpath)
  		   // lineto (a line segment)
 diff --git a/src/drvpcb2.cpp b/src/drvpcb2.cpp
-index 1581998..b6f379d 100644
+index 3ff18b5..2f83d6b 100644
 --- a/src/drvpcb2.cpp
 +++ b/src/drvpcb2.cpp
 @@ -287,8 +287,8 @@ void drvPCB2::show_path()
@@ -541,7 +527,7 @@ index 1581998..b6f379d 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvpcbfill.cpp b/src/drvpcbfill.cpp
-index 8e46812..cccdc58 100644
+index 2268a43..f2b5992 100644
 --- a/src/drvpcbfill.cpp
 +++ b/src/drvpcbfill.cpp
 @@ -75,8 +75,8 @@ void drvPCBFILL::show_path()
@@ -556,7 +542,7 @@ index 8e46812..cccdc58 100644
  												   // moveto (start of subpath)
  												   // lineto (a line segment)
 diff --git a/src/drvpdf.cpp b/src/drvpdf.cpp
-index c128aef..da34d53 100644
+index b858976..959390d 100644
 --- a/src/drvpdf.cpp
 +++ b/src/drvpdf.cpp
 @@ -693,8 +693,8 @@ void drvPDF::show_path()
@@ -571,7 +557,7 @@ index c128aef..da34d53 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvpic.cpp b/src/drvpic.cpp
-index 03534f9..dae8390 100644
+index 5e6ef8c..6bdfe70 100644
 --- a/src/drvpic.cpp
 +++ b/src/drvpic.cpp
 @@ -426,8 +426,8 @@ void drvPIC::show_path()
@@ -586,10 +572,10 @@ index 03534f9..dae8390 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvpptx.cpp b/src/drvpptx.cpp
-index d4db9e0..6dd7eb2 100644
+index 71ad36f..9dd814b 100644
 --- a/src/drvpptx.cpp
 +++ b/src/drvpptx.cpp
-@@ -1767,8 +1767,8 @@ D_pptx("pptx",
+@@ -1770,8 +1770,8 @@ D_pptx("pptx",
         "PresentationML (PowerPoint) format",
         "This is the format used internally by Microsoft PowerPoint.  LibreOffice can also read/write PowerPoint files albeit with some lack of functionality.",
         "pptx",
@@ -601,7 +587,7 @@ index d4db9e0..6dd7eb2 100644
         // moveto (start of subpath)
         // lineto (a line segment)
 diff --git a/src/drvrib.cpp b/src/drvrib.cpp
-index c151eb9..cb6a767 100644
+index ddf3121..cc3e031 100644
 --- a/src/drvrib.cpp
 +++ b/src/drvrib.cpp
 @@ -106,8 +106,8 @@ void drvRIB::show_path()
@@ -616,7 +602,7 @@ index c151eb9..cb6a767 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvrpl.cpp b/src/drvrpl.cpp
-index e5696de..f490d50 100644
+index 81c0d9f..9d87519 100644
 --- a/src/drvrpl.cpp
 +++ b/src/drvrpl.cpp
 @@ -95,8 +95,8 @@ void drvRPL::show_path()
@@ -631,7 +617,7 @@ index e5696de..f490d50 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvsampl.cpp b/src/drvsampl.cpp
-index 0af29d9..75d2d16 100644
+index 29ef163..f5ea009 100644
 --- a/src/drvsampl.cpp
 +++ b/src/drvsampl.cpp
 @@ -258,8 +258,8 @@ void drvSAMPL::show_image(const PSImage & imageinfo)
@@ -659,10 +645,10 @@ index 381a813..f049e01 100644
  										   true,	// backend supports elements which are filled and have edges 
  										   true,	// backend supports text
 diff --git a/src/drvswf.cpp b/src/drvswf.cpp
-index a311d16..43f62e3 100644
+index e87144c..a21e6a5 100644
 --- a/src/drvswf.cpp
 +++ b/src/drvswf.cpp
-@@ -697,8 +697,8 @@ static DriverDescriptionT < drvSWF > D_SWF("swf",	//
+@@ -698,8 +698,8 @@ static DriverDescriptionT < drvSWF > D_SWF("swf",	//
  										   "SWF driver: ",	//
  										   "",
  										   "swf",	//
@@ -674,7 +660,7 @@ index a311d16..43f62e3 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/drvtext.cpp b/src/drvtext.cpp
-index ac6eb91..ee34c05 100644
+index 3e446c7..0092e36 100644
 --- a/src/drvtext.cpp
 +++ b/src/drvtext.cpp
 @@ -198,8 +198,8 @@ void drvTEXT::show_image(const PSImage & imageinfo)
@@ -689,7 +675,7 @@ index ac6eb91..ee34c05 100644
  											 // moveto (start of subpath)
  											 // lineto (a line segment)
 diff --git a/src/drvtgif.cpp b/src/drvtgif.cpp
-index 9da6ab7..c5a47bf 100644
+index 056cf2c..6189b75 100644
 --- a/src/drvtgif.cpp
 +++ b/src/drvtgif.cpp
 @@ -371,8 +371,8 @@ void drvTGIF::show_rectangle(const float llx, const float lly, const float urx,
@@ -704,10 +690,10 @@ index 9da6ab7..c5a47bf 100644
  											 // moveto (start of subpath)
  											 // lineto (a line segment)
 diff --git a/src/drvtk.cpp b/src/drvtk.cpp
-index 0d54f06..54d6b1c 100644
+index 6007799..a0ea388 100644
 --- a/src/drvtk.cpp
 +++ b/src/drvtk.cpp
-@@ -1079,8 +1079,8 @@ void drvTK::show_path()
+@@ -1077,8 +1077,8 @@ void drvTK::show_path()
  }
  
  
@@ -719,7 +705,7 @@ index 0d54f06..54d6b1c 100644
  										 // moveto (start of subpath)
  										 // lineto (a line segment)
 diff --git a/src/drvvtk.cpp b/src/drvvtk.cpp
-index 8bb3fec..328c472 100644
+index 0b60d4d..dc26737 100644
 --- a/src/drvvtk.cpp
 +++ b/src/drvvtk.cpp
 @@ -153,8 +153,8 @@ void drvVTK::show_image(const PSImage & )
@@ -734,7 +720,7 @@ index 8bb3fec..328c472 100644
  											   // moveto (start of subpath)
  											   // lineto (a line segment)
 diff --git a/src/drvwmf.cpp b/src/drvwmf.cpp
-index 06d57ea..5b18ec0 100644
+index 9449188..37c1426 100644
 --- a/src/drvwmf.cpp
 +++ b/src/drvwmf.cpp
 @@ -1429,8 +1429,8 @@ void drvWMF::show_image(const PSImage & image)
@@ -760,10 +746,10 @@ index 06d57ea..5b18ec0 100644
  										   // moveto (start of subpath)
  										   // lineto (a line segment)
 diff --git a/src/lexyy.cpp b/src/lexyy.cpp
-index 390a2d2..36830b4 100644
+index 661953b..bb3ef4b 100644
 --- a/src/lexyy.cpp
 +++ b/src/lexyy.cpp
-@@ -2803,7 +2803,7 @@ YY_RULE_SETUP
+@@ -2799,7 +2799,7 @@ YY_RULE_SETUP
  				// this is an intermediate moveto
  				// if backend supports subpaths add it
  				// else dump last path and start a new one
@@ -772,7 +758,7 @@ index 390a2d2..36830b4 100644
  //					Point p(origx,origy);
  					backend->addtopath(new Moveto(origx,origy));  
  				} else {
-@@ -2892,7 +2892,7 @@ YY_RULE_SETUP
+@@ -2888,7 +2888,7 @@ YY_RULE_SETUP
  				backend->removeFromElementFromPath();
  				// no need to close the path, it's already closed
  			 } /* else */ {
@@ -782,10 +768,10 @@ index 390a2d2..36830b4 100644
  				} else {
  			 		backend->addtopath(new Lineto(origx,origy)); // pass p as array
 diff --git a/src/pstoedit.cpp b/src/pstoedit.cpp
-index 833abf2..9f2a28c 100644
+index d36f52b..4ff4fd8 100644
 --- a/src/pstoedit.cpp
 +++ b/src/pstoedit.cpp
-@@ -1283,7 +1283,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
+@@ -1301,7 +1301,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
  					{
  						// local scope to force delete before delete of driver
  						outputdriver->setdefaultFontName(options.replacementfont.value.c_str());
@@ -794,7 +780,7 @@ index 833abf2..9f2a28c 100644
  //						outputdriver->simulateSubPaths = (bool) options.simulateSubPaths;
  
  						const char * bbfilename = 0;
-@@ -1444,7 +1444,7 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
+@@ -1462,7 +1462,7 @@ static DriverDescription_S * getPstoeditDriverInfo_internal(bool withgsdrivers)
  			curR->explanation =  currentDD->short_explanation;
  			curR->suffix =  currentDD->suffix;
  			curR->additionalInfo =  currentDD->additionalInfo();
@@ -804,7 +790,7 @@ index 833abf2..9f2a28c 100644
  			curR->backendSupportsMerging = (int) currentDD->backendSupportsMerging;
  			curR->backendSupportsText = (int) currentDD->backendSupportsText;
 diff --git a/src/pstoedll.h b/src/pstoedll.h
-index 2c2280b..3f7b458 100644
+index 686077b..2cd370a 100644
 --- a/src/pstoedll.h
 +++ b/src/pstoedll.h
 @@ -32,7 +32,7 @@ struct DriverDescription_S {

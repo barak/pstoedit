@@ -10,15 +10,15 @@ This patch removes the -pedantic option from g++ to prevent uncritical compile e
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index 2a4d8e7..b959266 100644
+index ad61a30..33817eb 100755
 --- a/configure.ac
 +++ b/configure.ac
 @@ -473,7 +473,7 @@ if test "$GXX" = yes; then
    else
      AC_MSG_RESULT([GNU])
  #   need to disable long long warning here because of ImageMagick using it
--    SPECIAL_CXXFLAGS="-DBUGGYGPP_NOLONGERNEEDE -pedantic -Wall -Wextra -Wuninitialized -Wswitch-default -Wunused -Wshadow -Wwrite-strings -Wcast-qual -Wpointer-arith -Wno-long-long"
-+    SPECIAL_CXXFLAGS="-DBUGGYGPP_NOLONGERNEEDE -Wall -Wextra -Wuninitialized -Wswitch-default -Wunused -Wshadow -Wwrite-strings -Wcast-qual -Wpointer-arith -Wno-long-long"
+-    SPECIAL_CXXFLAGS="-DBUGGYGPP_NOLONGERNEEDED -pedantic -Wall -Wextra -Wuninitialized -Wswitch-default -Wunused -Wshadow -Wwrite-strings -Wcast-qual -Wpointer-arith -Wno-long-long"
++    SPECIAL_CXXFLAGS="-DBUGGYGPP_NOLONGERNEEDED -Wall -Wextra -Wuninitialized -Wswitch-default -Wunused -Wshadow -Wwrite-strings -Wcast-qual -Wpointer-arith -Wno-long-long"
    fi
  elif test `echo "$CXX" | egrep -c 'xlC$'` -eq 1; then
    AC_MSG_RESULT([AIX xlC])

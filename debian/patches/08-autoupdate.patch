@@ -6,12 +6,12 @@ Run autoupdate, and follow its instructions.
 Refresh autotools with warnings on, and heed them.
 ---
  Makefile.am     |  1 -
- configure.ac    | 49 ++++++++++++++++---------------------------------
+ configure.ac    | 50 +++++++++++++++++---------------------------------
  doc/Makefile.am |  2 +-
- 3 files changed, 17 insertions(+), 35 deletions(-)
+ 3 files changed, 18 insertions(+), 35 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 7d26cde..cd3692b 100644
+index 7d26cde..cd3692b 100755
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -1,4 +1,3 @@
@@ -20,20 +20,21 @@ index 7d26cde..cd3692b 100644
 -AUTOMAKE_OPTIONS = foreign
  SUBDIRS = config src doc examples contrib misc os2 othersrc msdev m4
 diff --git a/configure.ac b/configure.ac
-index b959266..068e87d 100644
+index 33817eb..00afbae 100755
 --- a/configure.ac
 +++ b/configure.ac
-@@ -10,17 +10,13 @@ dnl       as those are all the systems I have access to.
+@@ -10,17 +10,14 @@ dnl       as those are all the systems I have access to.
  dnl ------------------------------------------------------------------------
  
  dnl Initialize Autoconf. 
--AC_INIT(pstoedit,3.70,wglunz35_AT_pstoedit.net)
-+AC_INIT([pstoedit],[3.70],[wglunz35_AT_pstoedit.net])
+-AC_INIT(pstoedit,3.71,wglunz35_AT_pstoedit.net)
++AC_INIT([pstoedit],[3.71],[wglunz35_AT_pstoedit.net])
  AC_LANG(C++)
  dnl AC_CONFIG_AUX_DIR(config)
--AM_INIT_AUTOMAKE(pstoedit,3.70)
+-AM_INIT_AUTOMAKE(pstoedit,3.71)
 -AM_MAINTAINER_MODE
 +AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
++dnl AM_MAINTAINER_MODE
  AC_CONFIG_SRCDIR([src/pstoedit.h])
  AC_CONFIG_SUBDIRS(libEMF-1.0)
  AC_CONFIG_MACRO_DIR([m4])
@@ -43,7 +44,7 @@ index b959266..068e87d 100644
  
  dnl We need only C++ and no other language
  dnl seems to be broken : AC_LIBTOOL_TAGS([CXX])
-@@ -30,14 +26,11 @@ AC_PROG_CC
+@@ -30,14 +27,11 @@ AC_PROG_CC
  AC_PROG_CXX
  AC_PROG_AWK
  AC_PROG_YACC
@@ -61,7 +62,7 @@ index b959266..068e87d 100644
  AC_PROG_MAKE_SET
  
  AC_CONFIG_HEADER(src/pstoedit_config.h)
-@@ -139,12 +132,10 @@ if test -n "${LIBPLOTTER_LDFLAGS}" && test -n "${LIBPLOTTER_CFLAGS}"; then
+@@ -139,12 +133,10 @@ if test -n "${LIBPLOTTER_LDFLAGS}" && test -n "${LIBPLOTTER_CFLAGS}"; then
     HAVE_LIBPLOTTER=yes
     AC_MSG_CHECKING(for version of "lib plot" )   
     dnl See if we have a 2.3 or newer lib Plot version
@@ -76,7 +77,7 @@ index b959266..068e87d 100644
  		    AC_MSG_RESULT(you seem to have an older version - need at least version 2.3)])
  else
     LIBPLOTTER_LDFLAGS=
-@@ -166,13 +157,11 @@ CPPFLAGS=${OLD_CPPFLAGS}
+@@ -166,13 +158,11 @@ CPPFLAGS=${OLD_CPPFLAGS}
  
  
  AC_MSG_CHECKING(for mkstemp)
@@ -93,7 +94,7 @@ index b959266..068e87d 100644
  
  AC_SUBST(MKSTEMP_CFLAGS)
  
-@@ -311,14 +300,12 @@ else
+@@ -311,14 +301,12 @@ else
  	   dnl See if we have a 1.0.6 or newer version
  	   OLD_CPPFLAGS=${CPPFLAGS}
  	   CPPFLAGS="$CPPFLAGS `Magick++-config --cppflags`"
@@ -110,7 +111,7 @@ index b959266..068e87d 100644
  	   CPPFLAGS=$OLD_CPPFLAGS
  	   if test -n "${MAGICKCORRECTVERSION}"; then
  	      HAVE_LIBMAGICK=yes
-@@ -439,13 +426,11 @@ dnl OBS: HAVE_LIBPNG=no
+@@ -439,13 +427,11 @@ dnl OBS: HAVE_LIBPNG=no
  dnl OBS: LIBPNG_CFLAGS=
  dnl OBS: LIBPNG_LDFLAGS=
  dnl OBS: AC_MSG_CHECKING(See if we have libpng and zlib)
@@ -127,7 +128,7 @@ index b959266..068e87d 100644
  dnl OBS: AC_SUBST(LIBPNG_LDFLAGS)
  dnl OBS: AC_SUBST(LIBPNG_CFLAGS)
  dnl OBS: AM_CONDITIONAL(HAVE_LIBPNG, test "$HAVE_LIBPNG" = yes)
-@@ -456,9 +441,7 @@ dnl
+@@ -456,9 +442,7 @@ dnl
  
  dnl See if we need to define a "bool" type.
  AC_MSG_CHECKING(for built-in "bool" datatype)
@@ -139,7 +140,7 @@ index b959266..068e87d 100644
  dnl Add extra, platform-specific, C++ compiler options.
  AC_MSG_CHECKING(C++ compiler model)
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index 2fe0b46..65b749c 100644
+index 2fe0b46..65b749c 100755
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
 @@ -63,7 +63,7 @@ pstoedit.rtf : pstoedit.1
