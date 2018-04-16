@@ -1,0 +1,15 @@
+*.la
+*.lo
+*.o
+.libs/
+/ar-lib
+/autom4te.cache/
+/compile
+/config.log
+/config.status
+/config/pstoedit.pc
+/libtool
+/src/pstoedit
+/src/pstoedit_config.h
+/src/stamp-h1
+Makefile
