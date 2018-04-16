@@ -18,7 +18,8 @@ override_dh_auto_configure:
 	CXX="c++ $(HURD_LIBPTHREAD) -Wl,--as-needed -Wl,-O1" dh_auto_configure
 
 override_dh_auto_build:
-	$(MAKE) -C doc -W pstoedit.tex pstoedit.1 pstoedit.htm
+	$(MAKE) -C doc -W pstoedit.tex pstoedit.1 pstoedit.htm pstoedit.pdf
+	@echo Would also like to build pstoedit.info but bit rot has consumed it.
 	dh_auto_build
 
 override_dh_auto_install:
@@ -36,4 +37,4 @@ override_dh_installexamples:
 	 -exec chmod --changes a-x '{}' '+'
 
 override_dh_compress:
-	dh_compress --exclude=/usr/share/doc/pstoedit/examples/
+	dh_compress --exclude=.ps --exclude=.pdf

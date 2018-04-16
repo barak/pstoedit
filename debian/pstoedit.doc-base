@@ -9,3 +9,6 @@ Format: HTML
 Index: /usr/share/doc/pstoedit/pstoedit.htm
 Files:
   /usr/share/doc/pstoedit/pstoedit.htm
+
+Format: PDF
+Files: /usr/share/doc/pstoedit/pstoedit.pdf
