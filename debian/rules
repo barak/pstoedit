@@ -18,8 +18,7 @@ override_dh_auto_configure:
 	CXX="c++ $(HURD_LIBPTHREAD) -Wl,--as-needed -Wl,-O1" dh_auto_configure
 
 override_dh_auto_build:
-	-rm doc/pstoedit.1 doc/pstoedit.htm
-	$(MAKE) -C doc pstoedit.1 pstoedit.htm
+	$(MAKE) -C doc -W pstoedit.tex pstoedit.1 pstoedit.htm
 	dh_auto_build
 
 override_dh_auto_install:
