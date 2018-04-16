@@ -22,12 +22,6 @@ override_dh_auto_build:
 	cd doc && latex2man -H -t pstoedit.trans pstoedit.tex pstoedit.htm
 	dh_auto_build
 
-override_dh_auto_clean:
-	dh_auto_clean
-	rm -f debian/buildinfo
-	rm -rf autom4te.cache
-	rm -f doc/pstoedit.1 doc/pstoedit.htm
-
 override_dh_auto_install:
 	dh_auto_install
 	@echo "Clearing .la files dependency_libs fields per Debian policy"	
