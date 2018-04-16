@@ -1,0 +1,45 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Mon, 16 Apr 2018 10:52:10 +0100
+Subject: latex2man trans dot slash
+
+Need explicit ./ in latex2man -t ./pstoedit.trans
+
+This is because . has been removed from the latex2man include file search path.
+So without it:
+
+$ cd doc; make pstoedit.1 pstoedit.htm
+
+latex2man -t pstoedit.trans -M pstoedit.tex pstoedit.1
+do "pstoedit.trans" failed, '.' is no longer in @INC; did you mean do "./pstoedit.trans"? at /usr/bin/latex2man line 2010.
+Error in line 360: no such macro: \TeX
+Makefile:594: recipe for target 'pstoedit.1' failed
+
+latex2man -t pstoedit.trans -H pstoedit.tex pstoedit.htm
+do "pstoedit.trans" failed, '.' is no longer in @INC; did you mean do "./pstoedit.trans"? at /usr/bin/latex2man line 2010.
+Error in line 360: no such macro: \TeX
+Makefile:597: recipe for target 'pstoedit.htm' failed
+---
+ doc/Makefile.am | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 65b749c..0dbec97 100755
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -50,13 +50,13 @@ pstoedit.txt : pstoedit.1
+ 		    -e 's/­$$/- /'      > pstoedit.txt
+ 
+ pstoedit.1 : pstoedit.tex
+-	latex2man -t pstoedit.trans -M pstoedit.tex pstoedit.1 
++	latex2man -t ./pstoedit.trans -M pstoedit.tex pstoedit.1 
+ 
+ pstoedit.htm : pstoedit.tex
+-	latex2man -t pstoedit.trans -H pstoedit.tex pstoedit.htm
++	latex2man -t ./pstoedit.trans -H pstoedit.tex pstoedit.htm
+ 
+ pstoedit.texi : pstoedit.tex
+-	latex2man -t pstoedit.trans -T pstoedit.tex pstoedit.texi
++	latex2man -t ./pstoedit.trans -T pstoedit.tex pstoedit.texi
+ 	
+ pstoedit.rtf : pstoedit.1
+ 	rman -f RTF pstoedit.1 pstoedit.rtf

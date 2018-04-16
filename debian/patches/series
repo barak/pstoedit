@@ -6,3 +6,4 @@
 07-spelling-pathes.patch
 08-autoupdate.patch
 09-simplify-autogen.sh.patch
+0009-latex2man-trans-dot-slash.patch
