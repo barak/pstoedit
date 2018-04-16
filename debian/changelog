@@ -1,3 +1,16 @@
+pstoedit (3.71-1) unstable; urgency=medium
+
+  * swizzle packaging repo to salsa
+  * new upstream version (closes: #880650)
+  * patch 05-fix-plugin-loading no longer necessary
+  * bump policy
+  * bump to debhelper 11
+  * push cleaning list from debian/rules into debian/clean
+  * patch around removal of . from latex2man search path
+  * install examples
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 16 Apr 2018 11:23:44 +0100
+
 pstoedit (3.70-5) unstable; urgency=medium
 
   * restrict use of libEMF to architectures upon which it is available
@@ -171,10 +184,10 @@ pstoedit (3.45-6) unstable; urgency=medium
 
 pstoedit (3.45-5) experimental; urgency=low
 
-  * [debian/control] Follow ImageMagick library renaming: libmagick++9-dev 
+  * [debian/control] Follow ImageMagick library renaming: libmagick++9-dev
     -> libmagick++-dev.
   * [configure.ac] Removed use of "-pedantic". Regenerated auto* generated
-    files accordingly. 
+    files accordingly.
 
  -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Sun, 15 Jun 2008 14:19:29 +0200
 
@@ -215,7 +228,7 @@ pstoedit (3.45-1) unstable; urgency=low
 pstoedit (3.44-2) unstable; urgency=low
 
   * [debian/control] Removed sysutils from build dependencies; it was no
-    longer needed and interfered with building on GNU/kFreeBSD. 
+    longer needed and interfered with building on GNU/kFreeBSD.
     (Closes: #374847)
   * [debian/control] Updated Standards-Version.
   * [doc/pstoedit.tex, doc/pstoedit.1, doc/pstoedit.htm]
@@ -425,7 +438,7 @@ pstoedit (3.33-1) unstable; urgency=low
   * New upstream release.
   * GCC 3.2 transition:
     * [debian/control] Updated libmagick++-dev build dependency.
-    * [debian/control] Build-Conflicts: libplot-dev until it has made the 
+    * [debian/control] Build-Conflicts: libplot-dev until it has made the
       transition.
     * [debian/control] Dropped libpng3-dev build dependency which was needed
       for getting the right libplot-dev during the libpng transition.
@@ -489,7 +502,7 @@ pstoedit (3.32-3) unstable; urgency=low
   * Include '.so' links for the plugins in the library package as pstoedit
     doesn't search for the plugins by their full names. (Closes: #165028)
   * [debian/control] Build against current libmagick++.
-  * [configure.in] put in AM_MAINTAINER_MODE so the generated Makefiles do 
+  * [configure.in] put in AM_MAINTAINER_MODE so the generated Makefiles do
     not try to rebuild the configure files by default which caused FTBFS on
     some archs.
   * Regenerated auto*.
@@ -508,7 +521,7 @@ pstoedit (3.32-1) unstable; urgency=low
 
   * New upstream release.
     * New backend using ImageMagick++.
-  * Redid packaging to deal with changes in the build system and with the 
+  * Redid packaging to deal with changes in the build system and with the
     shared libpstoedit.
   * Redid auto* files using libtool that can deal with dependencies between
     un-installed shared libraries.
@@ -537,7 +550,7 @@ pstoedit (3.31-1) unstable; urgency=low
 
 pstoedit (3.30-2) unstable; urgency=low
 
-  * On PowerPC, __linux isn't defined when cpp is called -ansi. Switch 
+  * On PowerPC, __linux isn't defined when cpp is called -ansi. Switch
     src/dynload.cpp to use __linux__ instead. (Closes: #117813)
   * KIllustrator was renamed to Kontour.
   * Moved fontmap.mpost to /usr/share/pstoedit/ as it's not a conffile.
@@ -583,7 +596,7 @@ pstoedit (3.20-2) unstable; urgency=low
 
 pstoedit (3.20-1) unstable; urgency=low
 
-  * New upstream release. 
+  * New upstream release.
   * Compiled without plotutils support (as plotutils has no separate
     run-time library package).
 
@@ -604,7 +617,7 @@ pstoedit (3.13-3) unstable; urgency=low
 
 pstoedit (3.13-2) unstable; urgency=low
 
-  * FHS migration. 
+  * FHS migration.
 
  -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Sat, 11 Sep 1999 12:51:22 +0200
 
@@ -618,7 +631,7 @@ pstoedit (3.12-3) unstable; urgency=medium
 
   * Do the default fontmap handling for the MetaPost backend properly (only
   * when the MetaPost backend is requested, and no other fontmap has been
-    loaded); install the fontmap as /etc/pstoedit/fontmap.mpost. 
+    loaded); install the fontmap as /etc/pstoedit/fontmap.mpost.
     (Fixes Bug#40610)
   * Partial FHS migration (manpage).
 
@@ -626,15 +639,15 @@ pstoedit (3.12-3) unstable; urgency=medium
 
 pstoedit (3.12-2) unstable; urgency=low
 
-  * Install fontmap in /etc/pstoedit with Unix end of line convention, 
-    and make it the default fontmap. Fixed drawing of rectangles by the 
+  * Install fontmap in /etc/pstoedit with Unix end of line convention,
+    and make it the default fontmap. Fixed drawing of rectangles by the
     MetaPost backend. (Fixes: #40610).
 
  -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Wed,  7 Jul 1999 14:41:24 +0200
 
 pstoedit (3.12-1) unstable; urgency=low
 
-  * New upstream release. 
+  * New upstream release.
   * Include fontmap.mpost in the package. (Fixes: #40463)
 
  -- J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>  Wed, 30 Jun 1999 17:03:37 +0200
@@ -683,9 +696,9 @@ pstoedit (2.60-2) frozen unstable; urgency=low
   * Fixes all reported bugs; lintian-clean.
   * Acknowledge non-maintainer upload (Fixes #16499).
   * Fixed typo and spello in Description (Fixes #19011, #16576).
-  * Downgraded Recommends: (vector format graphics editors/converters) 
+  * Downgraded Recommends: (vector format graphics editors/converters)
     to Suggests: ; use "or" rather than "and"; added ivtools-bin (for idraw)
-    and transfig. (Fixes #20314, #20976; brings compliance to policy wrt 
+    and transfig. (Fixes #20314, #20976; brings compliance to policy wrt
     relationships between packages in and outside main).
   * Disabled the "sample" driver (which is an actual driver, albeit a dummy
     one). (Fixes #20429)
