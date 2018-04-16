@@ -29,3 +29,12 @@ override_dh_auto_install:
 
 override_dh_installchangelogs:
 	dh_installchangelogs doc/changelog.htm
+
+override_dh_installexamples:
+	dh_installexamples
+	find debian/pstoedit/usr/share/doc/pstoedit/examples \
+	 -type f -executable -name '*.ps' \
+	 -exec chmod --changes a-x '{}' '+'
+
+override_dh_compress:
+	dh_compress --exclude=/usr/share/doc/pstoedit/examples/
