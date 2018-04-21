@@ -10,7 +10,7 @@ This patch removes the -pedantic option from g++ to prevent uncritical compile e
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index ad61a30..33817eb 100755
+index ad61a30..33817eb 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -473,7 +473,7 @@ if test "$GXX" = yes; then

@@ -15,7 +15,7 @@ beeing to being
  4 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/doc/changelog.htm b/doc/changelog.htm
-index 05aeaba..03e2f6c 100755
+index 05aeaba..03e2f6c 100644
 --- a/doc/changelog.htm
 +++ b/doc/changelog.htm
 @@ -515,7 +515,7 @@
@@ -54,7 +54,7 @@ index 849effa..f0226b9 100644
  #else
  	class istream;
 diff --git a/src/pstoedit.ph b/src/pstoedit.ph
-index 131f2b2..a4b38d9 100755
+index 131f2b2..a4b38d9 100644
 --- a/src/pstoedit.ph
 +++ b/src/pstoedit.ph
 @@ -3034,7 +3034,7 @@ const char * const PS_prologue[] =

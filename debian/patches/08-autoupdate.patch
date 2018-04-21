@@ -11,7 +11,7 @@ Refresh autotools with warnings on, and heed them.
  3 files changed, 18 insertions(+), 35 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 7d26cde..cd3692b 100755
+index 7d26cde..cd3692b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -1,4 +1,3 @@
@@ -20,7 +20,7 @@ index 7d26cde..cd3692b 100755
 -AUTOMAKE_OPTIONS = foreign
  SUBDIRS = config src doc examples contrib misc os2 othersrc msdev m4
 diff --git a/configure.ac b/configure.ac
-index 33817eb..00afbae 100755
+index 33817eb..00afbae 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -10,17 +10,14 @@ dnl       as those are all the systems I have access to.
@@ -140,7 +140,7 @@ index 33817eb..00afbae 100755
  dnl Add extra, platform-specific, C++ compiler options.
  AC_MSG_CHECKING(C++ compiler model)
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index 2fe0b46..65b749c 100755
+index 2fe0b46..65b749c 100644
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
 @@ -63,7 +63,7 @@ pstoedit.rtf : pstoedit.1

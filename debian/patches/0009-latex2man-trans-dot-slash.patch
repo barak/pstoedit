@@ -23,7 +23,7 @@ Makefile:597: recipe for target 'pstoedit.htm' failed
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index 65b749c..0dbec97 100755
+index 65b749c..0dbec97 100644
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
 @@ -50,13 +50,13 @@ pstoedit.txt : pstoedit.1

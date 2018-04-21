@@ -44,7 +44,7 @@ pathes to paths
  37 files changed, 95 insertions(+), 95 deletions(-)
 
 diff --git a/doc/changelog.htm b/doc/changelog.htm
-index 03e2f6c..4d15409 100755
+index 03e2f6c..4d15409 100644
 --- a/doc/changelog.htm
 +++ b/doc/changelog.htm
 @@ -310,7 +310,7 @@

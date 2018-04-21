@@ -18,7 +18,7 @@ Bug-Debian: http://bugs.debian.org/554518
  1 file changed, 140 deletions(-)
 
 diff --git a/doc/pstoedit.tex b/doc/pstoedit.tex
-index b2856e0..2752fa3 100755
+index b2856e0..2752fa3 100644
 --- a/doc/pstoedit.tex
 +++ b/doc/pstoedit.tex
 @@ -595,54 +595,6 @@ cubic ???
