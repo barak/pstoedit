@@ -9,6 +9,17 @@
 /config.log
 /config.status
 /config/pstoedit.pc
+/doc/driverhelp.tex
+/doc/generalhelplong.tex
+/doc/generalhelpshort.tex
+/doc/pstoedit.1
+/doc/pstoedit.aux
+/doc/pstoedit.htm
+/doc/pstoedit.log
+/doc/pstoedit.out
+/doc/pstoedit.pdf
+/doc/pstoedit.tex
+/doc/version.tex
 /libtool
 /src/pstoedit
 /src/pstoedit_config.h
