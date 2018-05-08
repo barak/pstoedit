@@ -1,6 +1,7 @@
 *.la
 *.lo
 *.o
+.deps/
 .libs/
 /ar-lib
 /autom4te.cache/

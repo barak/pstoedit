@@ -1,9 +1,2 @@
-01-configure-no-pedantic.patch
-02-errors-to-stderr.patch
-03-doc-remove-nonfree-options.patch
-04-fix-obsolete-LIBPNG_LDFLAGS.patch
-06-spelling-donts.patch
-07-spelling-pathes.patch
-08-autoupdate.patch
-09-simplify-autogen.sh.patch
-0009-latex2man-trans-dot-slash.patch
+0004-desired-docs.patch
+0007-doc-build-tweaks.patch

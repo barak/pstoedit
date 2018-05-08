@@ -1,0 +1,109 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 16 May 2018 08:59:04 +0100
+Subject: doc build tweaks
+
+---
+ configure.ac    |  2 +-
+ doc/Makefile.am | 50 +++++++++++++++++++++++++++-----------------------
+ 2 files changed, 28 insertions(+), 24 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 663e1c6..0268c33 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -13,7 +13,7 @@ dnl Initialize Autoconf.
+ AC_INIT([pstoedit],[3.72],[wglunz35_AT_pstoedit.net],[],[http://www.pstoedit.com])
+ AC_LANG(C++)
+ dnl AC_CONFIG_AUX_DIR(config)
+-AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
++AM_INIT_AUTOMAKE([foreign subdir-objects info-in-builddir -Wall])
+ dnl AM_MAINTAINER_MODE
+ AC_CONFIG_SRCDIR([src/pstoedit.h])
+ AC_CONFIG_SUBDIRS(libEMF-1.0)
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 83224dd..6678a05 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -1,6 +1,9 @@
+ EXTRA_DIST=readme.txt changelog.htm pstoedit.tex pstoedit.trans
+ man_MANS = pstoedit.1
+ 
++doc_DATA = pstoedit.pdf pstoedit.htm readme.txt changelog.htm
++## Unfortunately this is broken:
++#info_TEXINFOS = pstoedit.texi
+ 
+ # Section for pstoedit documentation
+ # (adapted from `Makefile' in the latex2man package) 
+@@ -16,48 +19,49 @@ alldoc : pstoedit.1 pstoedit.htm pstoedit.txt pstoedit.pdf
+ P=../src/pstoedit
+ 
+ generalhelplong.tex: $P
+-	$P -doculong | grep -v "DLL interface" > generalhelplong.tex
++	$P -doculong | grep -v "DLL interface" > $@
+ 
+ generalhelpshort.tex: $P
+-	$P -docushort | grep -v "DLL interface" > generalhelpshort.tex
++	$P -docushort | grep -v "DLL interface" > $@
+ 
+ driverhelp.tex: $P
+-	$P -dumphelp | grep -v "DLL interface" | sed -e 's/_/\\_/' -e 's/>=/$>=$ /' > driverhelp.tex
++	$P -dumphelp | grep -v "DLL interface" | sed -e 's/_/\\_/' -e 's/>=/$>=$ /' > $@
+ 
+ latex_src = pstoedit.tex version.tex generalhelplong.tex generalhelpshort.tex driverhelp.tex
+ 
++pstoedit.pdf : $(latex_src)
++	pdflatex $<
++	pdflatex $<
++
++pstoedit.1 : $(latex_src) pstoedit.trans
++	latex2man -t $(srcdir)/pstoedit.trans -M $< $@
++
++pstoedit.texi : $(latex_src) pstoedit.trans
++	latex2man -t $(srcdir)/pstoedit.trans -T $< $@
++
++pstoedit.htm : $(latex_src) pstoedit.trans
++	latex2man -t $(srcdir)/pstoedit.trans -H $< $@
++
+ pstoedit.dvi : $(latex_src)
+-	latex $(srcdir)/pstoedit.tex
++	latex $<
+ 
+ pstoedit.ps : pstoedit.dvi
+-	dvips -Pwww  -o pstoedit.ps pstoedit.dvi
++	dvips -Pwww -o $@ $<
+ 
+-pstoedit.pdf : $(latex_src)
+-	pdflatex $(srcdir)/pstoedit.tex
+-	pdflatex $(srcdir)/pstoedit.tex
+-
+-pstoedit.info : pstoedit.texi
+-	makeinfo pstoedit.texi
++## default rule works find
++# pstoedit.info : pstoedit.texi
++# 	makeinfo $<
+ 
+ pstoedit.txt : pstoedit.1
+-	groff -t -man -Tlatin1 pstoedit.1    |	\
++	groff -t -man -Tlatin1 $<    |	\
+ 		sed -e 's/.//g' 	\
+ 		    -e 's/7|//g' 	\
+ 		    -e 's/[6-9]//g' 	\
+ 		    -e 's///g'      	\
+-		    -e 's/­$$/- /'      > pstoedit.txt
+-
+-pstoedit.1 : $(latex_src)
+-	latex2man -t $(srcdir)/pstoedit.trans -M $(srcdir)/pstoedit.tex pstoedit.1
+-
+-pstoedit.htm : $(latex_src)
+-	latex2man -t $(srcdir)/pstoedit.trans -H $(srcdir)/pstoedit.tex pstoedit.htm
+-
+-pstoedit.texi : $(latex_src)
+-	latex2man -t $(srcdir)/pstoedit.trans -T $(srcdir)/pstoedit.tex pstoedit.texi
++		    -e 's/­$$/- /'      > $@
+ 
+ pstoedit.rtf : pstoedit.1
+-	rman -f RTF pstoedit.1 pstoedit.rtf
++	rman -f RTF $< $@
+ 
+ MOSTLYCLEANFILES = pstoedit.aux pstoedit.log pstoedit.out pstoedit.dvi
+ 

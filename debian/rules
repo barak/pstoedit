@@ -17,11 +17,6 @@ endif
 override_dh_auto_configure:
 	CXX="c++ $(HURD_LIBPTHREAD) -Wl,--as-needed -Wl,-O1" dh_auto_configure
 
-override_dh_auto_build:
-	$(MAKE) -C doc -W pstoedit.tex pstoedit.1 pstoedit.htm pstoedit.pdf
-	@echo Would also like to build pstoedit.info but bit rot has consumed it.
-	dh_auto_build
-
 override_dh_auto_install:
 	dh_auto_install
 	@echo "Clearing .la files dependency_libs fields per Debian policy"	
@@ -29,12 +24,6 @@ override_dh_auto_install:
 
 override_dh_installchangelogs:
 	dh_installchangelogs doc/changelog.htm
-
-override_dh_installexamples:
-	dh_installexamples
-	find debian/pstoedit/usr/share/doc/pstoedit/examples \
-	 -type f -executable -name '*.ps' \
-	 -exec chmod --changes a-x '{}' '+'
 
 override_dh_compress:
 	dh_compress --exclude=.ps --exclude=.pdf

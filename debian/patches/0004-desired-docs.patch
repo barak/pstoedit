@@ -1,0 +1,22 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Tue, 8 May 2018 16:26:45 +0100
+Subject: desired docs
+
+Build only the desired forms of documentation: PDF manual, HTML manual, man page
+---
+ doc/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index b3753ad..83224dd 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -9,7 +9,7 @@ man_MANS = pstoedit.1
+ 
+ SUFFIXES = .htm .1 .tex .ps .info .texi .txt
+ 
+-all : alldoc
++all : pstoedit.1 pstoedit.htm pstoedit.pdf
+ gendocs : alldoc
+ alldoc : pstoedit.1 pstoedit.htm pstoedit.txt pstoedit.pdf
+ 
