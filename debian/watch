@@ -1,2 +1,2 @@
-version=3
-http://sf.net/pstoedit/pstoedit-(.*)\.tar\.gz
+version=4
+http://sf.net/@PACKAGE@/ @PACKAGE@@ANY_VERSION@@ARCHIVE_EXT@ debian uupdate
