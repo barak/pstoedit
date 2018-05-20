@@ -8,15 +8,15 @@ Build only the desired forms of documentation: PDF manual, HTML manual, man page
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index b3753ad..83224dd 100644
+index b3753ad..8dfc6c7 100644
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
-@@ -9,7 +9,7 @@ man_MANS = pstoedit.1
+@@ -11,7 +11,7 @@ SUFFIXES = .htm .1 .tex .ps .info .texi .txt
  
- SUFFIXES = .htm .1 .tex .ps .info .texi .txt
- 
--all : alldoc
-+all : pstoedit.1 pstoedit.htm pstoedit.pdf
+ all : alldoc
  gendocs : alldoc
- alldoc : pstoedit.1 pstoedit.htm pstoedit.txt pstoedit.pdf
+-alldoc : pstoedit.1 pstoedit.htm pstoedit.txt pstoedit.pdf
++alldoc : pstoedit.1 pstoedit.htm pstoedit.pdf
+ 
+ P=../src/pstoedit
  

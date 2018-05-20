@@ -2,10 +2,17 @@ From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
 Date: Wed, 16 May 2018 08:59:04 +0100
 Subject: doc build tweaks
 
+Reduce redundant information in doc/Makefile.am
+
+Set up infrastructure to generate doc/pstoedit.info file.
+
+Install documentation.
+
+Run latex twice when generating .dvi file.
 ---
  configure.ac    |  2 +-
- doc/Makefile.am | 50 +++++++++++++++++++++++++++-----------------------
- 2 files changed, 28 insertions(+), 24 deletions(-)
+ doc/Makefile.am | 42 ++++++++++++++++++++++++------------------
+ 2 files changed, 25 insertions(+), 19 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
 index 663e1c6..0268c33 100644
@@ -21,7 +28,7 @@ index 663e1c6..0268c33 100644
  AC_CONFIG_SRCDIR([src/pstoedit.h])
  AC_CONFIG_SUBDIRS(libEMF-1.0)
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index 83224dd..6678a05 100644
+index 8dfc6c7..0395626 100644
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
 @@ -1,6 +1,9 @@
@@ -34,7 +41,7 @@ index 83224dd..6678a05 100644
  
  # Section for pstoedit documentation
  # (adapted from `Makefile' in the latex2man package) 
-@@ -16,48 +19,49 @@ alldoc : pstoedit.1 pstoedit.htm pstoedit.txt pstoedit.pdf
+@@ -16,48 +19,51 @@ alldoc : pstoedit.1 pstoedit.htm pstoedit.pdf
  P=../src/pstoedit
  
  generalhelplong.tex: $P
@@ -50,35 +57,26 @@ index 83224dd..6678a05 100644
 +	$P -dumphelp | grep -v "DLL interface" | sed -e 's/_/\\_/' -e 's/>=/$>=$ /' > $@
  
  latex_src = pstoedit.tex version.tex generalhelplong.tex generalhelpshort.tex driverhelp.tex
++latex2man_src = $(latex_src) pstoedit.trans
  
-+pstoedit.pdf : $(latex_src)
-+	pdflatex $<
-+	pdflatex $<
-+
-+pstoedit.1 : $(latex_src) pstoedit.trans
-+	latex2man -t $(srcdir)/pstoedit.trans -M $< $@
-+
-+pstoedit.texi : $(latex_src) pstoedit.trans
-+	latex2man -t $(srcdir)/pstoedit.trans -T $< $@
-+
-+pstoedit.htm : $(latex_src) pstoedit.trans
-+	latex2man -t $(srcdir)/pstoedit.trans -H $< $@
-+
  pstoedit.dvi : $(latex_src)
 -	latex $(srcdir)/pstoedit.tex
++	latex $<
 +	latex $<
  
  pstoedit.ps : pstoedit.dvi
 -	dvips -Pwww  -o pstoedit.ps pstoedit.dvi
 +	dvips -Pwww -o $@ $<
  
--pstoedit.pdf : $(latex_src)
+ pstoedit.pdf : $(latex_src)
 -	pdflatex $(srcdir)/pstoedit.tex
 -	pdflatex $(srcdir)/pstoedit.tex
--
++	pdflatex $<
++	pdflatex $<
+ 
 -pstoedit.info : pstoedit.texi
 -	makeinfo pstoedit.texi
-+## default rule works find
++## default rule works fine
 +# pstoedit.info : pstoedit.texi
 +# 	makeinfo $<
  
@@ -90,16 +88,22 @@ index 83224dd..6678a05 100644
  		    -e 's/[6-9]//g' 	\
  		    -e 's///g'      	\
 -		    -e 's/­$$/- /'      > pstoedit.txt
--
++		    -e 's/­$$/- /'      > $@
+ 
 -pstoedit.1 : $(latex_src)
 -	latex2man -t $(srcdir)/pstoedit.trans -M $(srcdir)/pstoedit.tex pstoedit.1
--
++pstoedit.1 : $(latex2man_src)
++	latex2man -t $(srcdir)/pstoedit.trans -M $< $@
+ 
 -pstoedit.htm : $(latex_src)
 -	latex2man -t $(srcdir)/pstoedit.trans -H $(srcdir)/pstoedit.tex pstoedit.htm
--
++pstoedit.htm : $(latex2man_src)
++	latex2man -t $(srcdir)/pstoedit.trans -H $< $@
+ 
 -pstoedit.texi : $(latex_src)
 -	latex2man -t $(srcdir)/pstoedit.trans -T $(srcdir)/pstoedit.tex pstoedit.texi
-+		    -e 's/­$$/- /'      > $@
++pstoedit.texi : $(latex2man_src)
++	latex2man -t $(srcdir)/pstoedit.trans -T $< $@
  
  pstoedit.rtf : pstoedit.1
 -	rman -f RTF pstoedit.1 pstoedit.rtf
