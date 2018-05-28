@@ -57,8 +57,7 @@ dnl check for directory handling
 AC_HEADER_DIRENT
 
 dnl check for the more secure versions of some functions
-AC_CHECK_FUNC([snprintf], [AC_DEFINE([HAVE_SNPRINTF], [1],
-			[Define if snprintf exists.])])
+AC_CHECK_FUNCS([snprintf])
 
 
 dnl 
