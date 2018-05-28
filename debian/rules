@@ -7,15 +7,14 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 include /usr/share/dpkg/architecture.mk
 
+export DEB_CXXFLAGS_MAINT_APPEND = -Wl,--as-needed -Wl,-O1
+
 ifeq ($(DEB_BUILD_ARCH_OS),hurd)
-HURD_LIBPTHREAD += -lpthread
+export DEB_CXXFLAGS_MAINT_APPEND += -lpthread
 endif
 
 %:
 	dh $@
-
-override_dh_auto_configure:
-	CXX="c++ $(HURD_LIBPTHREAD) -Wl,--as-needed -Wl,-O1" dh_auto_configure
 
 override_dh_auto_install:
 	dh_auto_install
