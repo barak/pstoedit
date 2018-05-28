@@ -504,8 +504,7 @@ contrib/Makefile contrib/cairo/Makefile
 contrib/java/Makefile contrib/java/java1/Makefile contrib/java/java2/Makefile 
 misc/Makefile misc/swffonts/Makefile 
 os2/Makefile 
-msdev/Makefile othersrc/Makefile othersrc/gsdllinc/Makefile],
-[])
+msdev/Makefile othersrc/Makefile othersrc/gsdllinc/Makefile])
 
 AC_OUTPUT
  
