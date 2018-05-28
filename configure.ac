@@ -44,14 +44,9 @@ dnl    exit 1
 dnl fi
 
 dnl Check Ghostscript
-GS=""
-AC_PATH_PROG(GS,gs)
-if test -z "${GS}"; then
-   AC_MSG_ERROR([** Cannot find ghostscript. If it is already installed, Check PATH.])
-else
-dnl Strip off // to / that causes troubles.
-   GS=`echo $GS | sed -e 's/\/\//\//g'`	
-fi
+AC_ARG_VAR([GS],[location of ghostscript executable])
+AC_PATH_PROG([GS],[gs],
+ [AC_MSG_ERROR([** Cannot find ghostscript. If it is already installed, Check PATH.])])
 
 PKG_PROG_PKG_CONFIG
 
