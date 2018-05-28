@@ -27,7 +27,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_YACC
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+AM_PROG_AR
 AC_PROG_INSTALL
 dnl there is no need to build the static libs if shared libs are available
 LT_INIT([disable-static win32-dll dlopen])
