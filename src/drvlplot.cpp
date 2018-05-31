@@ -238,27 +238,27 @@ static struct page_size known_page_sizes[] = {
 	 8.5, 11.0, 8.0},
 	{PAGE_ANSI_B, "b", "tabloid",
 	 11.0, 17.0, 10.0},
-	{PAGE_ANSI_C, "c", 0,
+	{PAGE_ANSI_C, "c", nullptr,
 	 17.0, 22.0, 16.0},
-	{PAGE_ANSI_D, "d", 0,
+	{PAGE_ANSI_D, "d", nullptr,
 	 22.0, 34.0, 20.0},
-	{PAGE_ANSI_E, "e", 0,
+	{PAGE_ANSI_E, "e", nullptr,
 	 34.0, 44.0, 32.0},
-	{PAGE_ISO_A4, "a4", 0,
+	{PAGE_ISO_A4, "a4", nullptr,
 	 8.27, 11.69, 7.8},
-	{PAGE_ISO_A3, "a3", 0,
+	{PAGE_ISO_A3, "a3", nullptr,
 	 11.69, 16.54, 10.7},
-	{PAGE_ISO_A2, "a2", 0,
+	{PAGE_ISO_A2, "a2", nullptr,
 	 16.54, 23.39, 15.6},
-	{PAGE_ISO_A1, "a1", 0,
+	{PAGE_ISO_A1, "a1", nullptr,
 	 23.39, 33.11, 22.4},
-	{PAGE_ISO_A0, "a0", 0,
+	{PAGE_ISO_A0, "a0", nullptr,
 	 33.11, 46.81, 32.2},
-	{PAGE_JIS_B5, "b5", 0,
+	{PAGE_JIS_B5, "b5", nullptr,
 	 7.17, 10.12, 6.67},
-	{PAGE_LEGAL, "legal", 0,
+	{PAGE_LEGAL, "legal", nullptr,
 	 8.5, 14.0, 8.0},			// an unofficial US size
-	{PAGE_LEDGER, "ledger", 0,
+	{PAGE_LEDGER, "ledger", nullptr,
 	 17.0, 11.0, 10.0}			// rotated ANSI B (an unofficial US size)
 };
 
@@ -798,7 +798,7 @@ drvplot::derivedConstructor(drvplot):constructBase
 				page_type = j;
 				const char *s = known_page_sizes[page_type].name;
 				const size_t len = strlen(s) ;
-				char *t = new char[len + 1];
+				auto t = new char[len + 1];
 				if (!t) {
 					errf << "ERROR: Can't allocate memory " << endl;
 					ctorOK = false;
@@ -1009,7 +1009,7 @@ drvplot::~drvplot()
 {
 	// delete Plotter (either a genuine one from libplotter, or a fake one)
 	delete plotter;
-	options=0;
+	options=nullptr;
 }
 
 
@@ -1192,7 +1192,7 @@ void drvplot::set_line_style()
 
 	// set dashing pattern, which most types of Plotter understand
 	DashPattern dash_pattern(dashPattern());
-	double *numbers = new double[dash_pattern.nrOfEntries];
+	auto numbers = new double[dash_pattern.nrOfEntries];
 	for (int i = 0; i < dash_pattern.nrOfEntries; i++)
 		numbers[i] = (double) dash_pattern.numbers[i];
 	(void)plotter->flinedash(dash_pattern.nrOfEntries, numbers, (double) dash_pattern.offset);

@@ -81,7 +81,7 @@ drvTGIF::~drvTGIF()
 	// now we can copy the buffer the output
 	ifstream & inbuffer = tempFile.asInput();
 	copy_file(inbuffer, outf);
-	options=0;
+	options=nullptr;
 }
 
 void drvTGIF::print_coords()
