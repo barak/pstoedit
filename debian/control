@@ -18,6 +18,7 @@ Vcs-Browser: https://salsa.debian.org/debian/pstoedit
 Package: libpstoedit-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
 Depends: libpstoedit0c2a (= ${binary:Version}), ${misc:Depends}, libmagick++-dev, libplot-dev (>= 2.4.1-14)
 Description: PostScript to editable vector graphics library (development files)
  pstoedit is a framework for converting Postscript and PDF files to various
@@ -28,6 +29,7 @@ Description: PostScript to editable vector graphics library (development files)
 Package: libpstoedit0c2a
 Section: libs
 Architecture: any
+Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Conflicts: libpstoedit0, libpstoedit0c2
