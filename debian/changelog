@@ -1,3 +1,13 @@
+pstoedit (3.75-1) unstable; urgency=medium
+
+  * new upstream version (closes: #945490)
+  * bump policy version
+  * build dependency for pdflatex support files
+  * multiarch support
+  * add rules-requires-root control field
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 02 Jan 2020 17:40:26 +0000
+
 pstoedit (3.74-1) unstable; urgency=medium
 
   * new upstream version
