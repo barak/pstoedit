@@ -3,7 +3,7 @@ Section: graphics
 Priority: optional
 Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Rules-Requires-Root: no
-Build-Depends: debhelper-compat (= 12), dh-buildinfo, docbook-to-man,
+Build-Depends: debhelper-compat (= 13), dh-buildinfo, docbook-to-man,
  g++ (>= 4:4.0), libwmf-dev, libmagick++-dev,
  libplot-dev (>= 2.4.1-14), libpng-dev, ghostscript,
  pkg-config,
@@ -12,7 +12,7 @@ Build-Depends: debhelper-compat (= 12), dh-buildinfo, docbook-to-man,
  libgd-dev,
  libemf-dev [alpha amd64 arm armeb armel armhf arm64 i386 powerpc powerpcel powerpcspe ppc64 ppc64el s390 s390x sparc sparc64 x32],
 Homepage: http://www.pstoedit.net/
-Standards-Version: 4.4.1
+Standards-Version: 4.6.0
 Vcs-Git: https://salsa.debian.org/debian/pstoedit.git
 Vcs-Browser: https://salsa.debian.org/debian/pstoedit
 

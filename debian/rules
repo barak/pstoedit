@@ -16,9 +16,8 @@ endif
 %:
 	dh $@
 
-override_dh_auto_install:
-	dh_auto_install
-	@echo "Clearing .la files dependency_libs fields per Debian policy"	
+execute_after_dh_auto_install:
+	@echo "Clearing .la files dependency_libs fields per Debian policy"
 	sed --in-place "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/*.la
 
 override_dh_installchangelogs:
