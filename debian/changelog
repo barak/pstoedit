@@ -1,3 +1,10 @@
+pstoedit (3.77-1) unstable; urgency=medium
+
+  * New upstream release
+    - includes source file pstoedit.pro (closes: #951395)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 04 Sep 2021 20:06:23 +0100
+
 pstoedit (3.76-1) unstable; urgency=medium
 
   * Use secure URI in debian/watch.

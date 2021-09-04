@@ -1,0 +1,43 @@
+*.la
+*.lo
+*.o
+/autom4te.cache/
+/config.log
+/config.status
+/config/pstoedit.pc
+/doc/driverhelp.tex
+/doc/generalhelplong.tex
+/doc/generalhelpshort.tex
+/doc/pstoedit.aux
+/doc/pstoedit.log
+/doc/pstoedit.out
+/doc/version.tex
+/libtool
+/src/.libs/
+/src/pstoedit
+/src/pstoedit.ph
+/src/pstoedit_config.h
+/src/stamp-h1
+Makefile
+
+## These autotools-generated files really should be removed from the
+## repo and git ignored.
+# /aclocal.m4
+# /ar-lib
+# /compile
+# /config.guess
+# /config.sub
+# /configure
+# /depcomp
+# /install-sh
+# /ltmain.sh
+# /m4/libtool.m4
+# /missing
+# /mkinstalldirs
+# /src/pstoedit_config.h.in
+# Makefile.in
+
+## Similarly with these files generated at build time.
+# /doc/pstoedit.1
+# /doc/pstoedit.htm
+# /doc/pstoedit.pdf
