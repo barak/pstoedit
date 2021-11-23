@@ -1,3 +1,10 @@
+pstoedit (3.78-1) unstable; urgency=medium
+
+  * New upstream release
+  * Spelling patch upstreamed, delete
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 23 Nov 2021 08:55:51 +0000
+
 pstoedit (3.77-1) unstable; urgency=medium
 
   * New upstream release
