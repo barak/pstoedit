@@ -1,0 +1,83 @@
+EXTRA_DIST=readme.txt changelog.htm pstoedit.tex pstoedit.trans
+# Include these in dist tarball in case target does not have LaTeX (pdflatex) or latex2man.
+# See "if DOCS" conditional below, and option ./configure --enable-docs=no
+# which disables *regeneration* of docs, but not their installation.
+EXTRA_DIST += pstoedit.pdf pstoedit.htm pstoedit.1
+man_MANS = pstoedit.1
+
+doc_DATA = pstoedit.pdf pstoedit.htm readme.txt changelog.htm
+## Unfortunately this is broken:
+#info_TEXINFOS = pstoedit.texi
+
+# Section for pstoedit documentation
+# (adapted from `Makefile' in the latex2man package) 
+# Rolf Niepraschk, niepraschk@ptb.de, 99/08/20
+#
+
+SUFFIXES = .htm .1 .tex .ps .info .texi .txt
+
+all : alldoc
+gendocs : alldoc
+alldoc : pstoedit.1 pstoedit.htm pstoedit.pdf
+
+# This conditional guards use of the entire documentation generation
+# subsystem, which involves LaTeX and latex2man and such.  If turned
+# off, no attempt is made to generate them, instead the files in the
+# distribution tarball are installed.
+if DOCS
+P=../src/pstoedit
+
+generalhelplong.tex: $P
+	$P -doculong | grep -v "DLL interface" > $@
+
+generalhelpshort.tex: $P
+	$P -docushort | grep -v "DLL interface" > $@
+
+driverhelp.tex: $P
+	$P -dumphelp | grep -v "DLL interface" | sed -e 's/_/\\_/' -e 's/>=/$>=$ /' > $@
+
+latex_src = pstoedit.tex version.tex generalhelplong.tex generalhelpshort.tex driverhelp.tex
+latex2man_src = $(latex_src) pstoedit.trans
+
+pstoedit.dvi : $(latex_src)
+	$(LATEX) $<
+	$(LATEX) $<
+
+pstoedit.ps : pstoedit.dvi
+	$(DVIPS) -Pwww -o $@ $<
+
+
+pstoedit.pdf : $(latex_src)
+	$(PDFLATEX) $<
+	$(PDFLATEX) $<
+
+## default rule works fine
+# pstoedit.info : pstoedit.texi
+# 	makeinfo $<
+
+pstoedit.txt : pstoedit.1
+	$(GROFF) -t -man -Tlatin1 $<    |	\
+		sed -e 's/.//g' 	\
+		    -e 's/7|//g' 	\
+		    -e 's/[6-9]//g' 	\
+		    -e 's///g'      	\
+		    -e 's/­$$/- /'      > $@
+
+pstoedit.1 : $(latex2man_src)
+	$(LATEX2MAN) -t $(srcdir)/pstoedit.trans -M $< $@
+
+pstoedit.htm : $(latex2man_src)
+	$(LATEX2MAN) -t $(srcdir)/pstoedit.trans -H $< $@
+
+pstoedit.texi : $(latex2man_src)
+	$(LATEX2MAN) -t $(srcdir)/pstoedit.trans -T $< $@
+
+pstoedit.rtf : pstoedit.1
+	$(RMAN) -f RTF $< $@
+
+MOSTLYCLEANFILES = pstoedit.aux pstoedit.log pstoedit.out pstoedit.dvi
+
+CLEANFILES = pstoedit.ps pstoedit.pdf pstoedit.1 pstoedit.htm pstoedit.texi \
+	  pstoedit.info pstoedit.txt pstoedit.rtf generalhelplong.tex \
+	  generalhelpshort.tex driverhelp.tex
+endif

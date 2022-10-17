@@ -1,0 +1,4 @@
+debian/buildinfo
+autom4te.cache/
+doc/pstoedit.1
+doc/pstoedit.htm

@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_CXXFLAGS_MAINT_APPEND = -Wl,--as-needed -Wl,-O1
+
+ifeq ($(DEB_BUILD_ARCH_OS),hurd)
+export DEB_CXXFLAGS_MAINT_APPEND += -lpthread
+endif
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	dh_auto_install
+	@echo "Clearing .la files dependency_libs fields per Debian policy"	
+	sed --in-place "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/*.la
+
+override_dh_installchangelogs:
+	dh_installchangelogs doc/changelog.htm
+
+override_dh_compress:
+	dh_compress --exclude=.ps --exclude=.pdf
