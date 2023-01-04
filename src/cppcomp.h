@@ -1,11 +1,15 @@
 #ifndef cppcomp_h
 #define cppcomp_h
+
+//disable warning about copyleft from PVS studio.
+//-V::1042
+
 //{
 /*
    cppcomp.h : This file is part of pstoedit
    header declaring compiler dependent stuff
 
-   Copyright (C) 1998 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1998 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +26,16 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
+#define MSVC_CHECK_LEAKS 0
+// for development only
+// needs a bit more work to handle also new - see 
+// https://docs.microsoft.com/en-us/visualstudio/debugger/finding-memory-leaks-using-the-crt-library?view=vs-2015
+#if MSVC_CHECK_LEAKS
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+#endif
+
 #ifdef HAVE_CONFIG_H
 	#include "pstoedit_config.h"
 #endif
@@ -33,9 +47,6 @@
 #else
 	#define DLLEXPORT
 #endif
-
-
-
 
 #ifdef _AIX
 	#define _unix
@@ -50,6 +61,11 @@
 	// 1300 - VS 7 (2002)
 	// 1400 - VS 8 (2005)
 	// 1900 - VS 2015
+
+        // Visual Studio 2008 does not have nullptr
+        #if (_MSC_VER <= 1400)
+          #define nullptr NULL
+        #endif
 
 	// NOTE: If your compiler or installation does not come with
 	// an installation of the STL, just comment out the next line
@@ -69,7 +85,6 @@
 #endif
 
 #if defined (FORCESTLUSAGE)
-// 
 	#define HAVE_STL
 #endif
 
@@ -135,8 +150,8 @@
 
 #ifdef  USE_NEWSTRSTREAM
 #define I_strstream 	<sstream>
-#define C_istrstream istringstream
-#define C_ostrstream ostringstream
+#define C_istrstream std::stringstream
+#define C_ostrstream std::ostringstream
 #else
 #define I_strstream 	<strstream>
 #define C_istrstream istrstream
@@ -147,7 +162,10 @@
 #define I_stdio			<cstdio>
 #define I_stdlib		<cstdlib>
 
-#define USESTD using namespace std;
+// #define USESTD using namespace std;
+#define USESTD using std::cout; using std::cerr; using std::ios;  using std::ofstream; using std::ifstream; using std::ostream; using std::istream; using std::endl; using std::cin; 
+//using std::string;
+
 
 #else
 //} {
@@ -193,18 +211,14 @@
 #endif
 //}
 
-// if (defined (_MSC_VER) && _MSC_VER >= 1100) || defined (LINT) || defined (__COVERITY__)
-#if 1
+
 #define NOCOPYANDASSIGN(classname) \
 	private: \
-		classname(const classname&); \
-		const classname & operator=(const classname&);
-#else
-/* nothing - GNU has problems with this anyway. But, it does not harm. 
-   During compilation with VC++ potential misusages of the 
-   forbidden methods will be detected */
-	#define NOCOPYANDASSIGN(classname) 
-#endif
+		classname(const classname&) = delete; \
+		const classname & operator=(const classname&) = delete;
+
+//lint -esym(665, NOCOPYANDASSIGN)
+//classname not in ()
 
 
 // rcw2: work round case insensitivity in RiscOS
@@ -220,13 +234,6 @@
 		#define _WIN32 WIN32
 	#endif
 #endif
-
-#ifndef NIL 
-// 0 pointers
-	#define NIL 0
-#endif
-
-
 
 
 //{
@@ -246,6 +253,9 @@
 #define TEMPNAM _tempnam
 #define GETCWD _getcwd
 
+// some I did not migrate (yet)
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #else
 //} {
 
@@ -262,6 +272,22 @@
 #define SETMODE setmode
 #define TEMPNAM tempnam
 #define GETCWD getcwd
+
+#include <assert.h>
+#include <errno.h>
+// Windows promotes fopen_s but g++ does not have it
+inline int fopen_s(FILE **fp, const char *filename, const char *mode) {
+  assert(fp);
+  assert(filename);
+  assert(mode);
+  *(fp) = fopen(filename, mode);
+  if (*fp) {
+    return 0;
+  } else {
+    return errno;
+  }
+}
+
 
 USESTD
 
@@ -316,6 +342,11 @@ static inline void strcat_s(char * de, size_t de_size, const char *  so) {
 
 #endif
 //}
+
+// used to eliminate compiler warnings about unused parameters
+inline void unused(const void * const) { }
+//lint -esym(522,unused)
+//lint -esym(523,unused)
 
 #endif
 //}

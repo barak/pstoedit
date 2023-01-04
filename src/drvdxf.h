@@ -5,7 +5,7 @@
    drvDXF.h : This file is part of pstoedit
    Interface for new driver backends
 
-   Copyright (C) 1993 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,14 +29,14 @@ class drvDXF : public drvbase {
 public:
 
         derivedConstructor(drvDXF);
-	// (const char * driveroptions_P,ostream & theoutStream ,ostream & theerrStream ); // Constructor
-
+	
         ~drvDXF() override; // Destructor
 	class DriverOptions : public ProgramOptions {
 	public:
 		OptionT < bool, BoolTrueExtractor > polyaslines ;
 		OptionT < bool, BoolTrueExtractor > mm ;
 		OptionT < bool, BoolTrueExtractor > colorsToLayers ;
+		OptionT < bool, BoolTrueExtractor > fillToHatch;
 		OptionT < bool, BoolTrueExtractor > splineaspolyline ;
 		OptionT < bool, BoolTrueExtractor > splineasnurb ;
 		OptionT < bool, BoolTrueExtractor > splineasbspline ;
@@ -52,6 +52,8 @@ public:
 			polyaslines(true,"-polyaslines",nullptr,0,"use LINE instead of POLYLINE in DXF",nullptr,false),
 			mm(true,"-mm",nullptr,0,"use mm coordinates instead of points in DXF (mm=pt/72*25.4)",nullptr,false),
 			colorsToLayers(true,"-ctl",nullptr,0,"map colors to layers",nullptr,false),
+			fillToHatch(true, "-filltohatch", nullptr, 0,
+				"generate hatch objects from fill operations (still experimental) ", nullptr, false),
 			splineaspolyline(true,"-splineaspolyline",nullptr,0,"approximate splines with PolyLines (only for -f dxf_s)",nullptr,false),
 			splineasnurb(true,"-splineasnurb",nullptr,0,"experimental (only for -f dxf_s)",nullptr,false),
 			splineasbspline(true,"-splineasbspline",nullptr,0,"experimental (only for -f dxf_s)",nullptr,false),
@@ -68,6 +70,7 @@ public:
 			ADD(polyaslines);
 			ADD(mm);
 			ADD(colorsToLayers);
+			ADD(fillToHatch);
 			ADD(splineaspolyline);
 			ADD(splineasnurb);
 			ADD(splineasbspline);
@@ -82,8 +85,10 @@ public:
 	}*options;
 
 private:
+
+		void showHatch();
 		void drawVertex(const Point & p, bool withlinewidth, int val70 = 0);
-                void drawLine(const Point & start_p, const Point & end_p);
+        void drawLine(const Point & start_p, const Point & end_p);
 		void curvetoAsOneSpline(const basedrawingelement & elem, const Point & currentpoint);
 		void curvetoAsMultiSpline(const basedrawingelement & elem, const Point & currentpoint);
 		void curvetoAsPolyLine(const basedrawingelement & elem, const Point & currentpoint);
@@ -95,22 +100,14 @@ private:
 		void writelayerentry(ostream & outs, unsigned int color, const char * layername);
 		bool wantedLayer(float r, float g, float b,const RSString& colorName)  ; // layer shall be written
 		RSString calculateLayerString(float r, float g, float b,const RSString& colorName) ;
-		
-		
-		void printPoint(const Point & p, unsigned short add );
+		void writeColorAndStyle();
+		void printPoint(ostream & out, const Point & p, unsigned short offset, bool with_z = true);
 		void writesplinetype(const unsigned short stype);
 
 		enum dxfsplinetype {aspolyline, assinglespline, asmultispline, asnurb, asbspline, asbezier} splinemode;
-//       	int polyaslines; // dump polygons as lines
-// 		bool mm; //wether to use mm instead of points
+		
 		bool formatis14 ; // whether to use acad 14 format
-//		unsigned int splineprecision;
 
-//		bool colorsToLayers;
-		const char * header_prelayer1;
-		const char * header_prelayer2;
-		const char * header_postlayer;
-		const char * trailer;
 		class DXFLayers * layers;
 		long handleint;
 		double scalefactor; 
@@ -122,12 +119,8 @@ private:
 
 		void show_text(const TextInfo & textinfo) override;
 
-
 		NOCOPYANDASSIGN(drvDXF)
-
 };
-
-
 
 #endif
 

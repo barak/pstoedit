@@ -1,3 +1,40 @@
+pstoedit (3.77-1) unstable; urgency=medium
+
+  * New upstream release
+    - includes source file pstoedit.pro (closes: #951395)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 04 Sep 2021 20:06:23 +0100
+
+pstoedit (3.76-1) unstable; urgency=medium
+
+  * Use secure URI in debian/watch.
+  * Set upstream metadata fields: Bug-Submit (from ./configure), Name (from
+    ./configure).
+  * Update standards version to 4.6.0, no changes needed.
+  * New upstream version
+  * Placate dh_missing
+  * Spelling patch
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 02 Sep 2021 11:54:15 +0100
+
+pstoedit (3.75-1) unstable; urgency=medium
+
+  * new upstream version (closes: #945490)
+  * bump policy version
+  * build dependency for pdflatex support files
+  * multiarch support
+  * add rules-requires-root control field
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 02 Jan 2020 17:40:26 +0000
+
+pstoedit (3.74-1) unstable; urgency=medium
+
+  * new upstream version
+  * bump policy version
+  * bump debhelper version
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 05 Jun 2019 19:57:59 +0100
+
 pstoedit (3.73-1) unstable; urgency=medium
 
   * new upstream version

@@ -5,7 +5,7 @@
    pstoeditoptions.h : This file is part of pstoedit
    definition of program options
 
-   Copyright (C) 1993 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -120,24 +120,11 @@ static const char * const UseDefaultDoku = emptyString;
 class DLLEXPORT PsToEditOptions : public ProgramOptions {
 public:
 	static PsToEditOptions& theOptions(); // singleton
-	enum PropSheetEnum {g_t=0, t_t, d_t,/* a_t, */ b_t, h_t };
-	// g - general
-	// t - text
-	// d - drawing
-	// a - unused
-	// b - debug
-	// h - hidden
-	static const char * propSheetName(PropSheetEnum sheet) {
-	  switch (sheet) {
-		case g_t : return "General options"; break;
-		case t_t : return "Text and font handling related options"; break;
-		case d_t : return "Drawing related options"; break;
-		case b_t : return "Debug options"; break;
-		case h_t : return "Hidden options"; break;
-		default  : return "out of range sheet type";
-	  }
-    }
-		// cannot be const  because it needs to be changed on non UNIX systems (convertBackSlashes)
+
+	// option categories
+	const unsigned int g_t, t_t, d_t, b_t, h_t;
+
+	// cannot be const  because it needs to be changed on non UNIX systems (convertBackSlashes)
 	char *nameOfInputFile  ; //= 0;
 	char *nameOfOutputFile ; //= 0;	// can contain %d for page splitting
 
@@ -195,6 +182,7 @@ public:
 	OptionT < bool, BoolTrueExtractor > keepinternalfiles ;//= false;
 	OptionT < bool, BoolTrueExtractor > fontdebug ;//= false;
 	OptionT < bool, BoolTrueExtractor > justgstest ;//= false;
+	OptionT < bool, BoolTrueExtractor > fake_date_and_version;//= false;
 	OptionT < bool, BoolTrueExtractor > pscover ;//= false;
 	OptionT < bool, BoolTrueExtractor > nofontreplacement ;//= false;
 	OptionT < bool, BoolTrueExtractor > passglyphnames;
@@ -224,14 +212,21 @@ public:
 	OptionT < RSString, RSStringValueExtractor> drivername ;//= 0; // cannot be const char * because it is changed in pstoedit.cpp
 	OptionT < RSString, RSStringValueExtractor > gsregbase;
 
-	int verbose() const { return (int) verboselevel ? (int) verboselevel : (int) verboseflag; }
+	int verbose() const { return verboselevel() ? verboselevel() : verboseflag(); }
 	
 private:
 	PsToEditOptions() :
 
 	ProgramOptions(true), // expect additional parameters
-	nameOfInputFile(0),
-	nameOfOutputFile(0),	// can contain %d for page splitting
+
+	g_t(add_category("General options")),
+	t_t(add_category("Text and font handling related options")),
+	d_t(add_category("Drawing related options")),
+	b_t(add_category("Debug options")),
+	h_t(add_category("Hidden options")),
+
+	nameOfInputFile(nullptr),
+	nameOfOutputFile(nullptr),	// can contain %d for page splitting
 
 	nameOfIncludeFile	(true, "-include","name of a PostScript file to be included",g_t,"name of PostScript file to be included",
 		"This option allows specifying an additional PostScript file that will be "
@@ -507,6 +502,9 @@ private:
 	justgstest			(true, "-gstest",noArgument,b_t,"perform a basic test of the interworking with Ghostscript",
 		UseDefaultDoku,
 		false),
+	fake_date_and_version(true, "-fakedateandversion", noArgument, b_t, "Just for regression testing - uses a constant date and version string.",
+		UseDefaultDoku,
+		false),
 	pscover				(true, "-pscover",noArgument,h_t,"perform coverage statistics about the pstoedit PostScript proloque - for debug and test only",
 		UseDefaultDoku,
 		false),
@@ -524,12 +522,13 @@ private:
 	rotation			(true, "-rotate","angle (0-360)",g_t,"rotate the image",
 		"Rotate image by angle.",
 		0),
+#define LINEBREAK "\\\\"
 	explicitFontMapFile	(true, "-fontmap","name of font map file for pstoedit",t_t,"use a font mapping from a file",
 		"The font map is a "
-		"simple text file containing lines in the following format:BREAK\n"
+		"simple text file containing lines in the following format:" LINEBREAK "\n"
 		"\n\n"
-		"\\verb+document_font_name    target_font_name+BREAK\n"
-		"Lines beginning with \\verb+%+ are considerd comments.BREAK\n"
+		"\\verb+document_font_name    target_font_name+" LINEBREAK "\n"
+		"Lines beginning with \\verb+%+ are considerd comments." LINEBREAK "\n"
 		"For font names with spaces use the "
 		"\\verb+\"font name with spaces\"+ notation.\n"
 		"\n"
@@ -547,7 +546,7 @@ private:
 		"\n"
 		"  \\item MS Windows: The same directory where the \\Prog{pstoedit} executable is located\n"
 		"\n"
-		"  \\item Unix:BREAK\n"
+		"  \\item Unix:" LINEBREAK "\n"
 		"  The default installation directory. If it fails, then $<$\\emph{The directory where the pstoedit executable is located}$>$\\verb+/../lib/+\n"
 		"\n"
 		"\\end{itemize}\n"
@@ -651,9 +650,6 @@ private:
 	  emptyString)
 	{
 
-	// nameOfInputFile (0);
-	// nameOfOutputFile (0),	// can contain %d for page splitting
-
 #define MAKESTRING(x) #x
 #define ADD(x) add(&x,MAKESTRING(x))
 
@@ -711,6 +707,7 @@ private:
 	ADD(fontdebug);
 	ADD(justgstest);
 	ADD(pscover);
+	ADD(fake_date_and_version);
 	ADD(nofontreplacement);
 	ADD(passglyphnames);
 	ADD(useoldnormalization);

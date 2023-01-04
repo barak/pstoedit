@@ -2,7 +2,7 @@
    drvFIG.cpp : This file is part of pstoedit
    Based on the skeleton for the implementation of new backends
 
-   Copyright (C) 1993 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,9 +54,20 @@
 #include I_string_h
 #include I_iostream
 #include I_iomanip
+#include <memory>
 
 
-static const float PntFig = 1200.0f / 72.0f;
+/*
+A fig file that contains the option "Inches" in the preamble has the resolution set to 1200 units/inch. 
+In fact, the resolution is also given in the fig file, but the 1200 is never changed. 
+With the option "Metric", the resolution is understood, by both Xfig and fig2dev, to be 450 /cm, 
+although the default resolution of 1200 still remains in the file. 
+The [format specification]( http://mcj.sourceforge.net/fig-format.html) gives a hint about this. 
+Xfig writes "Metric" and "1200" to the fig file, fig2dev reads it, and scales a 450 units long line by approx. 
+5% such that it has, on output, the correct length of 472.44/1200 in.
+With the -metric option to the fig driver, pstoedit should do the same.
+*/
+static float PntFig; 
 
 
 static const char *colorstring(float r, float g, float b)
@@ -126,66 +137,21 @@ drvFIG::derivedConstructor(drvFIG):
 constructBase,
 buffer(tempFile.asOutput()),
 imgcount(1),
-format(32),
+//format(32),
 //startdepth(999),
 //use_correct_font_size(false),
 glob_min_x(0), glob_max_x(0), glob_min_y(0), glob_max_y(0),
 loc_min_x(0), loc_max_x(0), loc_min_y(0), loc_max_y(0), glo_bbox_flag(0), loc_bbox_flag(0)
 
 {
-	// driver specific initializations
-//	float depth_in_inches = 11;
-//	bool show_usage_line = false;
-
-
-#if 0
-	for (unsigned int i = 0; i < d_argc; i++) {
-		assert(d_argv && d_argv[i]);	//lint !e796 !e1776
-		if (Verbose())
-			outf << "% " << d_argv[i] << endl;
-		if (strcmp(d_argv[i], "-startdepth") == 0) {
-			i++;
-			if (i >= d_argc) {
-				errf << "-startdepth requires a depth in the range of 0-999" << endl;
-				show_usage_line = true;
-			} else {
-				assert(d_argv && d_argv[i]);	//lint !e796 !e1776
-				startdepth = (int) atoi(d_argv[i]);
-			}
-			//            } else if (strcmp(d_argv[i],"-f31") == 0) {
-			//                        format = 31;
-		} else if (strcmp(d_argv[i], "-depth") == 0) {
-			i++;
-			if (i >= d_argc) {
-				errf << "-depth requires a depth in inches" << endl;
-				show_usage_line = true;
-			} else {
-				assert(d_argv && d_argv[i]);	//lint !e796 !e1776
-				depth_in_inches = (float) atof(d_argv[i]);
-			}
-		} else if (strcmp(d_argv[i], "-metric") == 0) {
-			units = "Metric";
-		} else if (strcmp(d_argv[i], "-help") == 0) {
-			errf << "-help    Show this message" << endl;
-			errf << "-depth # Set the page depth in inches" << endl;
-			errf << "-metric # Set display to use centimeters" << endl;
-			errf << "-startdepth # Set the initial depth (default 999)" << endl;
-			show_usage_line = true;
-		} else {
-			errf << "Unknown fig driver option: " << d_argv[i] << endl;
-			show_usage_line = true;
-		}
-	}
-
-	if (show_usage_line) {
-		errf << "Usage -f 'fig: [-help] [-depth #] [-startdepth #]'" << endl;
-	}
-#endif
-
-	const char *units = (options->metric) ? "Metric" : "Inches";
+	const char *const units = (options->metric) ? "Metric" : "Inches";
+	PntFig = ((options->metric) 
+	            ? (450.0f * 2.54f)
+		    : 1200.0f
+		 )/ 72.0f;
 
 	// Set the papersize
-	const char *paper_size  = (options->depth_in_inches <= 11.0 ? "Letter" : "A4");
+	const char *const paper_size  = (options->depth_in_inches <= 11.0 ? "Letter" : "A4");
 
 	// set FIG specific values
 	currentDeviceHeight = options->depth_in_inches * 1200.0f ;
@@ -309,7 +275,7 @@ void drvFIG::print_polyline_coords()
 {
 	int j = 0;
 	//  const Point & p;
-	unsigned int last = numberOfElementsInPath() - 1;
+	const unsigned int last = numberOfElementsInPath() - 1;
 	for (unsigned int n = 0; n <= last; n++) {
 		const basedrawingelement & elem = pathElement(n);
 		if (j == 0) {
@@ -354,7 +320,7 @@ void drvFIG::print_spline_coords1()
 // IJMP - need curr_point
 	Point P1;
 	int j = 0;
-	unsigned int last = numberOfElementsInPath() - 1;
+	const unsigned int last = numberOfElementsInPath() - 1;
 	for (unsigned int n = 0; n <= last; n++) {
 		if (j == 0) {
 			buffer << "\t";
@@ -431,9 +397,9 @@ void drvFIG::print_spline_coords2()
 {
 	int j = 0;
 	Point lastp;
-	int maxj = 8;
+	const int maxj = 8;
 
-	unsigned int last = numberOfElementsInPath() - 1;
+	const unsigned int last = numberOfElementsInPath() - 1;
 	for (unsigned int n = 0; n <= last; n++) {
 		const basedrawingelement & elem = pathElement(n);
 		switch (elem.getType()) {
@@ -729,23 +695,23 @@ PostScript::special::Fontname
 	const float PSLength = PSHeight * strlen(textinfo.thetext.c_str());
 // Calculate BBox
 	if (textinfo.currentFontAngle == 0) {
-		addtobbox(Point(textinfo.x, textinfo.y));
-		addtobbox(Point((textinfo.x + PSLength), (textinfo.y + PSHeight)));
+		addtobbox(textinfo.p);
+		addtobbox(Point((textinfo.x() + PSLength), (textinfo.y() + PSHeight)));
 	} else if (textinfo.currentFontAngle == 90) {
-		addtobbox(Point(textinfo.x, textinfo.y));
-		addtobbox(Point((textinfo.x - PSHeight), (textinfo.y + PSLength)));
+		addtobbox(textinfo.p);
+		addtobbox(Point((textinfo.x() - PSHeight), (textinfo.y() + PSLength)));
 	} else if (textinfo.currentFontAngle == 180) {
-		addtobbox(Point(textinfo.x, textinfo.y));
-		addtobbox(Point((textinfo.x - PSLength), (textinfo.y - PSHeight)));
+		addtobbox(textinfo.p);
+		addtobbox(Point((textinfo.x() - PSLength), (textinfo.y() - PSHeight)));
 	} else if (textinfo.currentFontAngle == 270) {
-		addtobbox(Point(textinfo.x, textinfo.y));
-		addtobbox(Point((textinfo.x + PSHeight), (textinfo.y - PSLength)));
+		addtobbox(textinfo.p);
+		addtobbox(Point((textinfo.x() + PSHeight), (textinfo.y() - PSLength)));
 	} else {
 // To simplify this, a box of width 2*PSLength centered on textinfo.(x,y) used
-		addtobbox(Point((textinfo.x - PSLength), (textinfo.y + PSLength)));
-		addtobbox(Point((textinfo.x + PSLength), (textinfo.y + PSLength)));
-		addtobbox(Point((textinfo.x - PSLength), (textinfo.y - PSLength)));
-		addtobbox(Point((textinfo.x + PSLength), (textinfo.y - PSLength)));
+		addtobbox(Point((textinfo.x() - PSLength), (textinfo.y() + PSLength)));
+		addtobbox(Point((textinfo.x() + PSLength), (textinfo.y() + PSLength)));
+		addtobbox(Point((textinfo.x() - PSLength), (textinfo.y() - PSLength)));
+		addtobbox(Point((textinfo.x() + PSLength), (textinfo.y() - PSLength)));
 	}
 	buffer << "# text\n";
 	new_depth();
@@ -763,8 +729,8 @@ PostScript::special::Fontname
 		<< " " << fontflags << " "  
 		<< FigHeight << " "
 		<< FigLength << " "
-		<< (int) (PntFig * textinfo.x + 0.5f) << " "
-		<< (int) (y_offset - (PntFig * textinfo.y) + 0.5f) << " " << textinfo.thetext.c_str() << "\\001\n";
+		<< (int) (PntFig * textinfo.x() + 0.5f) << " "
+		<< (int) (y_offset - (PntFig * textinfo.y()) + 0.5f) << " " << textinfo.thetext.c_str() << "\\001\n";
 }
 
 void drvFIG::bbox_path()
@@ -933,8 +899,8 @@ void drvFIG::show_image(const PSImage & imageinfo)
 // Calculate BBox
 	addtobbox(ll);
 	addtobbox(ur);
-	Point fig_ur(PntFig * ur.x_, y_offset - PntFig * ll.y_);
-	Point fig_ll(PntFig * ll.x_, y_offset - PntFig * ur.y_);
+	const Point fig_ur(PntFig * ur.x_, y_offset - PntFig * ll.y_);
+	const Point fig_ll(PntFig * ll.x_, y_offset - PntFig * ur.y_);
 
 	// first output link to an external *.eps file into *.fig file
 	buffer << "# image\n";
@@ -956,15 +922,15 @@ void drvFIG::show_image(const PSImage & imageinfo)
 
 	} else {
 	const size_t filenamelen = strlen(outBaseName.c_str()) + 21;
-	auto EPSoutFileName = new char[filenamelen];
+	std::unique_ptr<char[]> EPSoutFileName (new char[filenamelen]);
 	const size_t fullfilenamelen = strlen(outDirName.c_str()) + strlen(outBaseName.c_str()) + 21;
-	auto EPSoutFullFileName = new char[fullfilenamelen];
+	std::unique_ptr<char[]> EPSoutFullFileName (new char[fullfilenamelen]);
 
-	sprintf_s(TARGETWITHLEN(EPSoutFileName,filenamelen), "%s%02d.eps", outBaseName.c_str(), imgcount++);
-	sprintf_s(TARGETWITHLEN(EPSoutFullFileName,fullfilenamelen), "%s%s", outDirName.c_str(), EPSoutFileName);
-	ofstream outi(EPSoutFullFileName);
+	sprintf_s(TARGETWITHLEN(EPSoutFileName.get(),filenamelen), "%s%02d.eps", outBaseName.c_str(), imgcount++);
+	sprintf_s(TARGETWITHLEN(EPSoutFullFileName.get(),fullfilenamelen), "%s%s", outDirName.c_str(), EPSoutFileName.get());
+	ofstream outi(EPSoutFullFileName.get());
 	if (!outi) {
-		errf << "Could not open file " << EPSoutFullFileName << " for output";
+		errf << "Could not open file " << EPSoutFullFileName.get() << " for output";
 		exit(1);
 	}
 	// remember, we have to flip the image from PostScript coord to fig coords
@@ -973,8 +939,8 @@ void drvFIG::show_image(const PSImage & imageinfo)
 // Calculate BBox
 	addtobbox(ll);
 	addtobbox(ur);
-	Point fig_ur(PntFig * ur.x_, y_offset - PntFig * ll.y_);
-	Point fig_ll(PntFig * ll.x_, y_offset - PntFig * ur.y_);
+	const Point fig_ur(PntFig * ur.x_, y_offset - PntFig * ll.y_);
+	const Point fig_ll(PntFig * ll.x_, y_offset - PntFig * ur.y_);
 
 	// first output link to an external *.eps file into *.fig file
 	buffer << "# image\n";
@@ -983,7 +949,7 @@ void drvFIG::show_image(const PSImage & imageinfo)
 	if (objectId)
 		objectId--;				// don't let it get < 0
 	buffer << objectId << " 0 -1 0.000 0 0 -1 0 0 5\n";
-	buffer << "\t0 " << EPSoutFileName << "\n";
+	buffer << "\t0 " << EPSoutFileName.get() << "\n";
 
 	buffer << "\t" << (int) fig_ll.x_ << " " << (int) fig_ll.y_ << " "
 		<< (int) fig_ur.x_ << " " << (int) fig_ll.y_ << " "
@@ -997,15 +963,13 @@ void drvFIG::show_image(const PSImage & imageinfo)
 	imageinfo.writeEPSImage(outi);
 	outi.close();
 
-	delete[]EPSoutFullFileName;
-	delete[]EPSoutFileName;
 	}
 }
 
 
 static const char * const additionalDoku = 
 "The xfig format driver supports special fontnames, which may be produced by using a fontmap file. "
-"The following types of names are supported :BREAK"
+"The following types of names are supported:\\\\"
 "\n\\begin{verbatim}\n"
 "General notation:\n"
 "\"PostScript Font Name\" ((LaTeX|PostScript|empty)(::special)::)XFigFontName\n"
@@ -1022,14 +986,14 @@ static const char * const additionalDoku =
 "Please note that the fontname has to be among those supported by xfig. "
 "See - \\URL{http://www.xfig.org/userman/fig-format.html} for a list of legal font names";
 
-static DriverDescriptionT < drvFIG > D_fig( "fig", ".fig format for xfig",  additionalDoku,"fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
+static DriverDescriptionT < drvFIG > D_fig( "fig", ".fig format for xfig", additionalDoku, "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
 										   DriverDescription::normalopen,
 										   false, false /*clipping */ );
 
-static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "See fig format for more details.","fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
+static DriverDescriptionT < drvFIG > D_xfig("xfig", ".fig format for xfig", "", "fig", false, true, true, true, DriverDescription::memoryeps,	// no support for PNG file images
 											DriverDescription::normalopen,
 											false, false /*clipping */ );
-static DriverDescriptionT < drvFIG > D_tfig("tfig", ".fig format for xfig", "Test only","fig", false, true, true, true, 
+static DriverDescriptionT < drvFIG > D_tfig("tfig", ".fig format for xfig - test only version", "", "fig", false, true, true, true, 
 											DriverDescription::png,	
 											DriverDescription::normalopen,
 											false, false /*clipping */ );

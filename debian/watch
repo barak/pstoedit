@@ -1,2 +1,4 @@
 version=4
-http://sf.net/@PACKAGE@/ @PACKAGE@@ANY_VERSION@@ARCHIVE_EXT@ debian uupdate
+opts="filenamemangle=s%(?:.*)(@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@)/download% $1%" \
+ https://sourceforge.net/projects/@PACKAGE@/files/@PACKAGE@/@ANY_VERSION@/ \
+ (?:.*)@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@/download debian uupdate

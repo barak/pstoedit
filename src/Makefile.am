@@ -1,4 +1,4 @@
-EXTRA_DIST=pstoedit.ph makefile.txt get_D_and_I_options.sh
+EXTRA_DIST=pstoedit.pro ps_pro_to_ph.awk get_D_and_I_options.sh
 
 if HAVE_PLUGINSRC
 # LIBPLUGINS_ENTRY=libp2edrvplugins.la
@@ -84,6 +84,7 @@ libp2edrvstd_la_SOURCES=			\
 	drvpcb1.cpp	drvpcb1.h               \
 	drvpcb2.cpp	drvpcb2.h               \
 	drvpcbfill.cpp	drvpcbfill.h            \
+	drvpcbrnd.cpp	drvpcbrnd.h libminuid.inc \
 	drvgschem.cpp	drvgschem.h             \
 	drvcfdg.cpp     drvcfdg.h               \
 	drvtk.cpp	drvtk.h                 \
@@ -167,6 +168,11 @@ pkginclude_HEADERS =				\
 	psimage.h
 
 
+pstoedit.cpp : pstoedit.ph
+
+pstoedit.ph : pstoedit.pro
+	awk -f ps_pro_to_ph.awk < pstoedit.pro > pstoedit.ph
+
 cppcheck:
 	cppcheck --inconclusive --enable=all `sh ./get_D_and_I_options.sh ${AM_CPPFLAGS}` ${SOURCES}
 
@@ -184,4 +190,3 @@ clang-tidy_single:
           echo "checking $$f"; \
           clang-tidy  -checks='*' $$f  -- -std=c++11 `sh ./get_D_and_I_options.sh ${AM_CPPFLAGS}` ; \
         done
-

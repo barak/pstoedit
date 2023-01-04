@@ -2,7 +2,7 @@
    miscutil.cpp : This file is part of pstoedit
    misc utility functions
 
-   Copyright (C) 1998 - 2018  Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1998 - 2021  Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,11 @@
 
 */
 #include "miscutil.h"
+#include <memory>
+
+#ifdef OS_WIN32_WCE
+#include "WinCEAdapter.h"
+#endif
 
 #include I_stdio
 
@@ -37,7 +42,8 @@
 // HP-UX does not define getcwd in unistd.h
 extern "C"  char *getcwd(char *, size_t);
 #endif
-
+#elif defined(OS_WIN32_WCE)
+#include <windows.h>
 #elif defined(_WIN32)
 #include <windows.h>
 #include <direct.h>
@@ -77,7 +83,7 @@ void convertBackSlashes(char *) { }
 void convertBackSlashes(char *fileName)
 {
  	char *c ;
-	while ((c = strchr(fileName, '\\')) != NIL)
+	while ((c = strchr(fileName, '\\')) != nullptr)
 		*c = '/';
 }
 #endif
@@ -196,9 +202,9 @@ RSString full_qualified_tempnam(const char *pref)
 #else 
 #if defined (__BCPLUSPLUS__) || defined (__TCPLUSPLUS__)
 /* borland has a prototype that expects a char * as second arg */
-	char *filename = TEMPNAM(0, (char *) pref);
+	char *filename = TEMPNAM(nullptr, (char *) pref);
 #else
-	char *filename = TEMPNAM(0, pref);
+	char *filename = TEMPNAM(nullptr, pref);
 #endif
 	// W95: Fkt. tempnam() erzeugt Filename+Pfad
 	// W3.1: es wird nur der Name zurueckgegeben
@@ -211,27 +217,25 @@ RSString full_qualified_tempnam(const char *pref)
 	return result;
 #else
 	convertBackSlashes(filename);
+	RSString result("");
 	if ((strchr(filename, '\\') == nullptr) && (strchr(filename, '/') == nullptr)) {	// keine Pfadangaben..
 		char cwd[400];
-		(void) GETCWD(cwd, 400);
-		RSString result = cwd;
-		result += "/";
-		result += filename;
-		free(filename);
-		return result;
-	} else {
-		const RSString result(filename);
-		free(filename);
-		return result;
-	}
+		if (GETCWD(cwd, 400)) {
+		    result += cwd;
+			result += "/";
+		}
+	} 
+	result += filename;
+	free(filename);
+	return result;
 #endif
 }
 
-unsigned short hextoint(const char hexchar) 
+unsigned short hextoint(const char hexchar)
 {
 	char h = hexchar;
 	if (h >= 'a' && h <='f') h += 'A' - 'a'; // normalize lowercase to uppercase
-	unsigned short r = ( h <= '9' ) ? (h - '0') : (h + 10 - 'A' ) ; //lint !e732
+	const unsigned short r = ( h <= '9' ) ? (h - '0') : (h + 10 - 'A' ) ; //lint !e732
 	return r;
 }
 #if defined(_WIN32)
@@ -241,12 +245,18 @@ RSString tryregistry(HKEY hKey, LPCSTR subkeyn, LPCSTR key)
 {
 	HKEY subkey;
 	static RSString emptyString("");
+
 	const long ret = RegOpenKeyEx(hKey,	// HKEY_LOCAL_MACHINE, //HKEY hKey,
+#ifdef OS_WIN32_WCE
+								  LPSTRtoLPWSTR(subkeyn).c_str(),	// LPCSTR lpSubKey,
+#else
 								  subkeyn,	// LPCSTR lpSubKey,
+#endif
 								  0L,	// DWORD ulOptions,
 								  KEY_READ,	// REGSAM samDesired,
 								  &subkey	//PHKEY phkResult
-		);
+								  );
+
 	if (ret != ERROR_SUCCESS) {
 		if (regdebug) cerr << "RegOpenKeyEx :" <<subkeyn << ":" << key << ": failed with error code " << ret << endl;
 		return emptyString;
@@ -256,13 +266,19 @@ RSString tryregistry(HKEY hKey, LPCSTR subkeyn, LPCSTR key)
 		BYTE value[maxvaluelength];
 		DWORD bufsize = maxvaluelength;
 		DWORD valuetype;
+
 		const long retv = RegQueryValueEx(subkey,	// HKEY_LOCAL_MACHINE, //HKEY hKey,
+#ifdef OS_WIN32_WCE
+										  LPSTRtoLPWSTR(key).c_str(),	// "SOFTWARE\\wglunz\\pstoedit\\plugindir", //LPCSTR lpValueName,
+#else
 										  key,	// "SOFTWARE\\wglunz\\pstoedit\\plugindir", //LPCSTR lpValueName,
-										  NIL,	// LPDWORD lpReserved,
+#endif
+										  nullptr,	// LPDWORD lpReserved,
 										  &valuetype,	// LPDWORD lpType,
 										  value,	// LPBYTE lpData,
 										  &bufsize	// LPDWORD lpcbData
 			);
+
 		(void) RegCloseKey(subkey);
 		if (retv != ERROR_SUCCESS) {
 			if (regdebug)  cerr << "RegQueryValueEx :" <<subkeyn << ":" << key << ": failed with error code " << retv << endl;
@@ -312,7 +328,7 @@ RSString getRegistryValue(ostream & errstream, const char *typekey, const char *
 
 	getini(0, errstream, pszFileName, inifilename, (int) sizeof(pszFileName));
 	hini = PrfOpenProfile(hab, pszFileName);
-	rc = PrfQueryProfileString(hini, typekey, key, NIL, (PVOID) buffer, (LONG) sizeof(buffer));
+	rc = PrfQueryProfileString(hini, typekey, key, nullptr, (PVOID) buffer, (LONG) sizeof(buffer));
 	PrfCloseProfile(hini);
 	WinTerminate(hab);
 
@@ -549,7 +565,13 @@ size_t searchinpath(const char *EnvPath, const char *name,
 
 unsigned long P_GetPathToMyself(const char *name, char *returnbuffer, unsigned long buflen)
 {
-#if defined(_WIN32)
+#if defined (OS_WIN32_WCE)
+	wchar_t wszReturnBuffer[MAX_PATH] = L"";
+	unsigned long ulReturn =  GetModuleFileName(GetModuleHandle(LPSTRtoLPWSTR(name).c_str()), wszReturnBuffer, MAX_PATH);
+	wszReturnBuffer[MAX_PATH-1] = L'\0';
+	BSS_UTI_WCharToAscii(wszReturnBuffer, returnbuffer, buflen);
+	return ulReturn;
+#elif defined(_WIN32)
 	return GetModuleFileName(GetModuleHandle(name), returnbuffer, buflen);
 #elif defined (__OS2__)
 	PTIB pptib;
@@ -577,7 +599,7 @@ unsigned long P_GetPathToMyself(const char *name, char *returnbuffer, unsigned l
 void errorMessage(const char *errortext)
 {
 #if 0 // defined(_WIN32)
-	MessageBox(NIL, errortext, "pstoedit", MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
+	MessageBox(nullptr, errortext, "pstoedit", MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
 #else
 	cerr << errortext << endl;
 #endif
@@ -589,11 +611,11 @@ DLLEXPORT RSString getOutputFileNameFromPageNumber(const char * const outputFile
 	const char PAGENUMBER_String[] = "%PAGENUMBER%";
 	const char * pagestringptr_1 = strstr(outputFileTemplate,PAGENUMBER_String);
 	const char * pagestringptr_2 = strstr(outputFileTemplate,"%d");
-	if ((pagestringptr_1 == NIL) && (pagestringptr_2 == NIL)) {
+	if ((pagestringptr_1 == nullptr) && (pagestringptr_2 == nullptr)) {
 		return RSString(outputFileTemplate);
 	} else  {
 		const size_t size = strlen(outputFileTemplate) + 30;
-		auto newname = new char[ size ];
+		std::unique_ptr<char[]> newname ( new char[ size ]);
 
 		RSString formatting("%");
 		formatting += pagenumberformatOption;
@@ -610,22 +632,21 @@ DLLEXPORT RSString getOutputFileNameFromPageNumber(const char * const outputFile
 
 		if (pagestringptr_1) // preference to %PAGENUMBER%
 		{
-			strncpy_s(newname,size,outputFileTemplate,pagestringptr_1-outputFileTemplate); // copy up to %PAGENUMBER%
+			strncpy_s(newname.get(),size,outputFileTemplate,pagestringptr_1-outputFileTemplate); // copy up to %PAGENUMBER%
 			// now copy page number
-			strcat_s(newname,size,pagenumberstring);
+			strcat_s(newname.get(),size,pagenumberstring);
 			// now copy trailer
-			strcat_s(newname,size,pagestringptr_1+strlen(PAGENUMBER_String));
+			strcat_s(newname.get(),size,pagestringptr_1+strlen(PAGENUMBER_String));
 
 		} else {
-			strncpy_s(newname,size,outputFileTemplate,pagestringptr_2-outputFileTemplate); // copy up to %PAGENUMBER%
+			strncpy_s(newname.get(),size,outputFileTemplate,pagestringptr_2-outputFileTemplate); // copy up to %PAGENUMBER%
 			// now copy page number
-			strcat_s(newname,size,pagenumberstring);
+			strcat_s(newname.get(),size,pagenumberstring);
 			// now copy trailer
-			strcat_s(newname,size,pagestringptr_2+strlen("%d"));		
+			strcat_s(newname.get(),size,pagestringptr_2+strlen("%d"));
 		}
 		//cout << "newname " << newname << endl;
-		const RSString result (newname);
-		delete [] newname;
+		const RSString result (newname.get());
 		return result;
 	}
 }
@@ -838,9 +859,9 @@ void FontMapper::readMappingTable(ostream & errstream, const char *filename)
 		//	errstream << "empty line in fontmap - ignored " << endl;
 			continue;
 		}
-		char *original = readword(lineptr);
+		const char * const original = readword(lineptr);
 		skipws(lineptr);
-		char *replacement = readword(lineptr);
+		const char * const replacement = readword(lineptr);
 		if (original && replacement) {
 			// errstream << "\"" << original << "\" \"" << replacement <<"\""<< endl;
 		        if (replacement[0] == '/') {

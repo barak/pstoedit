@@ -2,7 +2,7 @@
    drvbase.cpp : This file is part of pstoedit
    Basic, driver independent output routines
 
-   Copyright (C) 1993 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,16 +21,21 @@
 */
 
 #include "drvbase.h"
+#include "pstoedit_config.h"
 
 #include I_stdlib
 #include I_iostream
-//#include I_iomanip
+#include I_iomanip
+using std::setw;
+using std::setfill;
+using std::ends;
 
 #include I_string_h
 
 #include I_strstream
 
 #include <math.h>
+#include <algorithm>
 
 #ifndef miscutil_h
 #include "miscutil.h"
@@ -41,7 +46,7 @@ static void splitFullFileName(const char *const fullName,
 							  RSString& baseName, 
 							  RSString& fileExt)
 {
-	if (fullName == NIL)
+	if (fullName == nullptr)
 		return;
 
 	char *fullName_T = cppstrdup(fullName);
@@ -53,7 +58,7 @@ static void splitFullFileName(const char *const fullName,
 #else
 	char *c = strrchr(fullName_T, '\\');
 #endif
-	if (c != NIL) {
+	if (c != nullptr) {
 		baseName_T = cppstrdup(c + 1);
 		*(c + 1) = 0;
 		pathName = fullName_T;
@@ -64,7 +69,7 @@ static void splitFullFileName(const char *const fullName,
 
 	// coverity[uninit_use_in_call]
 	c = strrchr(baseName_T, '.');
-	if (c != NIL) {
+	if (c != nullptr) {
 		fileExt =  (c + 1);
 		*c = 0;
 		baseName = baseName_T;
@@ -88,9 +93,7 @@ drvbase::drvbase(const char *driveroptions_p, ostream & theoutStream,
 :								// constructor
 driverdesc(driverdesc_p), 
 DOptions_ptr(driverdesc_p.createDriverOptions()),
-//  totalNumberOfPages(0),
-//  bboxes(0),
-	outf(theoutStream),
+outf(theoutStream),
 errf(theerrStream),
 inFileName(nameOfInputFile_p ? nameOfInputFile_p : ""),
 outFileName(nameOfOutputFile_p ? nameOfOutputFile_p : ""), 
@@ -104,7 +107,7 @@ currentPageNumber(0),
 domerge(false),
 defaultFontName(nullptr),
 ctorOK(true),
-saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(true), driveroptions(nullptr),
+saveRestoreInfo(nullptr), currentSaveLevel(&saveRestoreInfo), page_empty(true), driveroptions(nullptr),
 	// default for PI1 and PI2 and clippath
 	currentPath(nullptr), last_currentPath(nullptr), outputPath(nullptr), lastPath(nullptr)
 	// default for textInfo_ and lasttextInfo_
@@ -178,10 +181,12 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(true), driv
 		}
 	}
 
-// now call the driver specific option parser.
-	if (d_argc>0) {
-		if (DOptions_ptr) {
-			//debug errf << "DOptions_ptr: " << (void*) DOptions_ptr << endl;
+    // now call the driver specific option parser.
+	// Note: derived driver object does not yet exist at this point. 
+	// we are in base class ctor here. See also comment for
+	// constructBase
+	if (DOptions_ptr) {
+	   if (d_argc>0) {		//debug errf << "DOptions_ptr: " << (void*) DOptions_ptr << endl;
 			const unsigned int remaining = DOptions_ptr->parseoptions(errf,d_argc,d_argv);
 			if ((remaining > 0) && !DOptions_ptr->expectUnhandled) {
 				errf << "the following " << remaining  << " options could not be handled by the driver: " << endl;
@@ -189,10 +194,11 @@ saveRestoreInfo(NIL), currentSaveLevel(&saveRestoreInfo), page_empty(true), driv
 					errf << DOptions_ptr->unhandledOptions[i] << endl;
 				}
 			}
-		} else {
-			cerr << "DOptions_ptr is NIL - program flow error - contact author." << endl;
-		}
+		}	
+	} else {
+	   cerr << "DOptions_ptr is nullptr - program flow error - contact author." << endl;
 	}
+	
 
 //  bboxes = new BBox[maxPages];
 
@@ -235,34 +241,76 @@ drvbase::~drvbase()
 			d_argv[i] = nullptr;
 		}
 		delete[]d_argv;
-		d_argv = NIL;
+		d_argv = nullptr;
 	}
-	if (driveroptions) {
-		delete[]driveroptions;
-		driveroptions = NIL;
-	}
-//  delete[] bboxes; bboxes = NIL;
+	delete[]driveroptions;
+	driveroptions = nullptr;
+	
+//  delete[] bboxes; bboxes = nullptr;
 //	delete[]outDirName;
-//	outDirName = NIL;
+//	outDirName = nullptr;
 //	delete[]outBaseName;
-//	outBaseName = NIL;
-//	Pdriverdesc = NIL;
+//	outBaseName = nullptr;
+//	Pdriverdesc = nullptr;
 
 	delete DOptions_ptr;
-	DOptions_ptr = NIL;
+	DOptions_ptr = nullptr;
 
-	if (currentSaveLevel->previous != NIL) {
-		while (currentSaveLevel->previous != NIL) {
+	if (currentSaveLevel->previous != nullptr) {
+		while (currentSaveLevel->previous != nullptr) {
 			currentSaveLevel = currentSaveLevel->previous;
 			delete currentSaveLevel->next;
 		}
 	}
 	currentSaveLevel = nullptr;
-	defaultFontName = NIL;
-	last_currentPath = NIL;
+	defaultFontName = nullptr;
+	last_currentPath = nullptr;
 }
 
 const RSString & drvbase::getPageSize() const { return globaloptions.outputPageSize(); }
+
+bool drvbase::use_fake_version_and_date = false;
+
+const char * drvbase::VersionString() {
+	if (use_fake_version_and_date) {
+		return "9.99";
+	}
+	else {
+		return PACKAGE_VERSION;
+	}
+}
+
+RSString drvbase::DateString()
+{
+	if (drvbase::use_fake_version_and_date) {
+		return RSString("20200103040405");
+	}
+// Comments by Rohan
+// This is a hack
+// Since Windows CE does not support, I am just putting a dummy date(i.e "01/01/18 09:00:00")
+#ifndef OS_WIN32_WCE
+	C_ostrstream datestring;
+	const time_t t = time(nullptr);
+	const struct tm* const localt = localtime(&t);
+	// (D:YYYYMMDDHHmmSSOHH'mm')
+	// All parts of the date after the year are optional.
+	if (localt) {
+		datestring 
+			<< setw(4) << localt->tm_year + 1900
+			<< setw(2) << setfill('0') << localt->tm_mon + 1
+			<< setw(2) << setfill('0') << localt->tm_mday
+			<< setw(2) << setfill('0') << localt->tm_hour
+			<< setw(2) << setfill('0') << localt->tm_min
+			<< setw(2) << setfill('0') << localt->tm_sec << ends;
+		return RSString(datestring.str());
+	} else {
+		return RSString("");
+	}
+#else
+	return RSString("20200101090000");
+#endif
+
+}
 
 const BBox & drvbase::getCurrentBBox() const
 {
@@ -398,8 +446,8 @@ bool drvbase::textCanBeMerged(const TextInfo & text1, const TextInfo & text2) co
 			 && (text1.currentG  == text2.currentG)
 			 && (text1.currentB  == text2.currentB)
 
-			 && (fabs(text1.x - text2.x_end) < text1.currentFontSize / 10)
-			 && (fabs(text1.y - text2.y_end) < text1.currentFontSize / 10)
+			 && (fabs(text1.x() - text2.x_end()) < text1.currentFontSize / 10)
+			 && (fabs(text1.y() - text2.y_end()) < text1.currentFontSize / 10)
 
 			);
 
@@ -513,8 +561,7 @@ void drvbase::showOrMergeText()
 			mergedTextInfo.thetext += textInfo_.thetext;
 			static const RSString space(" ");
 			(mergedTextInfo.glyphnames += space ) += textInfo_.glyphnames;
-			mergedTextInfo.x_end = textInfo_.x_end;
-			mergedTextInfo.y_end = textInfo_.y_end;
+			mergedTextInfo.p_end = textInfo_.p_end;
 		} else {
 			// cannot be merged, so dump text collected so far and place the new
 			// one in the buffer for later
@@ -538,8 +585,7 @@ void drvbase::showOrMergeText()
 
 void drvbase::pushText(const size_t len, const char *const thetext, const float x, const float y, const char * const glyphnames)
 {
-		textInfo_.x = x;
-		textInfo_.y = y;
+		textInfo_.p = Point(x,y);
 		textInfo_.thetext.assign(thetext, len);
 		textInfo_.glyphnames.assign(glyphnames ? glyphnames:"");
 		textInfo_.currentFontUnmappedName = textInfo_.currentFontName;
@@ -601,8 +647,7 @@ void drvbase::setCurrentWidthParams(const float ax,
 	textInfo_.ay = ay;
 	textInfo_.Char = Char;
 	textInfo_.cx = cx;
-	textInfo_.x_end = x_end;
-	textInfo_.y_end = y_end;
+	textInfo_.p_end = Point(x_end, y_end);
 	textInfo_.cy = cy;
 }
 
@@ -745,8 +790,8 @@ nrOfEntries(-1), numbers(nullptr), offset(0)
 		pattern = patternAsSetDashString;
 		// now get the numbers
 		// repeat the numbers, if number of entries is odd
-		unsigned int rep = nrOfEntries % 2;	// rep is 1 for odd numbers 0 for even
-		size_t len = nrOfEntries * (rep + 1);
+		const unsigned int rep = nrOfEntries % 2;	// rep is 1 for odd numbers 0 for even
+		const size_t len = nrOfEntries * (rep + 1);
 		numbers = new float[len];
 		unsigned int cur = 0;
 #if 1
@@ -754,7 +799,7 @@ nrOfEntries(-1), numbers(nullptr), offset(0)
 			pattern = patternAsSetDashString;
 			while ((*pattern) && (*pattern != ']')) {
 				if (*pattern == ' ' && (*(pattern + 1) != ']')) {
-					float f = (float) atof(pattern);
+					const float f = (float) atof(pattern);
 					assert(cur < len);
 					numbers[cur] = f;
 					// errf << d_numbers[cur] << endl;
@@ -808,7 +853,7 @@ void drvbase::guess_linetype()
 
 	drvbase::linetype curtype = solid;
 	if (nr_of_entries > 0) {
-		int rep = nr_of_entries % 2;	// rep is 1 for odd numbers 0 for even
+		const int rep = nr_of_entries % 2;	// rep is 1 for odd numbers 0 for even
 		// now guess a pattern from
 		// solid, dashed, dotted, dashdot, dashdotdot ; // corresponding to the CGM patterns
 		switch (nr_of_entries * (rep + 1)) {
@@ -839,8 +884,8 @@ void drvbase::guess_linetype()
 				&& (d_numbers[5] == 0.0f)) {
 				curtype = drvbase::solid;	// if off is 0 -> solid
 			} else if ((d_numbers[0] < 2.0f) ||
-                                   (d_numbers[2] < 2.0f) || 
-                                   (d_numbers[4] < 2.0f)) {
+                       (d_numbers[2] < 2.0f) || 
+                       (d_numbers[4] < 2.0f)) {
 				curtype = drvbase::dashdotdot;
 			} else {
 				curtype = drvbase::dashed;
@@ -854,8 +899,10 @@ void drvbase::guess_linetype()
 		// no entry
 		curtype = drvbase::solid;
 	}
-//   errf << "linetype from " << dashPattern() << " is " << curtype << endl;
 	setCurrentLineType(curtype);
+	if (verbose) {
+		errf << "linetype guessed from '" << dashPattern() << "' is "  << getLineTypeName() << "(" << curtype << ")" << endl;
+	}
 }
 
 void drvbase::dumpImage()
@@ -1113,25 +1160,25 @@ void drvbase::dumpPath(bool doFlushText)
 			if (isPolygon()) {	/* PolyGon */
 				if (is_a_rectangle()) {
 					const float llx =
-						min(min
+						std::min(std::min
 							(pathElement(0).getPoint(0).x_,
 							 pathElement(1).getPoint(0).x_),
-							min(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
+							std::min(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
 					const float urx =
-						max(max
+						std::max(std::max
 							(pathElement(0).getPoint(0).x_,
 							 pathElement(1).getPoint(0).x_),
-							max(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
+							std::max(pathElement(2).getPoint(0).x_, pathElement(3).getPoint(0).x_));
 					const float lly =
-						min(min
+						std::min(std::min
 							(pathElement(0).getPoint(0).y_,
 							 pathElement(1).getPoint(0).y_),
-							min(pathElement(2).getPoint(0).y_, pathElement(3).getPoint(0).y_));
+							std::min(pathElement(2).getPoint(0).y_, pathElement(3).getPoint(0).y_));
 					const float ury =
-						max(max
+						std::max(std::max
 							(pathElement(0).getPoint(0).y_,
 							 pathElement(1).getPoint(0).y_),
-							max(pathElement(2).getPoint(0).y_, pathElement(3).getPoint(0).y_));
+							std::max(pathElement(2).getPoint(0).y_, pathElement(3).getPoint(0).y_));
 
 					show_rectangle(llx, lly, urx, ury);
 				} else {
@@ -1170,7 +1217,7 @@ void drvbase::addtopath(basedrawingelement * newelement) {
 	if (newelement) {
 	   currentPath->addtopath(newelement, errf);
 	} else {
-		errf << "Fatal: newelement is NIL in addtopath " << endl;
+		errf << "Fatal: newelement is nullptr in addtopath " << endl;
 		exit(1);
 	}
 }
@@ -1208,7 +1255,7 @@ void drvbase::PathInfo::clear()
 	for (unsigned int i = 0; i < numberOfElementsInPath; i++) {
 		// delete path[i];
 		path[i]->deleteyourself(); // see note in drvbase.h 
-		path[i] = 0;
+		path[i] = nullptr;
 	}
 	numberOfElementsInPath = 0;
 	pathWasMerged = false;
@@ -1262,10 +1309,10 @@ ColorTable::~ColorTable()
 	unsigned int current = 0;
 	while (newColors[current] != nullptr) {
 		delete[] newColors[current];
-		newColors[current] = NIL;
+		newColors[current] = nullptr;
 		current++;
 	}
-	// cannot assign since it is const - defaultColors_ = NIL;
+	// cannot assign since it is const - defaultColors_ = nullptr;
 	//lint -esym(1540,ColorTable::defaultColors_)
 }
 
@@ -1361,7 +1408,7 @@ const DriverDescription *DescriptionRegister:: getDriverDescForSuffix(const char
 				// already found an entry for this suffix - so it is not unique -> return 0
 				return nullptr;
 			} else {
-				founditem = rp[i]; // first chance - but loop throug all items
+				founditem = rp[i]; // first match - but loop through all items
 			}
 		}
 		i++;
@@ -1387,42 +1434,87 @@ void DescriptionRegister::explainformats(ostream & out, bool withdetails) const
 	} else {
 		out << "Available formats :\n";
 	}
-	unsigned int i = 0;
-	while (rp[i] != nullptr) {
-		if (withdetails) {
-			out << "\\subsubsection{" << rp[i]->symbolicname << " - " << rp[i]->short_explanation <<"}" << endl;
-			if (strlen(rp[i]->long_explanation)>0) { out << rp[i]->long_explanation << endl << endl; }
+	for (unsigned int i = 0; rp[i]; i++) {
+		if (rp[i]->variants() > 1) {
+			if (rp[i] == rp[i]->variant(0)) {
+				ProgramOptions* options = rp[i]->createDriverOptions();
+				// first variant - dump all variants.
+				RSString groupname("Format group: ");
+				for (size_t v = 0; rp[i]->variant(v); v++) {
+					groupname += rp[i]->variant(v)->symbolicname;
+					groupname += " ";
+				}
+				if (withdetails) {
+					out << "\\subsubsection{" << groupname << "}" << endl;
+					out << "This group consists of the following variants:" << endl;
+					out << "\\begin{description}" << endl;
+					for (size_t v = 0; rp[i]->variant(v); v++) {
+						const DriverDescription * d = rp[i]->variant(v);
+						out << "\\item[" << d->symbolicname << ":] " << d->short_explanation << "." << endl;
+					if (v > 0 && strlen(rp[i]->variant(v)->long_explanation) > 0) { out << "WOGL " << rp[i]->variant(v)->long_explanation << endl << endl; }
+						
+					}
+					out << "\\end{description}" << endl;
+					// long explanation is attached only to first instance
+					if (strlen(rp[i]->long_explanation) > 0) { out << rp[i]->long_explanation << endl << endl; }
+
+					options->showhelp(out, withdetails, withdetails);
+					out << "%%// end of options" << endl;
+				} else {
+				  out << groupname << "\t(" << rp[i]->filename << ")" << endl;
+			 	  for (size_t v = 0; rp[i]->variant(v); v++) {
+					  const DriverDescription * d = rp[i]->variant(v);
+					  out << '\t' << d->symbolicname << ":\t";
+					  if (strlen(d->symbolicname) < 7) {
+						  out << '\t';
+					  }
+					  out << "\t." << d->suffix << ":\t";
+					  out << d->short_explanation << " " << d->additionalInfo();
+					  if (d->checkfunc) {
+						  if (!(d->checkfunc())) {
+							  out << " (no valid key found)";
+						  }
+					  }
+					  out << endl;
+				  }
+				  if (options->numberOfOptions()) {
+					  out << "This group supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
+				  }
+				  options->showhelp(out, withdetails, withdetails);
+				  out << "-------------------------------------------" << endl;
+				}
+				delete options;
+			} 	
 		} else {
-			out << '\t' << rp[i]->symbolicname << ":\t";
-			if (strlen(rp[i]->symbolicname) < 7) {
-				out << '\t';
+			ProgramOptions* options = rp[i]->createDriverOptions();
+			if (withdetails) {
+				out << "\\subsubsection{" << rp[i]->symbolicname << " - " << rp[i]->short_explanation << "}" << endl;
+				if (strlen(rp[i]->long_explanation) > 0) { out << rp[i]->long_explanation << endl << endl; }
+				options->showhelp(out, withdetails, withdetails);		
+				out << "%%// end of options" << endl;
+			} else {
+				out << '\t' << rp[i]->symbolicname << ":\t";
+				if (strlen(rp[i]->symbolicname) < 7) {
+					out << '\t';
+				}
+				out << "\t." << rp[i]->suffix << ":\t";
+				out << rp[i]->short_explanation << " " << rp[i]->additionalInfo();
+
+				if (rp[i]->checkfunc) {
+					if (!(rp[i]->checkfunc())) {
+						out << " (no valid key found)";
+					}
+				}
+				out << "\t(" << rp[i]->filename << ")" << endl;
+				if (options->numberOfOptions()) {
+					out << "This format supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
+				}
+
+				options->showhelp(out, withdetails, withdetails);
+				out << "-------------------------------------------" << endl;
 			}
-			out << "\t." << rp[i]->suffix << ":\t";
-			out << rp[i]->short_explanation << " " << rp[i]->additionalInfo();
+			delete options;
 		}
-
-		if (!withdetails && rp[i]->checkfunc) {
-			if (!(rp[i]->checkfunc())) {
-				out << " (no valid key found)";
-			}
-		}
-
-		if (!withdetails) out << "\t(" << rp[i]->filename << ")" << endl;
-
-		ProgramOptions* dummy = rp[i]->createDriverOptions();
-		if (!withdetails && dummy->numberOfOptions() ) {
-			out << "This driver supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
-		}
-		dummy->showhelp(out,withdetails,withdetails);
-		delete dummy;
-		
-		if (withdetails) {
-			out << "%%// end of options" << endl;
-		} else {
-			out << "-------------------------------------------" << endl;
-		}
-	
-		i++;
 	}
 }
 void DescriptionRegister::mergeRegister(ostream & out,

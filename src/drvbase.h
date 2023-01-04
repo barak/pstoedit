@@ -5,7 +5,7 @@
    driver classes/backends. All virtual functions have to be implemented by
    the specific driver class. See drvSAMPL.cpp
   
-   Copyright (C) 1993 - 2018 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2021 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,11 +39,15 @@
 #include "cppcomp.h"
 #endif
 
+#ifdef OS_WIN32_WCE
+#include "WinCEAdapter.h"
+#endif
 
 #include I_fstream
 #include I_stdio
 #include I_stdlib
 #include I_string_h
+#include I_iostream
 USESTD
 
 #ifndef assert
@@ -59,7 +63,7 @@ USESTD
 #endif
 
 // for compatibility checking
-static const unsigned int drvbaseVersion = 108;
+static constexpr unsigned int drvbaseVersion = 108;
 // 101 introduced the driverOK function
 // 102 introduced the font optimization (lasttextinfo_)
 // 103 introduced the -ssp support and the virtual pathscanbemerged
@@ -69,7 +73,7 @@ static const unsigned int drvbaseVersion = 108;
 // 107 new driver descriptions -- added info about clipping
 // 108 new driver descriptions -- added info about driver options
 
-const unsigned int  maxPages     = 10000;   // maximum number of pages - needed for the array of bounding boxes
+constexpr unsigned int  maxPages     = 10000;   // maximum number of pages - needed for the array of bounding boxes
 #if defined(HAVE_STL) && !defined(USE_FIXED_ARRAY)
  // we can use std::vector
 #else
@@ -85,6 +89,8 @@ public:
 	Point() : x_(0.0f), y_(0.0f) {}; // for arrays
 	float x_;
 	float y_;
+	float x() const { return x_; }
+	float y() const { return y_; }
 	bool operator==(const Point & p2) const { 
 		return (x_ == p2.x_) && (y_ == p2.y_); //lint !e777
 	}
@@ -102,7 +108,7 @@ public:
 #endif
 	Point transform(const float matrix[6]) const;
 
-	friend ostream & operator<<(ostream & out,const Point &p) {
+	friend ostream & operator<<(ostream & out, const Point &p) {
 		return out << "x: " << p.x_ << " y: " << p.y_ ;
 	}
 
@@ -125,6 +131,8 @@ public:
 #include "psimage.h"
 
 static const char emptyDashPattern[] =  "[ ] 0.0";
+
+constexpr int char_code_of_space = 32;
 
 class basedrawingelement; // forward
 class DriverDescription ; // forward
@@ -155,11 +163,13 @@ public:
 	enum cliptype { clip , eoclip };
 	enum linetype { solid=0, dashed, dotted, dashdot, dashdotdot }; // corresponding to the CGM patterns
 	struct DLLEXPORT TextInfo {
-		float 		x;
-		float		y;
+		Point       p;
+		float x() const { return p.x(); }
+		float y() const { return p.y(); }
 		float		FontMatrix[6];
-		float 		x_end; // pen coordinates after show in PostScript
-		float		y_end; // 
+		Point 		p_end; // pen coordinates after show in PostScript
+		float x_end() const { return p_end.x(); }
+		float y_end() const { return p_end.y(); }
 		RSString 	thetext;
 		RSString	glyphnames;
 		bool		is_non_standard_font;
@@ -196,10 +206,9 @@ public:
 					( currentB == cmp.currentB ); //lint !e777 // testing floats for ==
 		}
 		TextInfo() :
-			x(0.0f),
-			y(0.0f),
-			x_end(0.0f),
-			y_end(0.0f),
+			p(0.0f, 0.0f),
+			FontMatrix(),
+			p_end(0.0f, 0.0f),
 //			thetext(0),  // use standard ctor
 			is_non_standard_font(false),
 			currentFontSize(10.0f),
@@ -210,18 +219,18 @@ public:
 			colorName(""),
 			cx(0.0f),
 			cy(0.0f),
-			Char(32), // 32 means space
+			Char(char_code_of_space), 
 			ax(0.0f),
 			ay(0.0f), 
 			mappedtoIsoLatin1(true), 
 			remappedfont(false) {
-				for (int i = 0; i < 6 ; i++ ) FontMatrix[i] = 0.0f;
+			  // obsolete with new C++ - already done in init
+			  for (int i = 0; i < 6; i++) { FontMatrix[i] = 0.0f; }
 			}
 		~TextInfo() { }
-	private:
-		// declared but not defined
-		// const TextInfo & operator = (const TextInfo &); // default is ok
-		// TextInfo(const TextInfo &); // default is ok
+
+        TextInfo(const TextInfo&) = default;
+		TextInfo& operator=(const TextInfo&) = default;
 	};
 
 private:
@@ -314,7 +323,7 @@ protected:
 		unsigned int savelevel;	
 		SaveRestoreInfo * previous;	
 		SaveRestoreInfo * next;
-		explicit SaveRestoreInfo(SaveRestoreInfo * parent) : clippathlevel(0), previous(parent), next(NIL) 
+		explicit SaveRestoreInfo(SaveRestoreInfo * parent) : clippathlevel(0), previous(parent), next(nullptr) 
 		{ 
 			if (parent) {
 				parent->next=this;
@@ -394,7 +403,7 @@ public:
 	// = CONSTRUCTION, DESTRUCTION AND COPYING
 
 	drvbase(
-		const char * driverOptions_p,
+		const char * driveroptions_p,
 		ostream & theoutStream,
 		ostream & theerrStream,		
 		const char* nameOfInputFile_p,
@@ -408,7 +417,7 @@ public:
         // These functions are not backend specific and should not have to be
         // changed for new backends
 
-	void		startup(bool merge);
+	void		startup(bool mergelines);
 
 	virtual void finalize(); 
 	// needed because base destructor will be called after derived destructor
@@ -418,6 +427,11 @@ public:
 	// in the context of the main program which causes memory problems
 	// under windows since the plugins are NOT and extension DLL
 	//
+
+	static bool use_fake_version_and_date; // for regression testing only
+	static const char * VersionString();
+	static void set_VersionString(const char * v);
+	static RSString DateString();
 
 	void		setdefaultFontName(const char * n) {defaultFontName = n;}
 
@@ -434,19 +448,19 @@ public:
 	static float           getScale() { return 1.0f; }
 
 	inline long l_transX			(float x) const	{
-		return (long)((x + x_offset) + .5);	// rounded long	
+		return static_cast <long>((x + x_offset) + 0.5f);	// rounded long	
 	}
 
 	inline long l_transY			(float y) const {
-		return (long)((-1.0f*y + y_offset) + .5);	// rounded long, mirrored
+		return static_cast <long>((-1.0f*y + y_offset) + 0.5f);	// rounded long, mirrored
 	}
 
 	inline int i_transX			(float x) const	{
-		return (int)((x + x_offset) + .5);	// rounded int	
+		return static_cast <int>((x + x_offset) + 0.5f);	// rounded int	
 	}
 
 	inline int i_transY			(float y) const {
-		return (int)((-1.0f*y + y_offset) + .5);	// rounded int, mirrored
+		return static_cast <int>((-1.0f*y + y_offset) + 0.5f);	// rounded int, mirrored
 	}
 
 	inline float f_transX			(float x) const	{
@@ -503,6 +517,13 @@ public:
 
 	void            setCurrentLineType(const linetype how) 
 			{ currentPath->currentLineType = how; }
+
+	const char * getLineTypeName() const {
+		static const char * lineTypeNames[] = {
+			"solid", "dashed", "dotted", "dashdot", "dashdotdot"
+		};
+		return lineTypeNames[currentPath->currentLineType];
+	}
 
 	void            setCurrentLineWidth(const float linewidth) 
 			{ currentPath->currentLineWidth = linewidth; }
@@ -573,12 +594,12 @@ public:
 				        const char *const thetext,
 					const float x, 
 					const float y,
-					const char * const glyphnames=0);
+					const char * const glyphnames=nullptr);
 
 	void		pushHEXText(const char *const thetext, 
 					const float x, 
 					const float y,
-					const char * const glyphnames=0);
+					const char * const glyphnames=nullptr);
 
 	void		flushTextBuffer(bool useMergeBuffer); // flushes text from the text (merge) buffer 
 	void		showOrMergeText();
@@ -588,7 +609,7 @@ public:
 	// If a backend only deals with a special set of font names
 	// the following function must return a 0 terminated list
 	// of font names.
-	virtual const char * const * 	knownFontNames() const { return 0; }
+	virtual const char * const * 	knownFontNames() const { return nullptr; }
 
 	// The next functions are virtual with a default empty implementation
 
@@ -691,7 +712,7 @@ private:
 };
 
 typedef const char * (*makeColorNameType)(float r, float g, float b);
-const unsigned int maxcolors = 10000 ; //  maximum number of colors 
+constexpr unsigned int maxcolors = 10000 ; //  maximum number of colors 
 
 //lint -esym(1712,ColorTable) // no default ctor
 class DLLEXPORT ColorTable 
@@ -737,8 +758,12 @@ class DLLEXPORT basedrawingelement
 {
 public:
 	// default ctor sufficient since no members anyway
-//	basedrawingelement(unsigned int size_p) /*: size(size_p) */ {}
+	basedrawingelement() = default;	
+	virtual ~basedrawingelement() = default;
 	virtual const Point &getPoint(unsigned int i) const = 0;
+	const Point& getLastPoint() const {
+		return getPoint(getNrOfPoints()-1);
+	}
 	virtual Dtype getType() const = 0;
 	friend ostream & operator<<(ostream & out, const basedrawingelement &elem);
 	bool operator==(const basedrawingelement& bd2) const;
@@ -748,16 +773,14 @@ public:
 	// of memory needs to be done by the same dll which did the allocation.
 	// this is not simply achieved if plugins are loaded as DLL.
 	virtual void deleteyourself() { delete this; } 
-	virtual ~basedrawingelement() {}
-private:
-//	const unsigned int size;
+	NOCOPYANDASSIGN(basedrawingelement)
 };
 
 
 inline void copyPoints(unsigned int nr, const Point src[], Point target[])
 {
 // needed because CenterLine cannot inline for loops
-	for (unsigned int i = 0 ; i < nr ; i++ ) target[i] = src[i]; 
+	for (size_t i = 0 ; i < nr ; i++ ) target[i] = src[i]; 
 }
 
 template <unsigned int nr, Dtype curtype>
@@ -816,15 +839,16 @@ public:
 #endif
 		return points[i]; 
 	}
-	virtual Dtype getType() const 		     { return (Dtype) curtype; }
+	virtual Dtype getType() const 		     { return static_cast <Dtype>(curtype); }
 						// This cast (Dtype) is necessary
 						// to eliminate a compiler warning
 						// from the SparcCompiler 4.1.
 						// although curtype is of type Dtype
 	virtual unsigned int getNrOfPoints() const { return nr; }
 private:
-	Point points[(nr > 0) ? nr : (unsigned int)1]; //lint !e62 //Incompatible types (basic) for operator ':'
-	const drawingelement<nr,curtype> &  operator=( const drawingelement<nr,curtype> & rhs ); // not implemented
+	Point points[(nr > 0) ? nr : static_cast <unsigned int>(1)]; //lint !e62 //Incompatible types (basic) for operator ':'
+	drawingelement() = delete;
+	const drawingelement<nr, curtype>& operator=(const drawingelement<nr, curtype>& rhs) = delete;
 };
 
 
@@ -858,18 +882,31 @@ typedef drawingelement<(unsigned int) 3,curveto> 	Curveto;
 
 // use of static_cast instead of dynamic_cast, because some tools complain about problems then since
 // in theory dynamic_cast could return 0
-// but clang tidy wants dynamic_cast
-// #define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,globaloptions_p,descref), options(static_cast<DriverOptions*>(DOptions_ptr))
-#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,globaloptions_p,descref), options(dynamic_cast<DriverOptions*>(DOptions_ptr))
+// Note: clang tidy wants dynamic_cast, but ignoring that wish.
+#define constructBase drvbase(driveroptions_p,theoutStream,theerrStream,nameOfInputFile_p,nameOfOutputFile_p,globaloptions_p,descref), \
+                      options(static_cast<DriverOptions*>(DOptions_ptr))
+//Note: 
+//room for improvement, but would need wider changes:
+//Class containing option descriptions is a local one in each driver class
+//But we need an instance of this already in drvbase ctor because we parse the options there 
+//and want to store the values.
+//So drvbase ctor creates the option object via createDriveroptions even before the derived driver class
+//is created completely.
+//Note: an "option" object is also needed/created for help output without creating a derived driver object.
+//Instead of adding the Description of Driver option in to the derived driver class
+//we would need a new class, e.g. derived from driverdescription<T> and add the options there.
+//But that is a wider change involving many source files.
+
+
 
 
 class DLLEXPORT DescriptionRegister
 {
 	enum {maxelems = 100 };
 public:
-	DescriptionRegister() :ind(0) { 
-		for (int i = 0; i < maxelems; i++) rp[i] = 0; 
-	//	cout << " R constructed " << (void *) this << endl;
+	DescriptionRegister() :rp(), ind(0) { 
+		// obsolete with new C++ - already done in init
+		for (int i = 0; i < maxelems; i++) rp[i] = nullptr; 
 	}
 #if 0
 	// removed - since otherwise one gets a runtime error when the .so is unloaded 
@@ -925,14 +962,15 @@ typedef bool (*checkfuncptr)(void);
 class drvbase;
 
 struct OptionDescription {
-	OptionDescription(const char * n = 0, const char * p = 0, const char * d = 0) :Name(n), Parameter(p), Description(d) {}
-	const char * const Name;
-	const char * const Parameter;   // e.g. "String" or "numeric", or 0 (implicitly a boolean option then (no argument)
-	const char * const Description; // 
+	OptionDescription(const char * n, const char * p, const char * d) :Name(n), Parameter(p), Description(d) {}
+	const char * const Name = nullptr;
+	const char * const Parameter = nullptr;   // e.g. "String" or "numeric", or 0 (implicitly a boolean option then (no argument)
+	const char * const Description = nullptr; // 
 private:
-//	OptionDescription(const OptionDescription&);
-	const OptionDescription& operator=(const OptionDescription&);
 // no special copy ctor, assignment op or dtor needed since this class is NOT owner of the (static) strings.
+	OptionDescription() = delete;
+	OptionDescription(const OptionDescription&) = delete;
+	const OptionDescription& operator=(const OptionDescription&) = delete;
 };
 
 // An Array of OptionDescription is delimited by an element where Name is 0
@@ -962,10 +1000,10 @@ public:
 			const bool	nativedriver_p = true,
 			checkfuncptr checkfunc_p = 0);
 	virtual ~DriverDescription() {
-		//		symbolicname = NIL; // these are const
-		//		explanation= NIL;
-		//		suffix= NIL;
-		//		additionalInfo= NIL;
+		//		symbolicname = nullptr; // these are const
+		//		explanation= nullptr;
+		//		suffix= nullptr;
+		//		additionalInfo= nullptr;
 	} //lint !e1540
 
 	virtual drvbase * CreateBackend (const char * const driveroptions_P,
@@ -976,6 +1014,9 @@ public:
 			 PsToEditOptions & globaloptions_p
 			 ) const = 0;
 	virtual ProgramOptions * createDriverOptions() const = 0;
+
+	virtual size_t variants() const = 0;
+	virtual const DriverDescription * variant(size_t index) const = 0;
 
 	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
 
@@ -1011,6 +1052,15 @@ public:
 
 class DescriptionRegister;
 
+#if 0
+template <class T>
+class woglvector : public std::vector<T> {
+public:
+	woglvector() { cout << "created " << this << endl << flush; }
+	~woglvector() { cout << "deleted " << this << endl << flush; }
+};
+#endif
+
 //lint -esym(1712,DriverDescription*) // no default ctor
 template <class T>
 class DLLEXPORT DriverDescriptionT : public DriverDescription {
@@ -1045,7 +1095,9 @@ public:
 			nativedriver_p,
 			checkfunc_p
 			)
-		{}
+	{
+	    instances().push_back(this);
+	}
 	virtual drvbase * CreateBackend (
 			const char * const driveroptions_P,
 		    ostream & theoutStream, 
@@ -1065,15 +1117,36 @@ public:
 		return new typename T::DriverOptions;
 	}
 
-
-//	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
+	//	virtual void DeleteBackend(drvbase * & ptr) const { delete (T*) ptr; ptr = 0; }
 	virtual unsigned int getdrvbaseVersion() const { return drvbaseVersion; }
 
+	static std::vector<const DriverDescriptionT<T> *> & instances() {
+	    static std::vector<const DriverDescriptionT<T> *> the_instances(0);
+	    return the_instances;
+	}
+
+	virtual size_t variants() const {
+		return instances().size();
+	}
+
+	virtual const DriverDescription* variant(size_t index) const {
+		if (index < instances().size()) {
+			return instances()[index];
+		} else {
+			return nullptr;
+		}
+	}
+
 private: 
-	// typedef DriverDescriptionT<T> SHORTNAME;
-	// NOCOPYANDASSIGN(SHORTNAME)
+
 	NOCOPYANDASSIGN(DriverDescriptionT<T>)
 };
+
+#if 0
+template <class T>
+//std::vector<const DriverDescriptionT<T> *> DriverDescriptionT<T>::instances;
+woglvector<const DriverDescriptionT<T> *> DriverDescriptionT<T>::instances;
+#endif
 
 #if !( (defined (__GNUG__)  && (__GNUC__>=3) && defined (HAVE_STL)) || defined (_MSC_VER) && (_MSC_VER >= 1300) && (_MSC_VER < 1900) )
 // 1300 is MSVC.net (7.0)
@@ -1088,6 +1161,8 @@ private:
 #undef max
 #endif
 
+#if 0
+// should come from algorithm now
 #ifndef min
 template <class T>
 inline T min(T x, T y)
@@ -1102,6 +1177,7 @@ inline T max(T x, T y)
 {
 	return (x>y) ? x:y;
 }
+#endif
 #endif
 
 #endif
