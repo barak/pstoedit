@@ -1,3 +1,9 @@
+pstoedit (3.77-1deepin1) unstable; urgency=medium
+
+  * Fix build with GCC 12
+
+ -- Clansty <i@gao4.pw>  Mon, 09 Jan 2023 18:29:14 +0800
+
 pstoedit (3.77-1) unstable; urgency=medium
 
   * New upstream release

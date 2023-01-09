@@ -1,0 +1,19 @@
+Description: Fix build with GCC 12
+ pstoedit (3.77-1deepin1) unstable; urgency=medium
+ .
+   * Fix build on RISC-V
+Author: Clansty <i@gao4.pw>
+
+--- pstoedit-3.77.orig/src/drvpptx.cpp
++++ pstoedit-3.77/src/drvpptx.cpp
+@@ -66,6 +66,10 @@ long lroundf(float f) {
+ 
+ #include <zip.h>
+ 
++#if __GNUC__ > 11
++#include <memory>
++#endif
++
+ #ifdef _MSC_VER
+ // MS VC++ Windows
+ // handle this warning: 
