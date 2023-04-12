@@ -1,8 +1,9 @@
 pstoedit (3.78-3) UNRELEASED; urgency=medium
 
   * Update standards version to 4.6.2, no changes needed.
+  * Merge janitor removal of obsolete version constraints.
 
- -- Barak A. Pearlmutter <bap@debian.org>  Wed, 12 Apr 2023 14:48:20 -0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 12 Apr 2023 15:35:38 +0100
 
 pstoedit (3.78-2) unstable; urgency=medium
 
