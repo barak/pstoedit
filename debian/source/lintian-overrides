@@ -1,0 +1,3 @@
+# doc/pstoedit.htm and doc/pstoedit.1 are generated during the build,
+# see doc/Makefile.am
+pstoedit source: source-is-missing [doc/pstoedit.htm]

@@ -7,8 +7,6 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 include /usr/share/dpkg/architecture.mk
 
-export DEB_CXXFLAGS_MAINT_APPEND = -Wl,--as-needed -Wl,-O1
-
 ifeq ($(DEB_BUILD_ARCH_OS),hurd)
 export DEB_CXXFLAGS_MAINT_APPEND += -lpthread
 endif
@@ -16,9 +14,21 @@ endif
 %:
 	dh $@
 
+# execute_after_dh_auto_build:
+# 	@echo "Build Qt-based GUI frontend."
+# 	cd QT/PstoeditQtGui &&
+# 	 qmake6 PstoeditQtGui.pro &&
+# 	 $(MAKE)
+
+# echo "QT/PstoeditQtGui/PstoeditQtGui /usr/bin/" >> debian/pstoedit-gui.install
+
 execute_after_dh_auto_install:
 	@echo "Clearing .la files dependency_libs fields per Debian policy"
 	sed --in-place "/dependency_libs/ s/'.*'/''/" $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pstoedit/*.la
+
+execute_after_dh_installexamples:
+	@echo "Upstream tarball has +x set on non-executable files, need to clear if installed."
+	chmod --verbose a-x debian/pstoedit/usr/share/doc/pstoedit/examples/*.ps
 
 override_dh_installchangelogs:
 	dh_installchangelogs doc/changelog.htm
