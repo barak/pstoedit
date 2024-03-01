@@ -1,5 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.pstoedit.net/pstoedit
+Upstream-Name: pstoedit
 
 Files: *
 Copyright: 1993-2023, Wolfgang Glunz <wglunz@pstoedit.net>

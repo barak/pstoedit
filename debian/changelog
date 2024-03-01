@@ -2,6 +2,7 @@ pstoedit (4.00-2) UNRELEASED; urgency=medium
 
   * Rewrite debian/copyright using standard format
   debian/copyright: use spaces rather than tabs to start continuation lines.
+  Set field Upstream-Name in debian/copyright.
 
  -- Barak A. Pearlmutter <bap@debian.org>  Tue, 20 Jun 2023 10:40:12 +0100
 
