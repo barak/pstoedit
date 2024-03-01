@@ -1,3 +1,10 @@
+pstoedit (4.00-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.  Closes: #1063292
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 29 Feb 2024 21:20:12 +0000
+
 pstoedit (4.00-1) unstable; urgency=medium
 
   * Update standards version to 4.6.2, no changes needed.
