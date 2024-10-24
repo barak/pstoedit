@@ -32,7 +32,7 @@ Files: debian/*
 Copyright: 1997 joost witteveen <joost@rulcmc.leidenuniv.nl>
            1998-2009 J.H.M. Dassen (Ray) <jdassen@wi.LeidenUniv.nl>
            2010-2016 Roland Stigge <stigge@antcom.de>
-           2016-2023 Barak A. Pearlmutter <bap@debian.org>
+           2016-2024 Barak A. Pearlmutter <bap@debian.org>
 License: GPL-2+
 
 License: Expat
@@ -143,7 +143,7 @@ License: LPPL-1+
  to include pstoedit in your Linux distribution. No problem !
 
 License: MIT/X11
- 			 All Rights Reserved
+                         All Rights Reserved
  .
  Permission to use, copy, modify, and distribute this software and its
  documentation for any purpose and without fee is hereby granted,

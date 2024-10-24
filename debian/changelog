@@ -1,3 +1,11 @@
+pstoedit (4.02-1) unstable; urgency=medium
+
+  * New upstream release
+  * Generate and package GUI executable, which is now enabled by default.
+  * Minor packaging script updates
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 28 Nov 2024 18:44:11 +0000
+
 pstoedit (4.01-1) unstable; urgency=medium
 
   * Rewrite debian/copyright using standard format

@@ -5,13 +5,15 @@ Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Rules-Requires-Root: no
 Build-Depends: dpkg-dev (>= 1.22.5), debhelper-compat (= 13), dh-buildinfo, docbook-to-man, libwmf-dev, libmagick++-dev,
  libplot-dev, libpng-dev, ghostscript,
- pkg-config,
+ pkgconf,
  texlive-latex-recommended, texlive-latex-extra, texlive-extra-utils,
  libzip-dev,
  libgd-dev,
  libemf-dev [alpha amd64 arm armeb armel armhf arm64 i386 powerpc powerpcel powerpcspe ppc64 ppc64el s390 s390x sparc sparc64 x32],
+ qt6-base-dev,
+ chrpath,
 Homepage: http://www.pstoedit.net/
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Vcs-Git: https://salsa.debian.org/debian/pstoedit.git
 Vcs-Browser: https://salsa.debian.org/debian/pstoedit
 
@@ -49,3 +51,13 @@ Description: PostScript and PDF files to editable vector graphics converter
  pstoedit converts Postscript and PDF files to various editable
  vector graphic formats including tgif, xfig, PDF graphics, gnuplot format,
  idraw, MetaPost, GNU Metafile, PIC, Kontour and flattened PostScript.
+
+Package: pstoedit-gui
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ghostscript
+Description: PostScript and PDF files to editable vector graphics converter GUI
+ pstoedit converts Postscript and PDF files to various editable
+ vector graphic formats including tgif, xfig, PDF graphics, gnuplot format,
+ idraw, MetaPost, GNU Metafile, PIC, Kontour and flattened PostScript.
+ .
+ This package contains a GUI interface to that functionality.
