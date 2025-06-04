@@ -1,3 +1,9 @@
+pstoedit (3.77-1deepin2) unstable; urgency=medium
+
+  * feat: add sw64 support.
+
+ -- hudeng <hudeng@deepin.org>  Wed, 04 Jun 2025 10:47:49 +0800
+
 pstoedit (3.77-1deepin1) unstable; urgency=medium
 
   * Fix build with GCC 12
