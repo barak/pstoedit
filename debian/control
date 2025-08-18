@@ -2,7 +2,6 @@ Source: pstoedit
 Section: graphics
 Priority: optional
 Maintainer: Barak A. Pearlmutter <bap@debian.org>
-Rules-Requires-Root: no
 Build-Depends: dpkg-dev (>= 1.22.5), debhelper-compat (= 13), docbook-to-man, libwmf-dev, libmagick++-dev,
  libplot-dev, libpng-dev, ghostscript,
  pkgconf,
