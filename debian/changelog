@@ -1,3 +1,14 @@
+pstoedit (4.02-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload
+  * remove obsolete & stubbed dh-buildinfo build dependency
+
+  [ Barak A. Pearlmutter ]
+  * RRR:no is now the default
+  * bump policy
+
+ -- Alexandre Detiste <tchet@debian.org>  Sun, 19 Oct 2025 18:25:40 +0200
+
 pstoedit (4.02-1) unstable; urgency=medium
 
   * New upstream release
