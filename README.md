@@ -21,7 +21,7 @@ The configure script checks for the availability of several third party componen
 * libemf for enhanced windows metafiles (apt name libemf-dev) - Optional. Needed for the EMF backend.
 * libmagic for Magic drivers - Optional. Provides access to drivers provided by the libmagic.
 
-see also the [recommended apt packages](doc/pstoedit.linux.prerequisites.txt)
+see also the [recommended apt packages](doc/pstoedit.linux.prerequisites.md)
 
 
 ### Run time Dependendies
