@@ -19,7 +19,7 @@ pstoedit works reasonable with PostScript files containing
 Try to run it on golfer.ps or tiger.ps that comes with Ghostscript, e.g.,
 pstoedit -f <your format> <local path where GhostScript is installed>/examples/tiger.ps tiger.<suffix>
 
-Since versiom 4.0, there is also a GUI for pstoedit - PstoeditQtGui
+Since version 4.0, there is also a GUI for pstoedit - PstoeditQtGui
 
 Some features that are not supported by every backend of pstoedit:
 * bitmap images (just for some backends and only a subset of the PostScript image operators)
