@@ -20,10 +20,6 @@ execute_after_dh_auto_install:
 	@echo "Clear rpath in GUI executable; remove if build system starts doing this itself."
 	-chrpath --delete debian/tmp/usr/bin/PstoeditQtGui
 
-execute_after_dh_installexamples:
-	@echo "Upstream tarball has +x set on non-executable files, need to clear if installed."
-	chmod --verbose a-x debian/pstoedit/usr/share/doc/pstoedit/examples/*.ps
-
 override_dh_installchangelogs:
 	dh_installchangelogs doc/changelog.htm
 
