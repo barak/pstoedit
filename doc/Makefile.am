@@ -8,7 +8,7 @@ EXTRA_DIST += pstoedit.pdf pstoedit.htm pstoedit.1 latex2man.local latex2man.css
 #
 man_MANS = pstoedit.1
 
-doc_DATA = pstoedit.pdf pstoedit.htm readme.txt changelog.htm 
+doc_DATA = pstoedit.pdf pstoedit.htm changelog.htm 
 ## Unfortunately this is broken:
 #info_TEXINFOS = pstoedit.texi
 
