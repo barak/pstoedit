@@ -1,4 +1,4 @@
-EXTRA_DIST=readme.txt changelog.htm pstoedit.tex pstoedit.trans pstoedit.linux.prerequisites.txt  
+EXTRA_DIST=changelog.htm pstoedit.tex pstoedit.trans pstoedit.linux.prerequisites.txt  
 # Include these in dist tarball in case target does not have LaTeX (pdflatex) or latex2man.
 # See "if DOCS" conditional below, and option ./configure --enable-docs=no
 # which disables *regeneration* of docs, but not their installation.
@@ -94,7 +94,7 @@ pstoedit.rtf : pstoedit.1
 
 MOSTLYCLEANFILES = pstoedit.aux pstoedit.log pstoedit.out pstoedit.dvi
 
-CLEANFILES = pstoedit.ps pstoedit.pdf pstoedit.1 pstoedit.htm pstoedit.texi \
+CLEANFILES = pstoedit.ps pstoedit.pdf pstoedit.1 pstoedit.texi \
 	  pstoedit.info pstoedit.txt pstoedit.rtf generalhelplong.tex \
 	  generalhelpshort.tex driverhelp.tex
 endif

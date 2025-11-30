@@ -1,48 +1,92 @@
-*.la
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
 *.lo
-*.log
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Linker files
+*.ilk
+
+# Debugger Files
+*.pdb
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# debug information files
+*.dwo
+
+sync.ffs_db
+showdiff.sh
+
+# Missing
+
+.deps/
 .libs/
+Makefile
+Makefile.in
+stamp-h1
+
 /aclocal.m4
 /ar-lib
 /autom4te.cache/
 /compile
 /config.guess
+/config.log
 /config.status
 /config.sub
 /config/pstoedit.pc
 /configure
 /depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/m4/
+/missing
+
+/src/pstoedit
+/src/pstoedit.ph
+/src/pstoedit_config.h
+/src/pstoedit_config.h.in
+
 /doc/driverhelp.tex
 /doc/generalhelplong.tex
 /doc/generalhelpshort.tex
 /doc/pstoedit.1
 /doc/pstoedit.aux
 /doc/pstoedit.htm
-/doc/pstoedit.out
+/doc/pstoedit.log
 /doc/pstoedit.pdf
 /doc/version.tex
-/install-sh
-/libtool
-/ltmain.sh
-/m4/libtool.m4
-/m4/ltoptions.m4
-/m4/ltsugar.m4
-/m4/ltversion.m4
-/m4/lt~obsolete.m4
-/missing
-/mkinstalldirs
-/src/pstoedit
-/src/pstoedit.ph
-/src/pstoedit_config.h
-/src/pstoedit_config.h.in
-/src/stamp-h1
-Makefile
-Makefile.in
-.deps/
+
 /QT/PstoeditQtGui/.qmake.stash
 /QT/PstoeditQtGui/Makefile.qt
 /QT/PstoeditQtGui/PstoeditQtGui
-/QT/PstoeditQtGui/moc_*
+/QT/PstoeditQtGui/moc_PstoeditQtGui.cpp
+/QT/PstoeditQtGui/moc_predefs.h
 /QT/PstoeditQtGui/qrc_PstoeditQtGui.cpp
 /QT/PstoeditQtGui/ui_PstoeditQtGui.h

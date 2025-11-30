@@ -19,7 +19,7 @@
  *   e.g. -f java2:anotherclassname
  *   For mor information cf. the readme file.
  *
- *   Copyright (C) 1998-1999 Wolfgang Glunz, wglunz@geocities.com
+ *   Copyright (C) 1998-1999 Wolfgang Glunz, wglunz35_AT_pstoedit.net 
  *                 2000      Gisbert W. Selke, gisbert@tapirsoft.de
  *
  *    This program is free software; you can redistribute it and/or modify
@@ -321,7 +321,7 @@ public class PSDrawing extends JApplet {
 
   public String getAppletInfo() {
     return "PostScript file converted to Java by pstoedit\n" +
-           "© Copyright 1998 - 1999 Wolfgang Glunz, wglunz@geocities.com\n" +
+           "© Copyright 1998 - 1999 Wolfgang Glunz, wglunz35_AT_pstoedit.net\n" +
            "© Copyright parts: 2000 Gisbert W. Selke, gisbert@tapirsoft.de\n" +
            "Java2 driver: alpha test version, 17 Apr 2000";
   }

@@ -9,7 +9,7 @@
 // replace PSJava by whatever you specified after the -f java option,
 // e.g. -f java:anotherclassname
 //  
-//   Copyright (C) 1998 - 1999 Wolfgang Glunz, wglunz@geocities.com
+//   Copyright (C) 1998 - 1999 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
