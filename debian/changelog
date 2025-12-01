@@ -2,9 +2,8 @@ pstoedit (4.03-1) UNRELEASED; urgency=medium
 
   * New upstream pre-release
   * Update packaging scripts
-  * Stray doc/readme.txt refs
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sun, 30 Nov 2025 19:42:42 +0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 01 Dec 2025 15:57:42 +0000
 
 pstoedit (4.02-1.1) unstable; urgency=medium
 
