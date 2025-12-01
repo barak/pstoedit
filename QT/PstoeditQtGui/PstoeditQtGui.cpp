@@ -562,7 +562,10 @@ void PstoeditQtGui::ReplyFinished(QNetworkReply* reply) {
 	if (latest_version > current_version) {
 		std::stringstream message;
 		message << "New version " << answer.toStdString().c_str() << " is available. Your version is " << my_version_string << endl;
-		message << "Get new version from https://sourceforge.net/projects/pstoedit/files/pstoedit/" << endl;
+		message << "Get new version from  https://github.com/woglu/pstoedit/releases" << endl; 
+#if defined(_WIN32) || defined(_GLIBCXX_FILESYSTEM_IS_WINDOWS) 
+		message << "or run ´winget install pstoedit' from a terminal" << endl; 
+#endif
 		QMessageBox::information(this, QString("Pstoedit"), message.str().c_str());
 	} else if (latest_version < current_version) {
 		std::stringstream message;
@@ -601,6 +604,6 @@ void PstoeditQtGui::SupportPstoeditDevelopmentandMaintenance() const {
 };
 
 void PstoeditQtGui::Get_Support_or_open_a_Ticket() const {
-	QDesktopServices::openUrl(QUrl("https://sourceforge.net/projects/pstoedit/", QUrl::StrictMode));
+	QDesktopServices::openUrl(QUrl("https://github.com/woglu/pstoedit/issues", QUrl::StrictMode));
 };
 
