@@ -75,17 +75,17 @@ PstoeditQtGui::PstoeditQtGui(int argc_p, char ** argv_p, std::ostream& logStream
 	if (docdir) {
 		abs_path = std::filesystem::absolute(docdir); // for Linux - docdir is null otherwise
 	} else {
-		char * path_to_exe = cppstrdup(argv[0]);
-		char* lastSlash = nullptr;
-		// replace \\ with / and find last /
-		for (char* cp = path_to_exe; *cp; cp++) {
+		char * const path_to_exe = cppstrdup(argv[0]);
+		if (path_to_exe && strlen(path_to_exe)) {
+		  char* lastSlash = nullptr;
+		  // replace \\ with / and find last /
+		  for (char* cp = path_to_exe; *cp; cp++) {
 			if (*cp == '\\') *cp = '/';
 			if (*cp == '/') lastSlash = cp;
-		}
-		if (lastSlash) {
+		  }
+		  if (lastSlash) {
 			*lastSlash = '\0';
-		}
-		if (strlen(path_to_exe)) {
+		  }
 		  abs_path = std::filesystem::absolute(path_to_exe);
 		} else {
 		  abs_path = std::filesystem::current_path(); 
