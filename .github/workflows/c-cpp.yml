@@ -16,7 +16,7 @@ jobs:
     - name: autogen
       run: sh autogen.sh
     - name: configure
-      run: ./configure
+      run: ./configure --disable-check_for_gs
     - name: make
       run: make
     - name: make check
