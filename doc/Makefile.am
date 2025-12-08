@@ -21,13 +21,13 @@ SUFFIXES = .htm .1 .tex .ps .info .texi .txt
 
 all : alldoc
 gendocs : alldoc
-alldoc : pstoedit.1 pstoedit.htm pstoedit.pdf
 
 # This conditional guards use of the entire documentation generation
 # subsystem, which involves LaTeX and latex2man and such.  If turned
 # off, no attempt is made to generate them, instead the files in the
 # distribution tarball are installed.
 if DOCS
+alldoc : pstoedit.1 pstoedit.htm pstoedit.pdf
 P=../src/pstoedit
 
 generalhelplong.tex: $P
@@ -97,4 +97,6 @@ MOSTLYCLEANFILES = pstoedit.aux pstoedit.log pstoedit.out pstoedit.dvi
 CLEANFILES = pstoedit.ps pstoedit.pdf pstoedit.1 pstoedit.texi \
 	  pstoedit.info pstoedit.txt pstoedit.rtf generalhelplong.tex \
 	  generalhelpshort.tex driverhelp.tex
+else
+alldoc :
 endif
