@@ -12,10 +12,21 @@ dnl ------------------------------------------------------------------------
 dnl Initialize Autoconf. 
 AC_INIT([pstoedit],[4.03],[wglunz35_AT_pstoedit.net],[],[http://www.pstoedit.com])
 
+
+AC_ARG_ENABLE([check_for_gs],
+              [AS_HELP_STRING([--disable-check_for_gs],
+			      [do not check for GhostScript during configure])],
+              [CHECKGS=false],
+              [CHECKGS=true])
+
+if $CHECKGS ; then
 dnl Check Ghostscript
 AC_CHECK_PROGS([GS],[gs],[false])
 AS_IF([test x"${GS}" = xfalse],[AC_MSG_ERROR([** Cannot find ghostscript.  If it is already installed, Check PATH.])])
 dnl AC_PREFIX_PROGRAM(gs)
+else
+   AC_MSG_RESULT([checking for GhostScript was skipped - but you need this latest at runtime.])
+fi
 
 AC_LANG(C++)
 dnl AC_CONFIG_AUX_DIR(config)

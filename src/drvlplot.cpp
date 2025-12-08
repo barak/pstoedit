@@ -271,9 +271,7 @@ const unsigned short NUM_LIBPLOT_PAGE_SIZES = (sizeof(known_page_sizes) / sizeof
 class Plotter {
 private:
 	// disallow copying and assignment
-	Plotter(const Plotter & oldplotter);
-	 Plotter & operator = (const Plotter & oldplotter);
-
+	NOCOPYANDASSIGN(Plotter)
 	// streams (only the outstream and errstream are used)
 	istream *instream;
 	ostream *outstream;
@@ -372,7 +370,7 @@ typedef Plotter MetaPlotter;
 static inline bool GOOD_ISO(unsigned char c) {
 	return ((((c) >= 0x20) && ((c) <= 0x7E)) || (((c) >= 0xA0) && ((c) <= 0xFF)));
 }
-bool clean_iso_string(unsigned char *s)
+static bool clean_iso_string(unsigned char *s)
 {
 	bool was_clean = true;
 	unsigned char *t;
@@ -754,7 +752,7 @@ int Plotter::savestate()
 // define a sink for libplotter warning messages, because in plotutils-2.2,
 // libplotter had an unfortunate tendency to write error messages to the
 // output stream rather than the error stream!
-int dummy_warning_handler(const char *)
+static int dummy_warning_handler(const char *)
 {
 	return 0;
 }
@@ -766,7 +764,6 @@ int dummy_warning_handler(const char *)
 // driver specific initializations
 drvplot::derivedConstructor(drvplot):constructBase
 {
-//	const char *type = "meta";	// default - now in options in .h file
  	bool portable_metafile = false;  // binary is not portable - ascii is
 
 	if (strcmp(driverdesc.symbolicname, "gmfa") == 0) {

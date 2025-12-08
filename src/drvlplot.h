@@ -55,7 +55,7 @@ class drvplot : public drvbase
   
 private:
 	void print_coords();
-	class Plotter *plotter;	// either declared in plotter.h, or faked
+	class Plotter *plotter = nullptr;	// either declared in plotter.h, or faked
 	bool physical_page;		// can map PS onto a page of specified size?
 	int page_type;		// if so, one of PAGE_{ANSI_A,ISO_A4...}
 
