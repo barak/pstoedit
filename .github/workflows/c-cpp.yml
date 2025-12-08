@@ -17,6 +17,8 @@ jobs:
       run: sh autogen.sh
     - name: configure
       run: ./configure --disable-check_for_gs --enable-docs=no
+    - name: create dummy docs so the make below will run correctly
+      run: touch doc/pstoedit.1 doc/pstoedit.pdf doc/pstoedit.htm
     - name: make
       run: make
     - name: make check
