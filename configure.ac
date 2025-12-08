@@ -564,7 +564,7 @@ contrib/Makefile contrib/cairo/Makefile
 contrib/java/Makefile contrib/java/java1/Makefile contrib/java/java2/Makefile 
 misc/Makefile 
 QT/Makefile  QT/PstoeditQtGui/Makefile
-msdev/Makefile othersrc/Makefile othersrc/gsdllinc/Makefile])
+othersrc/Makefile othersrc/gsdllinc/Makefile])
 
 AC_OUTPUT
  
