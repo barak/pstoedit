@@ -165,7 +165,7 @@ pkginclude_HEADERS =				\
 pstoedit.cpp : pstoedit.ph
 
 pstoedit.ph : pstoedit.pro
-	awk -f ps_pro_to_ph.awk < pstoedit.pro > pstoedit.ph
+	awk -f $(srcdir)/ps_pro_to_ph.awk < $(srcdir)/pstoedit.pro > $(srcdir)/pstoedit.ph
 
 cppcheck:
 	cppcheck --inconclusive --enable=all `sh ./get_D_and_I_options.sh ${AM_CPPFLAGS}` ${SOURCES}
