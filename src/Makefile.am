@@ -166,6 +166,7 @@ pstoedit.cpp : pstoedit.ph
 
 pstoedit.ph : pstoedit.pro
 	ls -l $(srcdir)/ps_pro_to_ph.awk $(srcdir)/pstoedit.p*
+	ls -ld $(srcdir)
 	awk -f $(srcdir)/ps_pro_to_ph.awk < $(srcdir)/pstoedit.pro > $(srcdir)/pstoedit.ph
 
 cppcheck:
