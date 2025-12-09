@@ -26,4 +26,4 @@ jobs:
     - name: make check
       run: make check
     - name: make distcheck
-      run: export DISTCHECK_CONFIGURE_FLAGS="--disable-check_for_gs --enable-docs=no";make distcheck
+      run: export DISTCHECK_CONFIGURE_FLAGS="--disable-check_for_gs --enable-docs=no";echo make distcheck
