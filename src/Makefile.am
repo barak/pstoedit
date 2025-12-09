@@ -162,9 +162,9 @@ pkginclude_HEADERS =				\
 	psimage.h
 
 
-pstoedit.cpp : pstoedit.ph
+$(srcdir)/pstoedit.cpp : $(srcdir)/pstoedit.ph
 
-pstoedit.ph : pstoedit.pro
+$(srcdir)/pstoedit.ph : $(srcdir)/pstoedit.pro
 	ls -l $(srcdir)/ps_pro_to_ph.awk $(srcdir)/pstoedit.p*
 	ls -ld $(srcdir)
 	awk -f $(srcdir)/ps_pro_to_ph.awk < $(srcdir)/pstoedit.pro > $(srcdir)/pstoedit.ph
