@@ -45,6 +45,14 @@
 
 static constexpr char separatorInFormalList = ';';
 
+static const QString pstoeditWeb("http://www.pstoedit.com/");
+static const QString pstoeditWebS("https://www.pstoedit.com/");
+// Two URLS needed above. The http one is needed for retrievel of the latest_version.txt file
+// because the pstoedit homepage has no https certificate (yet) and the QT get methods fail
+// in that case. So for this the http version is used combined with  
+// QNetworkRequest::NoLessSafeRedirectPolicy - see below in CheckForUpdates()
+static const QString pstoeditGithub("https://github.com/woglu/pstoedit/");
+
 static QString GetValueOfOption(const OptionBase* theOption) {
 	// using streams because returning a std:string from the DLL
 	// causes issues with memory management.
@@ -359,8 +367,9 @@ void PstoeditQtGui::updateOutputSuffix() {
 	char* colon1 = std::strchr(tmpbuf, separatorInFormalList);
 	*colon1 = '\0';// copy part up to first '|'
 	const char* driverName = tmpbuf; // from start to :
-	driverOptions = getProgramOptionsForDriver(driverName);
-	// FIXME - delete former options
+	deleteProgramOptionsForDriver(driverOptions); // delete old options if any
+ 	driverOptions = getProgramOptionsForDriver(driverName);
+	
 	
 	if (driverOptions && driverOptions->numberOfOptions()) {
 		//logStream << "The driver for this output format supports the following additional options: (specify using -f \"format:-option1 -option2\")" << endl;
@@ -562,7 +571,7 @@ void PstoeditQtGui::ReplyFinished(QNetworkReply* reply) {
 	if (latest_version > current_version) {
 		std::stringstream message;
 		message << "New version " << answer.toStdString().c_str() << " is available. Your version is " << my_version_string << endl;
-		message << "Get new version from  https://github.com/woglu/pstoedit/releases" << endl; 
+		message << "Get new version from  " << pstoeditGithub.toStdString() << "releases" << endl; 
 #if defined(_WIN32) || defined(_GLIBCXX_FILESYSTEM_IS_WINDOWS) 
 		message << "or run ´winget install pstoedit' from a terminal" << endl; 
 #endif
@@ -577,7 +586,9 @@ void PstoeditQtGui::ReplyFinished(QNetworkReply* reply) {
 }
 
 void PstoeditQtGui::CheckForUpdates() {
-	HTTPmanager.get(QNetworkRequest(QUrl("https://woglu.github.io/pstoedit_web/latest_version.txt")));
+	QNetworkRequest request(QUrl(pstoeditWeb + "latest_version.txt"));
+	request.setMaximumRedirectsAllowed(QNetworkRequest::NoLessSafeRedirectPolicy);
+	HTTPmanager.get(request);
 };
 
 void PstoeditQtGui::About() {
@@ -587,7 +598,7 @@ void PstoeditQtGui::About() {
 	message << get_pstoedit_version() << "  \n" ;
 	message <<	"Copyright (C) 1993 - 2025 Wolfgang Glunz " << "  \n"
 				"All rights reserved" << "  \n"
-				"Pstoedit home page:  [www.pstoedit.com](http://www.pstoedit.com \"pstoedit home page\")" << "  \n"
+				"Pstoedit home page: " << QUrl(pstoeditWebS).toDisplayString().toStdString()  << "  \n"
 				"Refer to license.txt for conditions of distribution and use.\n\n"
 				"This binary uses Qt version " << qVersion() << "  \n"
 				"See Help->About Qt for more information about Qt." << endl;
@@ -600,10 +611,10 @@ void PstoeditQtGui::About() {
 };
 
 void PstoeditQtGui::SupportPstoeditDevelopmentandMaintenance() const {
-	QDesktopServices::openUrl(QUrl("https://woglu.github.io/pstoedit_web/pstoedit_donate.htm", QUrl::StrictMode));
+	QDesktopServices::openUrl(QUrl(pstoeditWebS + "pstoedit_donate.htm", QUrl::StrictMode));
 };
 
 void PstoeditQtGui::Get_Support_or_open_a_Ticket() const {
-	QDesktopServices::openUrl(QUrl("https://github.com/woglu/pstoedit/issues", QUrl::StrictMode));
+	QDesktopServices::openUrl(QUrl(pstoeditGithub + "issues", QUrl::StrictMode));
 };
 

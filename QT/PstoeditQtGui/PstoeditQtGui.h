@@ -85,7 +85,7 @@ class PstoeditQtGui : public QMainWindow
     enum class ButtonState { FullyDisabled, StartEnabled, StopEnabled };
 public:
     PstoeditQtGui(int argc_p, char ** argv_p, std::ostream& logStream_p, std::ostream* debugStream_p, QWidget* parent = Q_NULLPTR);
-    ~PstoeditQtGui() { }
+    ~PstoeditQtGui() { deleteProgramOptionsForDriver(driverOptions); }
     bool Verbose() const { return verbose; }
     bool checkGhostscript();
     void setProgramOptions(ProgramOptions* param);

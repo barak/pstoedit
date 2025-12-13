@@ -118,6 +118,11 @@ class ProgramOptions * getProgramOptionsForDriver(const char* driverName);
 #endif
 
 #ifdef __cplusplus
+extern "C" DLLEXPORT
+void deleteProgramOptionsForDriver(class ProgramOptions* options);
+#endif
+
+#ifdef __cplusplus
 extern "C" DLLEXPORT 
 #endif
 struct DriverDescription_S* getPstoeditNativeDriverInfo_plainC(void); /* for the pstoedit native drivers - not the ones that are provided as short cuts to Ghostscript */

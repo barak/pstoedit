@@ -272,7 +272,11 @@ ProgramOptions* getProgramOptionsForDriver(const char* driverName) {
 	ProgramOptions* options = currentDriverDesc ? currentDriverDesc->createDriverOptions() : nullptr;
 	return options;
 }
-// need also delete function for DLL.
+extern "C" DLLEXPORT
+void deleteProgramOptionsForDriver(ProgramOptions* options) {
+	delete options;
+}
+
 
 
 #ifndef UPPVERSION
