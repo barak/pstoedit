@@ -1,2 +1,4 @@
-version=4
-http://sf.net/@PACKAGE@/@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@
+Version: 5
+Template: GitHub
+Owner: woglu
+Project: pstoedit
