@@ -10,7 +10,7 @@ dnl       as those are all the systems I have access to.
 dnl ------------------------------------------------------------------------
 
 dnl Initialize Autoconf. 
-AC_INIT([pstoedit],[4.1],[wglunz35_AT_pstoedit.net],[],[http://www.pstoedit.com])
+AC_INIT([pstoedit],[4.3],[wglunz35_AT_pstoedit.net],[],[http://www.pstoedit.com])
 
 
 AC_ARG_ENABLE([check_for_gs],
