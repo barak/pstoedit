@@ -34,7 +34,7 @@
 \begin{document}
 
 \begin{Name}{1}{pstoedit}{Dr.\ Wolfgang Glunz}{Conversion Tools}{PSTOEDIT}
-  \Prog{pstoedit} - a tool converting PostScript and PDF files into various
+  \Prog{pstoedit} - a tool converting PostScript files into various
   vector graphic formats
 \end{Name}
 
@@ -74,28 +74,21 @@ This man-page documents release \Version\ of \Prog{pstoedit}.
 
 \subsection{USE}
 
-\Prog{pstoedit} converts PostScript and PDF files into various vector graphics
+\Prog{pstoedit} converts PostScript files into various vector graphics
 formats. The resulting files can be edited or imported into various drawing
 packages. Type
 
      \textbf{pstoedit -help}
 
 \noindent for a list of supported output formats. Pstoedit comes with a
-large set of format drivers built into in the binary. Additional drivers can be
-installed as plugins and are available from
-\URL{http://www.pstoedit.net/plugins/}.
-Simply copy the plugins into the same directory where the pstoedit binary is installed or - on Unix like systems only - alternatively into the lib directory in parallel to the bin directory where pstoedit is installed.
-
-However, unless you also get a license key for the plugins, the additional
-drivers will slightly distort the resulting graphics. See the documentation
-that comes with the plugins for more details.
+large set of format drivers built into in the binary. 
 
 \subsection{PRINCIPLE OF CONVERSION}
 
 \Prog{pstoedit} works by redefining some of PostScript's basic drawing operators,
 such as \textbf{stroke} or \textbf{show} (bitmaps drawn by the image
 operator are not supported by all output formats.) After
-redefining these operators, the PostScript or PDF file that needs to be
+redefining these operators, the PostScript file that needs to be
 converted is processed by a PostScript interpreter, e.g., Ghostscript
 (\Cmd{gs}{1}). You normally need to have a PostScript interpreter installed in
 order to use this program. However, you can perform some "back end only" processing
@@ -338,7 +331,7 @@ Try to use PostScript fonts instead of the bitmap fonts when generating a PostSc
 Wolfgang Glunz, \Email{wglunz35\_AT\_pstoedit.net}, \URL{https://de.linkedin.com/in/wolfgangglunz}
 
 \section{CANONICAL ARCHIVE SITE}
-\URL{http://www.pstoedit.net/pstoedit/}
+\URL{https://www.pstoedit.com}
 
 At this site you also find more information about \Prog{pstoedit} and related
 programs and hints how to subscribe to a mailing list in order to get informed
@@ -430,8 +423,7 @@ other intellectual property rights or restrictions including attribution
 rights. See the notes in individual files.
 
 \Prog{pstoedit} is controlled under the Free Software Foundation GNU Public
-License (GPL). However, this does not apply to importps and the additional
-plugins.
+License (GPL). However, this does not apply to the additional plugins.
 
 Ghostscript is a redistributable software package with copyright
 restrictions controlled by Artifex \URL{https://artifex.com/}.

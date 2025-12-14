@@ -843,7 +843,9 @@ sub manVerbatimLine
 
 sub htmlStart
 {
-    Print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"; 	NL;
+    Print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"; NL;
+   #Print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"; 	NL;
+   #Print "<!DOCTYPE html>"; 	NL;
     Print "<!-- Manual page created with $CMD on $gen_date"; 		NL;
     Print "  ** Author of $CMD: Juergen.Vollmer\@informatik-vollmer.de";NL;
     Print "  ** NOTE: This file is generated, DO NOT EDIT. -->"; 	NL;
@@ -941,7 +943,7 @@ sub htmlItem
     if ($cur_list[$list_nest] eq 'item') {
 	Print '<li>';
     } elsif ($cur_list[$list_nest] eq 'enum') {
-	Print '<li value =' . $item_nr[$list_nest] .'>';
+	Print '<li value ="' . $item_nr[$list_nest] .'">';
     }
 }
 

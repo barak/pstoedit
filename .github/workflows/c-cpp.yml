@@ -1,0 +1,29 @@
+name: C/C++ CI
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: autogen
+      run: sh autogen.sh
+    - name: configure
+      run: ./configure --disable-check_for_gs --enable-docs=no
+    - name: create dummy docs so the make below will run correctly
+      run: touch doc/pstoedit.1 doc/pstoedit.pdf doc/pstoedit.htm
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: export DISTCHECK_CONFIGURE_FLAGS="--disable-check_for_gs --enable-docs=no";echo make distcheck

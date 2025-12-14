@@ -2,7 +2,7 @@
    pstoedit.cpp : This file is part of pstoedit
    main control procedure
 
-   Copyright (C) 1993 - 2024 Wolfgang Glunz, wglunz35_AT_pstoedit.net
+   Copyright (C) 1993 - 2025 Wolfgang Glunz, wglunz35_AT_pstoedit.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -272,7 +272,11 @@ ProgramOptions* getProgramOptionsForDriver(const char* driverName) {
 	ProgramOptions* options = currentDriverDesc ? currentDriverDesc->createDriverOptions() : nullptr;
 	return options;
 }
-// need also delete function for DLL.
+extern "C" DLLEXPORT
+void deleteProgramOptionsForDriver(ProgramOptions* options) {
+	delete options;
+}
+
 
 
 #ifndef UPPVERSION
@@ -486,7 +490,7 @@ int pstoedit(int argc, const char *const argv[], ostream & errstream,
 		errstream "built: " << __DATE__ << " - " 
 #endif
 		errstream << buildtype << " - " << compversion << ")"
-		" : Copyright (C) 1993 - 2024 Wolfgang Glunz\n";
+		" : Copyright (C) 1993 - 2025 Wolfgang Glunz\n";
 	}
 
 	//  handling of derived parameters
