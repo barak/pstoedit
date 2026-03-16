@@ -101,6 +101,7 @@ dnl emf, magick, libplot
 
 # When doc regeneration is enabled, these are needed:
 AC_CHECK_PROGS([PDFLATEX],[pdflatex],[false])
+AC_CHECK_PROGS([LATEX2MAN],[latex2man],[false])
 # Note that this controls *generation* of documentation.  It is
 # installed in any case, and included in the "make dist" distribution
 # tarball.  As a consequence, at "make dist" time these files must
