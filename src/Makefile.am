@@ -167,7 +167,7 @@ $(srcdir)/pstoedit.cpp : $(srcdir)/pstoedit.ph
 $(srcdir)/pstoedit.ph : $(srcdir)/pstoedit.pro
 	ls -l $(srcdir)/ps_pro_to_ph.awk $(srcdir)/pstoedit.p*
 	ls -ld $(srcdir)
-	awk -f $(srcdir)/ps_pro_to_ph.awk < $(srcdir)/pstoedit.pro > $(srcdir)/pstoedit.ph
+	awk -f $(srcdir)/ps_pro_to_ph.awk < $(srcdir)/pstoedit.pro > pstoedit.ph
 
 cppcheck:
 	cppcheck --inconclusive --enable=all `sh ./get_D_and_I_options.sh ${AM_CPPFLAGS}` ${SOURCES}
