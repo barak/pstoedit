@@ -1,14 +1,22 @@
 EXTRA_DIST=changelog.htm pstoedit.tex pstoedit.trans pstoedit.linux.prerequisites.md  
+#
 # Include these in dist tarball in case target does not have LaTeX (pdflatex) or latex2man.
 # See "if DOCS" conditional below, and option ./configure --enable-docs=no
 # which disables *regeneration* of docs, but not their installation.
-EXTRA_DIST += pstoedit.pdf pstoedit.htm pstoedit.1 latex2man.local latex2man.css latex2man.cfg latex2man.sty
+EXTRA_DIST += pstoedit.pdf pstoedit.htm pstoedit.1 
+
 # a local version of latex2man is included since the last released version has some issues
 # showing up when processing the pstoedit documentation.
 #
-man_MANS = pstoedit.1
+EXTRA_DIST += latex2man.local latex2man.css latex2man.cfg latex2man.sty
 
+if DOCS
+man_MANS = pstoedit.1
 doc_DATA = pstoedit.pdf pstoedit.htm changelog.htm 
+else
+man_MANS = 
+doc_DATA = changelog.htm 
+endif
 ## Unfortunately this is broken:
 #info_TEXINFOS = pstoedit.texi
 
@@ -98,5 +106,7 @@ CLEANFILES = pstoedit.ps pstoedit.pdf pstoedit.1 pstoedit.texi \
 	  pstoedit.info pstoedit.txt pstoedit.rtf generalhelplong.tex \
 	  generalhelpshort.tex driverhelp.tex
 else
+# just touch or create empty versions if do not exist yet
 alldoc :
+	touch pstoedit.pdf pstoedit.htm pstoedit.1 
 endif
