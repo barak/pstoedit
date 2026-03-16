@@ -7,7 +7,7 @@
 # Descr:	Latex -->  MAN-page (groff -man), HTML and TexInfo;
 # Language:	PERL (>= 5.0)
 # Author:	Dr. Jürgen Vollmer, Juergen.Vollmer@informatik-vollmer.de
-# $Id: latex2man,v 1.181 2018/11/25 13:05:37 vollmer Exp $
+# $Id: latex2man,v 1.185 2026/01/16 08:11:30 vollmer Exp $
 #
 # Copyright (C) 1998 Dr. Juergen Vollmer
 #                    Am Rennbuckel 21, D-76185 Karlsruhe, Germany
@@ -31,8 +31,10 @@ $CMD      = basename ($0);
 $gen_date = localtime();       # date when the output was generated
 
 sub date2str;
-$VERSION = "1.29";
-$DATE    = date2str ('$Date: 2018/11/25 13:05:37 $' =~ m|(\d+/\d+/\d+)|);
+$VERSION = "1.30";
+$DATE    = date2str ('$Date: 2026/01/16 08:11:30 $' =~ m|(\d+/\d+/\d+)|);
+
+$tmp = "/tmp/$CMD.$$";
 
 ##################################################################
 # check option and arguments
@@ -80,7 +82,7 @@ usage: latex2man [-t transfile] [-c cssfile] [-HTML] [-C name] [-h] [-V] infile 
   -h:            Help.
   -V:            Version.
 
-  Copyright (C) 1998 Dr. Jürgen Vollmer, Am Rennbuckel 21, D-76185 Karlsruhe
+  Copyright (C) 1998 Dr. Juergen Vollmer, Am Rennbuckel 21, D-76185 Karlsruhe
   email: Juergen.Vollmer@informatik-vollmer.de
   License:
     This program can be redistributed and/or modified under the terms
@@ -844,8 +846,6 @@ sub manVerbatimLine
 sub htmlStart
 {
     Print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"; NL;
-   #Print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"; 	NL;
-   #Print "<!DOCTYPE html>"; 	NL;
     Print "<!-- Manual page created with $CMD on $gen_date"; 		NL;
     Print "  ** Author of $CMD: Juergen.Vollmer\@informatik-vollmer.de";NL;
     Print "  ** NOTE: This file is generated, DO NOT EDIT. -->"; 	NL;
@@ -1077,7 +1077,8 @@ sub texiNameStart
     Print '@author ' . "$author";				NL;
     Print '@end titlepage';					NL;
     Print '\n@@INSERTION-POINT@@-TEXI-TOP@@';			NL;
-    Print '@top ' . "$name";					NL;
+#    Print '@top ' . "$name";					NL;
+    Print '@unnumbered '."$name ($chapter)";			NL;
 }
 
 sub texiNameEnd
@@ -1229,7 +1230,7 @@ sub NL
     if (!$newline) {
 	printf DEST "\n";
 	if ($texiCenterLine) {
-	    print DEST "\@center ";
+	    print DEST "\@center \@tie{}";
 	}
 	$newline = 1;
     }
@@ -2020,8 +2021,6 @@ if ($opt_t) {
 
 open (my $SRC, "<$SrcFile") || die "$CMD: Can't open file \`$SrcFile' for reading.\n";
 if ($opt_H || $opt_T) {
-    $tmp = `mktemp` || die;
-    chomp $tmp;
     # DestFile will be written in the postprocess
     open (DEST, ">$tmp")      || die "$CMD: Can't open file \`$tmp' for writing.\n";
 } else {
