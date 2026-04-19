@@ -1,3 +1,11 @@
+pstoedit (4.3-2) unstable; urgency=medium
+
+  * quilt patch to mediate GCC-16 vs autoconf 2.72 (closes: #1133609)
+    - build depend on autoconf-archive for AX_CXX_COMPILE_STDCXX
+  * bump policy
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 19 Apr 2026 09:04:53 +0100
+
 pstoedit (4.3-1) unstable; urgency=medium
 
   * New upstream release

@@ -1,6 +1,5 @@
 Source: pstoedit
 Section: graphics
-Priority: optional
 Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends: dpkg-dev (>= 1.22.5), debhelper-compat (= 13), docbook-to-man, libwmf-dev, libmagick++-dev,
  libplot-dev, libpng-dev, ghostscript,
@@ -10,9 +9,10 @@ Build-Depends: dpkg-dev (>= 1.22.5), debhelper-compat (= 13), docbook-to-man, li
  libgd-dev,
  libemf-dev [alpha amd64 arm armeb armel armhf arm64 i386 powerpc powerpcel powerpcspe ppc64 ppc64el s390 s390x sparc sparc64 x32],
  qt6-base-dev,
+ autoconf-archive,
  chrpath,
 Homepage: http://www.pstoedit.net/
-Standards-Version: 4.7.2
+Standards-Version: 4.7.4
 Vcs-Git: https://salsa.debian.org/debian/pstoedit.git
 Vcs-Browser: https://salsa.debian.org/debian/pstoedit
 
