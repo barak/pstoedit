@@ -1,10 +1,15 @@
 pstoedit (4.3-2) unstable; urgency=medium
 
-  * quilt patch to mediate GCC-16 vs autoconf 2.72 (closes: #1133609)
-    - build depend on autoconf-archive for AX_CXX_COMPILE_STDCXX
+  * quilt patches
+    - mediate GCC-16 vs autoconf 2.72 (closes: #1133609), requires build
+      dependency on autoconf-archive for AX_CXX_COMPILE_STDCXX
+    - pass through hardening linker flags in building Qt GUI app
+    - add keywords to desktop file
   * bump policy
+  * squelch build path in GUI executable
+  * add man page for GUI executable
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sun, 19 Apr 2026 09:04:53 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 19 Apr 2026 09:59:07 +0100
 
 pstoedit (4.3-1) unstable; urgency=medium
 
